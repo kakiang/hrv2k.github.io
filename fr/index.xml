@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mon Blog</title>
+    <link>https://hrv2k.github.io/fr/</link>
+    <description>Recent content on Mon Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright><atom:link href="https://hrv2k.github.io/fr/index.xml" rel="self" type="application/rss+xml" />
+  </channel>
+</rss>

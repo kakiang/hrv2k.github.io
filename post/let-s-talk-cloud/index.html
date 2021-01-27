@@ -1,0 +1,514 @@
+
+<!DOCTYPE html>
+<html lang="en" data-figures="" class="page">
+  <head>
+<title>Let&#39;s Talk Cloud | Hervé Kakiang&#39;s blog</title>
+<meta charset="utf-8">
+<meta name="generator" content="Hugo 0.80.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-150847968-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-150847968-1');
+</script>
+  
+<meta property="og:locale" content="en" />
+
+<meta property="og:type" content="article">
+<meta name="description" content="Cloud technology abstracts away all infrastructure management. What does that mean? It means that as a business, you don&#39;t have to deal with bare metal (think …">
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="">
+<meta name="twitter:title" content="Let&#39;s Talk Cloud" />
+<meta property="og:url" content="https://hrv2k.github.io/post/let-s-talk-cloud/" />
+<meta property="og:title" content="Let&#39;s Talk Cloud" />
+<meta property="og:description" content="Cloud technology abstracts away all infrastructure management. What does that mean? It means that as a business, you don&#39;t have to deal with bare metal (think …" />
+<meta property="og:image" content="https://hrv2k.github.io/images/cloud.png" />
+<link rel="apple-touch-icon" sizes="180x180" href='https://hrv2k.github.io/icons/apple-touch-icon.png'>
+<link rel="icon" type="image/png" href='https://hrv2k.github.io/icons/favicon.ico'>
+<link rel="manifest" href='https://hrv2k.github.io/icons/site.webmanifest'>
+<link rel="mask-icon" href='https://hrv2k.github.io/safari-pinned-tab.svg' color="#002538">
+<meta name="msapplication-TileColor" content="#002538">
+<meta name="theme-color" content="#002538">
+
+<link rel="canonical" href="https://hrv2k.github.io/post/let-s-talk-cloud/">
+
+    
+
+    
+    
+    <link rel="preload" href="https://hrv2k.github.io/css/styles.6113ed39bfa86e04564a58452b4b8b6c5c62bfcd03f9fbfb839e09ae7147f49e07ee953f6232364228f62f29ab08b7a6642e8785feb18ed7bb5fd1d376338484.css" integrity = "sha512-YRPtOb&#43;obgRWSlhFK0uLbFxiv80D&#43;fv7g54JrnFH9J4H7pU/YjI2Qij2LymrCLemZC6Hhf6xjte7X9HTdjOEhA==" as="style" crossorigin="anonymous">
+    <link rel="preload" href="https://hrv2k.github.io/js/bundle.min.cee36fbca464500550f3fdcee62b033060ebedabbfffa7f2961d06529ac3ffcf3c8d107e04af65ae030ed0918354da56a88baeabce9d950f354680c9fb346dde.js" as="script" integrity=
+    "sha512-zuNvvKRkUAVQ8/3O5isDMGDr7au//6fylh0GUprD/888jRB&#43;BK9lrgMO0JGDVNpWqIuuq86dlQ81RoDJ&#43;zRt3g==" crossorigin="anonymous">
+
+    
+    <link rel="stylesheet" type="text/css" href="https://hrv2k.github.io/css/styles.6113ed39bfa86e04564a58452b4b8b6c5c62bfcd03f9fbfb839e09ae7147f49e07ee953f6232364228f62f29ab08b7a6642e8785feb18ed7bb5fd1d376338484.css" integrity="sha512-YRPtOb&#43;obgRWSlhFK0uLbFxiv80D&#43;fv7g54JrnFH9J4H7pU/YjI2Qij2LymrCLemZC6Hhf6xjte7X9HTdjOEhA==" crossorigin="anonymous">
+    
+  </head>
+  
+  
+    
+  
+  <body data-code="7" data-lines="false" id="documentTop">
+
+<header class="nav_header" >
+  <nav class="nav">
+    <a href='https://hrv2k.github.io/' class="nav_brand nav_item">
+      <img src="https://hrv2k.github.io/logos/logo.png" class="logo">
+      <div class="nav_close">
+        <div>
+          <svg class="icon">
+  <use xlink:href="#open-menu"></use>
+</svg>
+          <svg class="icon">
+  <use xlink:href="#closeme"></use>
+</svg>
+        </div>
+      </div>
+    </a>
+    <div class='nav_body nav_body_left'>
+      
+      
+      
+        
+
+  <div class="nav_parent">
+    <a href="https://hrv2k.github.io/" class="nav_item">Home </a>
+  </div>
+      
+      <div class="nav_parent">
+        <a href="#" class="nav_item"></a>
+        <div class="nav_sub">
+          <span class="nav_child"></span>
+          
+          <a href="https://hrv2k.github.io/" class="nav_child nav_item">English</a>
+          
+          <a href="https://hrv2k.github.io/fr/" class="nav_child nav_item">French</a>
+          
+        </div>
+      </div>
+      
+<div class='follow'>
+  <a href="https://github.com/herve2k">
+    <svg class="icon">
+  <use xlink:href="#github"></use>
+</svg>
+  </a>
+  <a href="https://twitter.com/#">
+    <svg class="icon">
+  <use xlink:href="#twitter"></use>
+</svg>
+  </a>
+  <a href="https://www.linkedin.com/in/kakiang">
+    <svg class="icon">
+  <use xlink:href="#linkedin"></use>
+</svg>
+  </a>
+    
+  <a href="https://hrv2k.github.io/index.xml">
+    <svg class="icon">
+  <use xlink:href="#rss"></use>
+</svg>
+  </a>
+<div class="color_mode">
+  <input type="checkbox" class="color_choice" id="mode">
+</div>
+
+</div>
+
+    </div>
+  </nav>
+</header>
+
+    <main>
+  
+<div class="grid-inverse wrap content">
+  <article class="post_content">
+    <h1 class="post_title">Let&#39;s Talk Cloud</h1><div class="post_meta">
+  
+    <svg class="icon">
+  <use xlink:href="#calendar"></use>
+</svg>
+    <span class="post_date">
+      Oct 23, 2019</span>
+      <a href='https://hrv2k.github.io/tags/cloud-computing' class="post_tag button button_translucent">Cloud Computing
+      </a>
+      <a href='https://hrv2k.github.io/tags/gcp' class="post_tag button button_translucent">GCP
+      </a>
+      <a href='https://hrv2k.github.io/tags/manage-instance-groups' class="post_tag button button_translucent">Manage instance groups
+      </a>
+</div>
+
+    
+  <div class="post_share">
+    Share on:
+    <a href="https://twitter.com/intent/tweet?text=Let%27s%20Talk%20Cloud&url=https%3a%2f%2fhrv2k.github.io%2fpost%2flet-s-talk-cloud%2f&tw_p=tweetbutton" class="twitter" title="Share on Twitter" target="_blank" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#twitter"></use>
+</svg>
+    </a>
+    <a href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fhrv2k.github.io%2fpost%2flet-s-talk-cloud%2f&t=Let%27s%20Talk%20Cloud" class="facebook" title="Share on Facebook" target="_blank" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#facebook"></use>
+</svg>
+    </a>
+    <a href="#linkedinshare" id = "linkedinshare" class="linkedin" title="Share on LinkedIn" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#linkedin"></use>
+</svg>
+    </a>
+    <a href="https://hrv2k.github.io/post/let-s-talk-cloud/" title="Copy Link" class="link link_yank">
+      <svg class="icon">
+  <use xlink:href="#copy"></use>
+</svg>
+    </a>
+  </div>
+
+    
+    
+    <h2>Overview</h2>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#deployment-manager">Deployment Manager</a></li>
+    <li><a href="#networking">Networking</a></li>
+    <li><a href="#custom-machine-type">Custom machine type</a></li>
+    <li><a href="#managed-instance-group">Managed Instance Group</a></li>
+    <li><a href="#load-balancers">Load balancers</a></li>
+  </ul>
+</nav>
+    <h1 id="1-what-is-cloud-technology">1. What is Cloud technology?</h1>
+<p>Cloud technology abstracts away all infrastructure management. What does that mean? It means as a business, you don't have to deal with bare metal (think computer hardware) and anything related to it anymore.</p>
+<p>Before the advent of the cloud, you had to go to or call a hardware vendor to figure out what hardware brand to adopt, what model of hardware to buy, what is the best deal for you in terms of price, memory, cpu etc., lower-level stuff in a nutshell. You also had to think about your maximum expected load and plan for it before making any purchase. That meant buying beefy machine and not using all of its resources for most of the time. And also if your machines ran substantial workload, you had to think about cooling or your processors wouldn't work properly. Furthermore, you had to think about hardware maintenance and facility security. You may have the best software security and all of that, but if your machines are not physically well secured, you are still at risk. How much time, money, and effort do you put into making sure your infrastucture meets the demand? What is the state of your network? Does it work as expected? How do you manage your data, backups, etc. Probably you are doing all these things but they have nothing to do with your core business and to some degree it's a pain in the neck. With the advent of the cloud, you have many more optimized options and solutions.</p>
+<p>So, what cloud technology does is it takes care of all the compute, network and storage management and offers them as services. Computing has become a public utility where it's easy to get the type of service you want on demand. And you only pay for what you use. This idea of &quot;<a href="https://en.wikipedia.org/wiki/Utility_computing">computing utility</a>&quot;, or what we know as <a href="https://en.wikipedia.org/wiki/Cloud_computing">cloud computing</a>, was suggested by <a href="https://en.wikipedia.org/wiki/John_McCarthy_(computer_scientist)">John McCarthy</a> when he was speaking at the MIT Centennial in 1961,</p>
+<blockquote>
+<p>&quot;If computers of the kind I have advocated become the computers of the future, then computing may someday be organized as a public utility just as the telephone system is a public utility. Each subscriber needs to pay only for the capacity he actually uses. The computer utility could become the basis of a new and important industry&quot;.</p>
+</blockquote>
+<p>By providing computing as a service, cloud technology enables businesses to focus on their core business and use their resources to optimize for what's trully important to them. It could be customer satisfaction, employee productivity, growth, profit, etc. It's clear that cloud technology has the potential to greatly impact business operations, at least IT operations of a business. To take advantage of the features that the modern cloud technology has to offer, IT organizations or IT departments will have to think differently about how to build applications if they are to embrace the new way of doing computing. For example, cloud providers have made it possible and very simple to scale applications to handle heavy workloads. But not all applications are scalable, and not all parts of an application need scale at the same time and to the same level. That means to take advantage of the cloud technology, software developers have to consider some architectural changes. In this specific case, they have to build applications in a way that takes not only scalability into account, but also independent scalability of different services of the application.</p>
+<p>With the increasing adoption of cloud services, businesses are outsourcing the jobs of sys admin and/or DevOps engineer to cloud providers. One may think that systems administration and operation related jobs will be found solely in datacenters, because businesses will be using cloud services and won't have to deal with infrastructure management. All they will need is software engineers to build software and write deployment codes. So essentially DevOps engineers are working tirelessly to build cloud infrastructures so that there won't be DevOps jobs in entreprises in the future. That means DevOps jobs won't go away, they will just be shipped maybe entirely to data centers. According to the <a href="https://insights.stackoverflow.com/survey/2019#key-results">Stackoverflow Developer Survey 2019</a>, DevOps specialists are among the highest paid, most satisfied with their jobs. So, draw your own conclusions.</p>
+<p>It is undeniable that cloud providers have made provisioning and managing compute resources very simple, as well as deploying apps. In the next sections, I focus on the GCP.</p>
+<h1 id="2-gcp-in-a-nutshell">2. GCP in a nutshell</h1>
+<p><a href="https://cloud.google.com/">Google Cloud Platform (GCP)</a> is Google's Cloud offerings. It's a suite of products and services ranging from basic compute, storage and networking to specialized specialized services such as IoT, analytics, AI, etc. Depending on your needs, you may choose to manage the resources you provision yourself or choose to use fully managed services. Managed services are taken care of by the platform on your behalf and they are redundant, thus highly available. That means management overhead, scalability and availability issues are all managed by the GCP.
+<a href="https://cloud.google.com/security/infrastructure/design/">The whole of GCP is built on top of Google's global infrastructure</a>. It takes advantage of years of research, engineering and testing that have gone into building that infrastructure.</p>
+<p><img src="https://github.com/gregsramblings/google-cloud-4-words/blob/master/Poster-medres.png?raw=true" alt="GCP_producs"></p>
+<p>Let's geek out a bit over some GCP services.</p>
+<h1 id="3-some-gcp-products-and-services">3. Some GCP products and services</h1>
+<h2 id="deployment-manager">Deployment Manager</h2>
+<p>I find the concept of deployment manager very interesting. You declare in a config file the resources you want to create and you submit the file to <a href="https://cloud.google.com/deployment-manager/">Google Cloud deployment manager</a> and that's it; your resources or services are created and deployed. You can bring your entire infrastructure to life using a couple lines of declarative code. Hence the concept of <a href="https://en.wikipedia.org/wiki/Infrastructure_as_code">Infrastructure as Code</a>, which is a way to define in code the resources you need for your infrastructure and to use an infrastructure provisioning engine to create and configure those resources.</p>
+<p>Using deployment manager, when your deployment infrastructure gets more complex, you can create a template for each resource. For example, you can create a template for a network, a template for the firewall rules, a template for a virtual machine (VM), etc. A template can import other templates. Then all the templates are imported in a single configuration file that the deployment manager will use to create the resources specified in various templates.</p>
+<p>One of the important concepts of deployment manager, and that's true for all the Infrastructure as Code services out there, is that you don't give instructions about how your infrastructure should be built; the deployment manager figures that out by itself. You just tell it how you want your infrastructure to look like, and it makes sure the state of your infrastructure matches your intent.</p>
+<p>With the Infrastructure as Code approach, you can afford to experiment with different solutions and collect usage information to make better decisions. You can easily tweak your deployment infrastructure to best suit your requirements. As a consequence, when your infrastructure evolves, you just need to update your deployment codes to meet the demand and tell the deployment manager to make your infrastructure looks like what you have described in the code.</p>
+<h2 id="networking">Networking</h2>
+<p>Deploying a network on the GCP is actually simpler than you may think. The GCP has greatly simplified the creation of a <a href="https://cloud.google.com/vpc/docs/vpc">Virtual Private Cloud (VPC) network</a>, which is a global private network that operates on top of Google's global network infrastructure. It's the same network that Google uses to deliver its services (think Google Search, Gmail, Google Drive, etc...) to billions of users worldwide. VPC networks on the GCP are global resources. That means, you can have your virtual machines provision in Europe and Asia and all being in the same private network.</p>
+<p>When you create a project on the GCP, a default VPC network is automatically created. The default VPC contains subnets in each region. If the topology of the default VPC network doesn't meet your requirements, you can modify or delete it completely and recreate a custom network where you manually create the subnets in the regions you want your infrastructure to be deployed in. With just a couple of clicks, or a single command you have a globally operational VPC network.</p>
+<div class="highlight"><pre class="chroma"><code class="language-Bash" data-lang="Bash"><span class="ln">1</span>gcloud compute networks create my-network --subnet-mode<span class="o">=</span>custom</code></pre></div>
+<p>Using the <a href="https://console.cloud.google.com/">GCP console</a>, you can create the VPC network and its subnets at the same time. However using the command-line, it's done separately. For that, you specify in what geographic region (American regions, European regions, Asian regions) you want the subnet to be created and you specify the IP address range of the subnet as shown below.</p>
+<div class="highlight"><pre class="chroma"><code class="language-Bash" data-lang="Bash"><span class="ln">1</span>gcloud compute networks subnets create my-network-subnet-eu <span class="se">\
+</span><span class="ln">2</span><span class="se"></span> --network<span class="o">=</span>my-network --region<span class="o">=</span>europe-west1 <span class="se">\
+</span><span class="ln">3</span><span class="se"></span> --range<span class="o">=</span>10.128.0.0/20</code></pre></div>
+<p>You can create firewall rules to allow or block network traffic based on various protocols and ports to or from certain IP address ranges. It is possible to also create firewall rules that apply to a specific machine instance by using network tags. You can enable the logging of network traffic by just toggling a button.</p>
+<h2 id="custom-machine-type">Custom machine type</h2>
+<p>The same simplicity is present when you are creating virtual machine (VM) instances. You choose the machine type that best suits your workload, which is either memory intensive or CPU intensive or standard. The thing with machine type is that they are predefined. That is, the number of vCPUs and amount of memory of a given machine type are fixed. For example let's say your workload is CPU intensive and you need 20 vCPUs to accommodate it. Now guess what? There is no predefined machine type with 20 vCPUs, you'll have to go with a predefined machine type that has 32 vCPUs. So you'll be wasting money paying for 12 additional vCPUs that are not going to be used. That looks bad. Well, I should say it looked bad; because on GCP the problem is solved with <a href="https://cloud.google.com/custom-machine-types/">custom machine types</a>. Now if none of the predefined machine types properly suits your workload, you can configure your own machine type. While creating the VM you just specify the number of vCPUs and the memory size that you want your VM to have. In the GCP console, you just input these numbers. The command to create a VM that has 10 vCPUs and 30 GB of memory is the following:</p>
+<div class="highlight"><pre class="chroma"><code class="language-Bash" data-lang="Bash"><span class="ln">1</span>gcloud compute instances create my-custom-vm --custom-cpu <span class="m">10</span> <span class="se">\
+</span><span class="ln">2</span><span class="se"></span> --custom-memory <span class="m">30</span> --zone europe-west1-b</code></pre></div>
+<p>Other major cloud providers have tried to solve this problem by providing hundreds of machine types.</p>
+<p>You can resize your VM whenever you want. You just need to stop the instance, specify the new memory size and number of vCPUs, then you restart the instance.
+There are many other properties that you can specify when creating a VM. Properties such as, boot disk type, boot disk size, boot disk image, startup script, tags that can be used for firewall rules, etc. They define the VM configuration.</p>
+<h2 id="managed-instance-group">Managed Instance Group</h2>
+<p>Now, let's say in general your single VM is able to handle all your workloads. But sometimes, traffic spikes and additional VMs are needed to share the workloads. What should you do? Should you create more VMs and wait for the spike, thereby wasting money on idle instances? No. Should you wait until your single running VM reaches its capacity limit and gets knock out by the traffic before spinning up another VM, thereby causing unnecessary disruption to your business? No. You should rather use <a href="https://cloud.google.com/compute/docs/instance-groups/">Managed instance groups (MIGs)</a> and enable autoscaling and load balancing services.</p>
+<p>Essentially, MIGs are groups of identical VM instances created from the same instance template and managed by GCP. MIGs can automatically scale up or down the number of instances in a group depending on the workload size and distribute incoming network traffic across the instances. Managed instance groups also offer autohealing. Based on health checks, new instances can be provisioned to replace unresponsive instances. If an instance goes down for some reason, another one is automatically created to replace it.</p>
+<p>To create a managed instance group, you need an instance template. An instance template is a specification of a VM configuration. Since the VMs of an instance group have to be identifical, they are created with the same properties that are specified in the instance template. Here comes the best part. When you create a managed instance group, GCP manages everything for you once you've specified how you want the instance group to behave. You do that by configuring an autoscaling policy and a target utilization level.
+An autoscaling policy is basically a load metric. it can be the average or maximum CPU utilization, some monitoring metrics that you define or the maximum requests per second per instance. The target utilization level is the target load at which you want to maintain the VM instances of your managed instance group. For example, let's say your autoscaling policy is based on the average CPU utilization and you set the target utilization level at 80%. That means instances will be added to or deleted from the managed instance group to maintain the average CPU utilization around 80%. The maximum and minimum number of instances in a MIG has to be specified at its creation.</p>
+<h2 id="load-balancers">Load balancers</h2>
+<p>Since managed instance groups consist of many VM instances with different IP addresses which are generally ephemeral, there is therefore a need for a unique and stable IP address that user requests can reach. We also need to distribute traffic to the instances of the MIG. That's where load balancers come in. They provide not only a stable access point via a static public IP address that serves as a frontend for all VM instances in the instance group, but also a system to distribute network traffic among the instances.</p>
+<p>GCP has many <a href="https://cloud.google.com/load-balancing/docs/load-balancing-overview#types_of_cloud_load_balancing">types of load balancing</a>. <a href="https://cloud.google.com/load-balancing/docs/choosing-load-balancer">Choosing the right load balancer</a> is not as straightforward as creating a VM. You need to understand how they work and given your desired deployment architecture, which one will best meet your requirements. <a href="https://cloud.google.com/load-balancing/docs/">The Google Cloud documentation</a> is very extensive and goes into details about every load balancer, the different components of a load balancer and what you need to know to be able to make the make the right choice.</p>
+<p>There are 3 main axes along which GCP's load balancers can be divided. These are, source of the traffic (internal or external), destination of traffic (regional or global) and traffic type (TCP, UDP, HTTP/HTTPS, SSL).</p>
+<p>Based on the source of traffic that is forwarded, GCP's load balancers can be divided into internal and external load balancers.
+Internal load balancers distribute traffic originating from within a VPC network. Whereas external load balancers distribute traffic coming from the public internet to a VPC network.</p>
+<p>Internal load balancers are regional. That is to say they distribute traffic to backends located in one region (can be spread across multiple zones). External load balancers, on the other hand, are regional or global. Global load balancers distribute traffic among backends spread across multiple regions.</p>
+<p>GCP's load balancers can further be divided based on the supported traffic types. In other words, they operate at different layers of the OSI model.</p>
+<p>Coming back to choosing the right load balancer, there is a <a href="https://cloud.google.com/load-balancing/docs/choosing-load-balancer#flow_chart">Flow chart</a> for that.</p>
+<p><img src="https://cloud.google.com/load-balancing/images/choose-lb.svg" alt="Flowchart_choosing_LB"></p>
+<p>You need to have 3 pieces of information to effectively use the flowchart:</p>
+<ol>
+<li>
+<p>The source of the traffic that is going to be forwarded to the load balancer: Is it coming from the internet, <strong>external load balancer</strong>. Or it's coming from within your VPC network, <strong>internal load balancer</strong>.</p>
+</li>
+<li>
+<p>The location of the backends that are going to receive the traffic distributed by the load balancer: Are they in the same region, <strong>regional load balancer</strong>. Or they are spread across multiple regions, <strong>global load balancer</strong>.</p>
+</li>
+<li>
+<p>The type of traffic your load balancer must handle. Depending on 1 and 2, you may choose a <strong>tcp/udp load balancer</strong>, <strong>ssl or tcp proxy</strong> or an <strong>http/https load balancer</strong>.</p>
+</li>
+</ol>
+<p>If you want to distribute traffic coming from within your VPC network, you use internal load balancers. And since internal load balancers are regional, your backends have to be in one region.</p>
+<p>If you have to distribute HTTP(S) traffic coming from the internet, you use global HTTP(S) load balancing.</p>
+<p>If it's UDP traffic, the only option is to go with Network TCP/UDP load balancing, which is regional.</p>
+<p>But if it's TCP traffic, that's where it gets interesting. TCP traffic may be encrypted using SSL/TLS. If it's the case, you may offload the encryption/decryption work to the platform by using the SSL proxy load balancing. If you don't want to do that and still forward traffic to backends located in mutiple regions, you may use TCP proxy load balancing. But if you want to preserve client IPs, you should go with Network TCP/UDP load balancing, because all GCP's load balancers proxy connections from clients except Network TCP/UDP and Internal TCP/UDP load balancing.</p>
+<p>When using cloud products the devil is in the details, however there is nothing devilish here. For example, with respect to networking on the GCP, you have to choose between two <a href="https://cloud.google.com/network-tiers/docs/overview">Network Service Tiers</a>, Standard Tier and Premier Tier. Essentially with Premier Tier, the traffic is routed within Google's global private network as much as possible; it's fast, more secured and you pay a little bit more. With Standard Tier, the traffic exits as soon as possible and is routed over the public internet to the client; it's cheaper and ... you know ... it's the internet. So what do you need? Global availability, low latency and high-performance, then stay premium. Or you have a tight budget and prefer optimizing for cost, then go standard. You can combine the two if you have workloads with different requirements.</p>
+<p><img src="https://cloud.google.com/network-tiers/images/tiers-use-cases-icons.svg" alt="NST"></p>
+<p>The choice of a Network Service Tier affects your GCP resources including load balancers. Internal load balancers support only the Premium Tier of Network Service. But with external load balancers, you have the choice. However if you want to use global load balancing you have to opt for the Premium Tier. In any other cases, opting for Standard Tier restricts your load balancing to be regional. That's the case of HTTP(S) load balancing and TCP/SSL Proxy. In fact if you think about it, it all makes sense. With internal load balancers, the traffic is already coming from the VPC network. With global load balancers, the backends are spread across multiple regions. A great amount of traffic will be going on within Google's network, because a global load balancer sends user requests to the closest available backend. If that backend is at capacity, the traffic is sent to the next closest backend (or region). So a global load balancer uses the Premier Tier by design.</p>
+<p>I'll wrap up with one final remark. Google doesn't use hardware load balancing but a <a href="https://research.google.com/pubs/pub44824.html">software-defined network load balancer called Maglev</a>. GCP's load balancers are all software. Next time you configure a load balancer, think about that.</p>
+
+    
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hervekakiangblog" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+  </article>
+<aside class="sidebar">
+  <section class="sidebar_inner">
+    
+      <h2>Hervé Kakiang</h2>
+      <div>
+        Technologist, perpetual student, continual incremental improvement.
+      </div>
+      <a href='https://hrv2k.github.io/about/' class="button mt-1" role="button">Read More</a>
+    <h2 class="mt-4">Recent Posts</h2>
+    <ul class="flex-column">
+      <li>
+        <a href="https://hrv2k.github.io/post/a-nosql-database-with-mysql-document-store/" class="nav-link">A NoSQL Database With MySQL Document Store</a>
+      </li>
+      <li>
+        <a href="https://hrv2k.github.io/post/deploy-a-flask-mysql-app-to-gce-using-deployment-manager/" class="nav-link">Deploy a Flask &#43; MySQL App to GCE Using Deployment Manager</a>
+      </li>
+      <li>
+        <a href="https://hrv2k.github.io/post/migrate-your-mysql-database-to-google-cloud-sql-over-ssl-tls-encrypted-connection-with-minimal-downtime/" class="nav-link">Migrate Your MySQL Database to Google Cloud SQL over SSL/TLS Encrypted Connections With Minimal Downtime</a>
+      </li>
+    </ul>
+    <div>
+      <h2 class="mt-4 taxonomy" id="tags-section">Tags</h2>
+      <nav class="tags_nav">
+        <a href='https://hrv2k.github.io/tags/gcp/' class="post_tag button button_translucent">
+          GCP
+          <span class="button_tally">10</span>
+        </a>
+        
+        <a href='https://hrv2k.github.io/tags/cloud-computing/' class="post_tag button button_translucent">
+          CLOUD-COMPUTING
+          <span class="button_tally">9</span>
+        </a>
+        
+        <a href='https://hrv2k.github.io/tags/cloud-build/' class="post_tag button button_translucent">
+          CLOUD-BUILD
+          <span class="button_tally">3</span>
+        </a>
+        
+        <a href='https://hrv2k.github.io/tags/cloud-run/' class="post_tag button button_translucent">
+          CLOUD-RUN
+          <span class="button_tally">3</span>
+        </a>
+        
+        <a href='https://hrv2k.github.io/tags/cloud-functions/' class="post_tag button button_translucent">
+          CLOUD-FUNCTIONS
+          <span class="button_tally">2</span>
+        </a>
+        
+        <a href='https://hrv2k.github.io/tags/cloud-scheduler/' class="post_tag button button_translucent">
+          CLOUD-SCHEDULER
+          <span class="button_tally">2</span>
+        </a>
+        
+        <a href='https://hrv2k.github.io/tags/build-triggers/' class="post_tag button button_translucent">
+          BUILD-TRIGGERS
+          <span class="button_tally">1</span>
+        </a>
+        
+        
+        <br>
+        <div class="post_tags_toggle button">All Tags</div>
+        <div class="post_tags">
+          <div class="tags_list">
+            
+            <a href='https://hrv2k.github.io/tags/build-triggers/' class=" post_tag button button_translucent" data-position=1>BUILD-TRIGGERS<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/ci/cd/' class=" post_tag button button_translucent" data-position=1>CI/CD<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-bigtable/' class=" post_tag button button_translucent" data-position=1>CLOUD-BIGTABLE<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-build/' class=" post_tag button button_translucent" data-position=3>CLOUD-BUILD<span class="button_tally">3</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-computing/' class=" post_tag button button_translucent" data-position=9>CLOUD-COMPUTING<span class="button_tally">9</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-functions/' class=" post_tag button button_translucent" data-position=2>CLOUD-FUNCTIONS<span class="button_tally">2</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-kms/' class=" post_tag button button_translucent" data-position=1>CLOUD-KMS<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-run/' class=" post_tag button button_translucent" data-position=3>CLOUD-RUN<span class="button_tally">3</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-scheduler/' class=" post_tag button button_translucent" data-position=2>CLOUD-SCHEDULER<span class="button_tally">2</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-spanner/' class=" post_tag button button_translucent" data-position=1>CLOUD-SPANNER<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/cloud-sql/' class=" post_tag button button_translucent" data-position=1>CLOUD-SQL<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/computing/' class=" post_tag button button_translucent" data-position=1>COMPUTING<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/custom-domain/' class=" post_tag button button_translucent" data-position=1>CUSTOM-DOMAIN<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/database-migration/' class=" post_tag button button_translucent" data-position=1>DATABASE-MIGRATION<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/deployment-manager/' class=" post_tag button button_translucent" data-position=1>DEPLOYMENT-MANAGER<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/encryption/' class=" post_tag button button_translucent" data-position=1>ENCRYPTION<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/gcp/' class=" post_tag button button_translucent" data-position=10>GCP<span class="button_tally">10</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/github/' class=" post_tag button button_translucent" data-position=1>GITHUB<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/iac/' class=" post_tag button button_translucent" data-position=1>IAC<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/manage-instance-groups/' class=" post_tag button button_translucent" data-position=1>MANAGE-INSTANCE-GROUPS<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/mysql/' class=" post_tag button button_translucent" data-position=1>MYSQL<span class="button_tally">1</span>
+            </a>
+            
+            <div class="tags_sort"><span title="sort alphabetically">[A~Z]</span><span title="sort by count">[0~9]</span>
+            </div>
+            <span class="tags_hide"><svg class="icon">
+            <use xlink:href="#closeme"></use>
+          </svg></span>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </section>
+</aside>
+
+</div>
+    </main><svg width="0" height="0" class="hidden">
+  <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="facebook">
+    <path d="M437 0H75C33.648 0 0 33.648 0 75v362c0 41.352 33.648 75 75 75h151V331h-60v-90h60v-61c0-49.629 40.371-90 90-90h91v90h-91v61h91l-15 90h-76v181h121c41.352 0 75-33.648 75-75V75c0-41.352-33.648-75-75-75zm0 0"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18.001 18.001" id="twitter">
+    <path d="M15.891 4.013c.808-.496 1.343-1.173 1.605-2.034a8.68 8.68 0 0 1-2.351.861c-.703-.756-1.593-1.14-2.66-1.14-1.043 0-1.924.366-2.643 1.078a3.56 3.56 0 0 0-1.076 2.605c0 .309.039.585.117.819-3.076-.105-5.622-1.381-7.628-3.837-.34.601-.51 1.213-.51 1.846 0 1.301.549 2.332 1.645 3.089-.625-.053-1.176-.211-1.645-.47 0 .929.273 1.705.82 2.388a3.623 3.623 0 0 0 2.115 1.291c-.312.08-.641.118-.979.118-.312 0-.533-.026-.664-.083.23.757.664 1.371 1.291 1.841a3.652 3.652 0 0 0 2.152.743C4.148 14.173 2.625 14.69.902 14.69c-.422 0-.721-.006-.902-.038 1.697 1.102 3.586 1.649 5.676 1.649 2.139 0 4.029-.542 5.674-1.626 1.645-1.078 2.859-2.408 3.639-3.974a10.77 10.77 0 0 0 1.172-4.892v-.468a7.788 7.788 0 0 0 1.84-1.921 8.142 8.142 0 0 1-2.11.593z"
+      ></path>
+  </symbol>
+  <symbol aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="mail">
+    <path  d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="calendar">
+    <path d="M452 40h-24V0h-40v40H124V0H84v40H60C26.916 40 0 66.916 0 100v352c0 33.084 26.916 60 60 60h392c33.084 0 60-26.916 60-60V100c0-33.084-26.916-60-60-60zm20 412c0 11.028-8.972 20-20 20H60c-11.028 0-20-8.972-20-20V188h432v264zm0-304H40v-48c0-11.028 8.972-20 20-20h24v40h40V80h264v40h40V80h24c11.028 0 20 8.972 20 20v48z"></path>
+    <path d="M76 230h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zM76 310h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zM76 390h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zm80-80h40v40h-40z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="github">
+    <path d="M255.968 5.329C114.624 5.329 0 120.401 0 262.353c0 113.536 73.344 209.856 175.104 243.872 12.8 2.368 17.472-5.568 17.472-12.384 0-6.112-.224-22.272-.352-43.712-71.2 15.52-86.24-34.464-86.24-34.464-11.616-29.696-28.416-37.6-28.416-37.6-23.264-15.936 1.728-15.616 1.728-15.616 25.696 1.824 39.2 26.496 39.2 26.496 22.848 39.264 59.936 27.936 74.528 21.344 2.304-16.608 8.928-27.936 16.256-34.368-56.832-6.496-116.608-28.544-116.608-127.008 0-28.064 9.984-51.008 26.368-68.992-2.656-6.496-11.424-32.64 2.496-68 0 0 21.504-6.912 70.4 26.336 20.416-5.696 42.304-8.544 64.096-8.64 21.728.128 43.648 2.944 64.096 8.672 48.864-33.248 70.336-26.336 70.336-26.336 13.952 35.392 5.184 61.504 2.56 68 16.416 17.984 26.304 40.928 26.304 68.992 0 98.72-59.84 120.448-116.864 126.816 9.184 7.936 17.376 23.616 17.376 47.584 0 34.368-.32 62.08-.32 70.496 0 6.88 4.608 14.88 17.6 12.352C438.72 472.145 512 375.857 512 262.353 512 120.401 397.376 5.329 255.968 5.329z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 212 212" id="gitlab">
+    <path d="M12.3 74.7h54L43.3 3c-1-3.6-6.4-3.6-7.6 0L12.3 74.8z" />
+    <path d="M12.3 74.7L.5 111c-1 3.2 0 6.8 3 8.8l101.6 74-92.5-119z"/>
+    <path d="M105 193.7l-38.6-119h-54l92.7 119z"/>
+    <path d="M105 193.7l38.7-119H66.4l38.7 119z"/>
+    <path d="M105 193.7l38.7-119H198l-93 119z"/>
+    <path d="M198 74.7l11.6 36.2c1 3 0 6.6-3 8.6l-101.5 74 93-119z"/>
+    <path d="M198 74.7h-54.3L167 3c1.2-3.6 6.4-3.6 7.6 0L198 74.8z"/> 
+  </symbol>
+  <symbol viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="rss">
+    <circle cx="3.429" cy="20.571" r="3.429"></circle>
+    <path d="M11.429 24h4.57C15.999 15.179 8.821 8.001 0 8v4.572c6.302.001 11.429 5.126 11.429 11.428z"></path>
+    <path d="M24 24C24 10.766 13.234 0 0 0v4.571c10.714 0 19.43 8.714 19.43 19.429z"></path>
+  </symbol>
+  <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="linkedin">
+    <path d="M437 0H75C33.648 0 0 33.648 0 75v362c0 41.352 33.648 75 75 75h362c41.352 0 75-33.648 75-75V75c0-41.352-33.648-75-75-75zM181 406h-60V196h60zm0-240h-60v-60h60zm210 240h-60V286c0-16.54-13.46-30-30-30s-30 13.46-30 30v120h-60V196h60v11.309C286.719 202.422 296.93 196 316 196c40.691.043 75 36.547 75 79.688zm0 0"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 612" id="arrow">
+    <path d="M604.501 440.509L325.398 134.956c-5.331-5.357-12.423-7.627-19.386-7.27-6.989-.357-14.056 1.913-19.387 7.27L7.499 440.509c-9.999 10.024-9.999 26.298 0 36.323s26.223 10.024 36.222 0l262.293-287.164L568.28 476.832c9.999 10.024 26.222 10.024 36.221 0 9.999-10.023 9.999-26.298 0-36.323z"></path>
+  </symbol>
+  <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="carly">
+    <path d="M504.971 239.029L448 182.059V84c0-46.317-37.682-84-84-84h-44c-13.255 0-24 10.745-24 24s10.745 24 24 24h44c19.851 0 36 16.149 36 36v108c0 6.365 2.529 12.47 7.029 16.971L454.059 256l-47.029 47.029A24.002 24.002 0 0 0 400 320v108c0 19.851-16.149 36-36 36h-44c-13.255 0-24 10.745-24 24s10.745 24 24 24h44c46.318 0 84-37.683 84-84v-98.059l56.971-56.971c9.372-9.372 9.372-24.568 0-33.941zM112 192V84c0-19.851 16.149-36 36-36h44c13.255 0 24-10.745 24-24S205.255 0 192 0h-44c-46.318 0-84 37.683-84 84v98.059l-56.971 56.97c-9.373 9.373-9.373 24.568 0 33.941L64 329.941V428c0 46.317 37.682 84 84 84h44c13.255 0 24-10.745 24-24s-10.745-24-24-24h-44c-19.851 0-36-16.149-36-36V320c0-6.365-2.529-12.47-7.029-16.971L57.941 256l47.029-47.029A24.002 24.002 0 0 0 112 192z"></path>
+  </symbol>
+  <symbol viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="copy">
+    <path d="M23 2.75A2.75 2.75 0 0 0 20.25 0H8.75A2.75 2.75 0 0 0 6 2.75v13.5A2.75 2.75 0 0 0 8.75 19h11.5A2.75 2.75 0 0 0 23 16.25zM18.25 14.5h-7.5a.75.75 0 0 1 0-1.5h7.5a.75.75 0 0 1 0 1.5zm0-3h-7.5a.75.75 0 0 1 0-1.5h7.5a.75.75 0 0 1 0 1.5zm0-3h-7.5a.75.75 0 0 1 0-1.5h7.5a.75.75 0 0 1 0 1.5z"></path>
+    <path d="M8.75 20.5a4.255 4.255 0 0 1-4.25-4.25V2.75c0-.086.02-.166.025-.25H3.75A2.752 2.752 0 0 0 1 5.25v16A2.752 2.752 0 0 0 3.75 24h12a2.752 2.752 0 0 0 2.75-2.75v-.75z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.001 512.001" id="closeme">
+    <path d="M284.286 256.002L506.143 34.144c7.811-7.811 7.811-20.475 0-28.285-7.811-7.81-20.475-7.811-28.285 0L256 227.717 34.143 5.859c-7.811-7.811-20.475-7.811-28.285 0-7.81 7.811-7.811 20.475 0 28.285l221.857 221.857L5.858 477.859c-7.811 7.811-7.811 20.475 0 28.285a19.938 19.938 0 0 0 14.143 5.857 19.94 19.94 0 0 0 14.143-5.857L256 284.287l221.857 221.857c3.905 3.905 9.024 5.857 14.143 5.857s10.237-1.952 14.143-5.857c7.811-7.811 7.811-20.475 0-28.285L284.286 256.002z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="open-menu">
+    <path d="M492 236H20c-11.046 0-20 8.954-20 20s8.954 20 20 20h472c11.046 0 20-8.954 20-20s-8.954-20-20-20zm0-160H20C8.954 76 0 84.954 0 96s8.954 20 20 20h472c11.046 0 20-8.954 20-20s-8.954-20-20-20zm0 320H20c-11.046 0-20 8.954-20 20s8.954 20 20 20h472c11.046 0 20-8.954 20-20s-8.954-20-20-20z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="instagram">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id=youtube>
+    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="stackoverflow">
+    <path d="M21 27v-8h3v11H0V19h3v8h18z"></path><path d="M17.1.2L15 1.8l7.9 10.6 2.1-1.6L17.1.2zm3.7 14.7L10.6 6.4l1.7-2 10.2 8.5-1.7 2zM7.2 12.3l12 5.6 1.1-2.4-12-5.6-1.1 2.4zm-1.8 6.8l13.56 1.96.17-2.38-13.26-2.55-.47 2.97zM19 25H5v-3h14v3z"></path>
+  </symbol>
+</svg>
+
+<footer class="footer">
+  <div class="footer_inner wrap pale">
+    <img src='https://hrv2k.github.io/images/logo.png' class="icon icon_2 transparent">
+    <p>Copyright 2020-<span class="year"></span> HERVÉ KAKIANG&#39;S BLOG. All Rights Reserved</p><a class="to_top" href="#documentTop">
+  <svg class="icon">
+  <use xlink:href="#arrow"></use>
+</svg>
+</a>
+
+  </div>
+</footer>
+
+    <script type="text/javascript" src="https://hrv2k.github.io/js/bundle.min.cee36fbca464500550f3fdcee62b033060ebedabbfffa7f2961d06529ac3ffcf3c8d107e04af65ae030ed0918354da56a88baeabce9d950f354680c9fb346dde.js" integrity="sha512-zuNvvKRkUAVQ8/3O5isDMGDr7au//6fylh0GUprD/888jRB&#43;BK9lrgMO0JGDVNpWqIuuq86dlQ81RoDJ&#43;zRt3g==" crossorigin="anonymous"></script>
+    
+  </body>
+</html>

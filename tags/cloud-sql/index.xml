@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cloud SQL on Hervé Kakiang&#39;s blog</title>
+    <link>https://hrv2k.github.io/tags/cloud-sql/</link>
+    <description>Recent content in Cloud SQL on Hervé Kakiang&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright>
+    <lastBuildDate>Mon, 17 Feb 2020 08:50:19 +0000</lastBuildDate><atom:link href="https://hrv2k.github.io/tags/cloud-sql/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Migrate Your MySQL Database to Google Cloud SQL over SSL/TLS Encrypted Connections With Minimal Downtime</title>
+      <link>https://hrv2k.github.io/post/migrate-your-mysql-database-to-google-cloud-sql-over-ssl-tls-encrypted-connection-with-minimal-downtime/</link>
+      <pubDate>Mon, 17 Feb 2020 08:50:19 +0000</pubDate>
+      
+      <guid>https://hrv2k.github.io/post/migrate-your-mysql-database-to-google-cloud-sql-over-ssl-tls-encrypted-connection-with-minimal-downtime/</guid>
+      <description>
+        
+          &lt;p&gt;The following is a step-by-step walkthrough of how to migrate a MySQL
+database to Google Cloud SQL.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://cloud.google.com/sql&#34;&gt;Google Cloud SQL&lt;/a&gt; is a Database as a
+Service (DBaaS) that enables you to create, configure, and manage
+relational databases on the Google Cloud Platform (GCP). This service
+manages and maintains your databases, thereby letting you focus on your
+applications and services.&lt;/p&gt;
+&lt;p&gt;With Google Cloud SQL, it&#39;s relatively easy to move your database between
+an external, self-managed server and the cloud with minimal downtime. With
+the capability to easily move data in and out of Cloud SQL, you can quickly
+leverage your existing database on Google Cloud. So in this post, you are
+going to migrate an external MySQL database to Google Cloud SQL.&lt;/p&gt;
+&lt;p&gt;MySQL has two features that can serve as the basis for
+&lt;a href=&#34;https://cloud.google.com/solutions/migrating-mysql-to-cloudsql-concept/&#34;&gt;migration strategies&lt;/a&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;The MySQL &lt;code&gt;mysqldump&lt;/code&gt; command enables &lt;a href=&#34;https://cloud.google.com/solutions/migrating-mysql-to-cloudsql-concept/#exportimport_migration&#34;&gt;export/import migration&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;MySQL Replication enables &lt;a href=&#34;https://cloud.google.com/solutions/migrating-mysql-to-cloudsql-concept/#external_replica_promotion_migration&#34;&gt;External replica promotion migration&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The export/import migration involves the following high-level steps:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Stop the external database instance.&lt;/li&gt;
+&lt;li&gt;Export all of the data in the external database by using the MySQL &lt;code&gt;mysqldump&lt;/code&gt; command.&lt;/li&gt;
+&lt;li&gt;Import the data directly to a Cloud SQL database instance.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The export/import migration strategy consists of a simple process but it
+requires database downtime for the entire migration process, which can
+take a while depending on the size of your database.&lt;/p&gt;
+&lt;p&gt;On the other hand, the external replica promotion migration strategy involves the
+&lt;a href=&#34;https://cloud.google.com/sql/docs/mysql/migrate-data#migrating-to-sql&#34;&gt;following steps&lt;/a&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Configuring your external database server to meet &lt;a href=&#34;https://cloud.google.com/sql/docs/mysql/replication/replication-from-external#server-requirements&#34;&gt;the requirements for Cloud SQL replication&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Creating a Cloud SQL replica for your external database server.&lt;/li&gt;
+&lt;li&gt;Taking your applications offline and updating them to point to the replica after the data is synchronized.&lt;/li&gt;
+&lt;li&gt;Promoting the replica to a stand-alone instance&lt;/li&gt;
+&lt;li&gt;Restarting your applications&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Many of the steps of this migration can be performed using the Cloud SQL
+automated migration workflow, which causes minimal database downtime
+compared to the export/import migration.&lt;/p&gt;
+&lt;p&gt;When performing a migration, you want to lower the risk of migration
+failure and minimize database downtime related to the database migration.
+The external replica promotion migration with the automated migration
+workflow appears to be the migration strategy that can help you reach
+these objectives.
+Let&#39;s do precisely that in this post. We will provision a VM instance on
+Google Compute Engine (GCE) and deploy a MySQL database on it to simulate
+the external server.&lt;/p&gt;
+&lt;h2 id=&#34;gcp-setup&#34;&gt;GCP Setup&lt;/h2&gt;
+&lt;p&gt;You need to complete the following steps before you begin&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;As it is always the case, before you create/manage resources on the GCP,
+you need to &lt;a href=&#34;https://console.cloud.google.com/projectselector2/home/dashboard&#34;&gt;select or create&lt;/a&gt;
+a Google Cloud project.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Then &lt;a href=&#34;https://cloud.google.com/billing/docs/how-to/modify-project&#34;&gt;enable billing&lt;/a&gt;
+for the Cloud project because the components you are going to use, Cloud SQL
+and Compute Engine, are billable components.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://console.cloud.google.com/flows/enableapi?apiid=compute.googleapis.com,sql-component.googleapis.com&#34;&gt;Enable the Compute Engine and Cloud SQL APIs&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Install and authenticate the &lt;a href=&#34;https://cloud.google.com/sdk/downloads&#34;&gt;gcloud command-line tool&lt;/a&gt;,
+or use &lt;a href=&#34;https://console.cloud.google.com/?cloudshell=true&#34;&gt;Cloud Shell&lt;/a&gt;
+to create and control your GCP resources.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;create-a-vm-instance-to-simulate-your-external-mysql-server&#34;&gt;Create a VM instance to simulate your external MySQL server&lt;/h2&gt;
+&lt;p&gt;200 rows in the &lt;code&gt;actor&lt;/code&gt; table in the &lt;code&gt;sakila&lt;/code&gt; database on the external MySQL&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Create a VM instance:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud compute instances create external-mysql-server &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;       --zone&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;us-central1-a --preemptible --tags&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mysql-server &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;       --scopes storage-rw,service-control,service-management,&lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;       logging-write,monitoring-write,trace&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Create a firewall rule to allow external traffic to the MySQL server:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud compute firewall-rules create mysql-firewall &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;     --allow tcp:3306 &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;     --target-tags mysql-server&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;deploy-a-mysql-database-on-the-vm-instance&#34;&gt;Deploy a MySQL database on the VM instance&lt;/h2&gt;
+&lt;p&gt;In the Cloud Console, &lt;a href=&#34;https://console.cloud.google.com/compute/instances&#34;&gt;go to the VM Instances page&lt;/a&gt;,
+then click on the SSH  button in the row of the instance that you just
+created. A window opens and gives you command-line access to your VM.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/ssh_button.png&#34; alt=&#34;Connect to the VM using SSH&#34;&gt;
+Once you have had access to the VM instance, use the
+&lt;a href=&#34;https://dev.mysql.com/doc/mysql-apt-repo-quick-guide/en/&#34;&gt;MySQL APT Repository to install MySQL&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;First, download &lt;a href=&#34;https://dev.mysql.com/downloads/repo/apt/&#34;&gt;the release package&lt;/a&gt;
+for your distribution:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;wget https://dev.mysql.com/get/mysql-apt-config_0.8.14-1_all.deb&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Then, install the downloaded release package:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo dpkg -i mysql-apt-config_0.8.14-1_all.deb&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;During the installation of the package, you are asked to choose the
+version of the MySQL server you want to install. Select &lt;code&gt;mysql-5.7&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/mysql_version.png&#34; alt=&#34;Choose the MySQL version&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Select &lt;strong&gt;Ok&lt;/strong&gt; to finish the configuration and installation of the release package.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/mysql_version_ok.png&#34; alt=&#34;Choose Ok to finish&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Update the list of packages:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo apt update&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Install MySQL:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo apt install mysql-server&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;During the installation, you are asked to provide a password for the
+MySQL root user:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/mysql_pass.png&#34; alt=&#34;Set password for Mysql root user&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Once the installation completes successfully, the MySQL server starts
+automatically. You can check its status using the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo service mysql status&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The output looks similar to this:
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/mysql_status.png&#34; alt=&#34;MySQL server status&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;create-and-populate-a-sample-database-for-demo-purposes&#34;&gt;Create and populate a sample database for demo purposes&lt;/h2&gt;
+&lt;p&gt;If you have a database ready to follow along with, you can skip this
+section. Otherwise, you can use &lt;a href=&#34;https://dev.mysql.com/doc/sakila/en/&#34;&gt;the Sakila sample database&lt;/a&gt;.
+The Sakila sample database is representative of real-world databases,
+that&#39;s because it highlights features of MySQL such as Views, Stored
+Procedures and Triggers, and even spatial-aware location column for
+MySQL 5.7.5 and higher.&lt;/p&gt;
+&lt;p&gt;In the VM instance terminal, download the Sakila database:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;wget https://downloads.mysql.com/docs/sakila-db.tar.gz&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Unzip it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;tar -zxvf sakila-db.tar.gz&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The output looks something similar to this...
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/untarsakila.png&#34; alt=&#34;untar sakila&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;sakila-schema.sql&lt;/code&gt; file contains all the statements required to
+create the database structure. The &lt;code&gt;sakila-data.sql&lt;/code&gt; file contains the
+INSERT statements. The &lt;code&gt;sakila.mwb&lt;/code&gt; file is a MySQL Workbench data model.&lt;/p&gt;
+&lt;p&gt;Connect to the MySQL server using the mysql command-line client, enter
+your password when prompted:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mysql -u root -p&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then execute the &lt;code&gt;sakila-schema.sql&lt;/code&gt; script to create the database structure:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;SOURCE&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HOME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sakila&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;db&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sakila&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;schema&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;sql&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And execute the &lt;code&gt;sakila-data.sql&lt;/code&gt; script to populate the database.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;SOURCE&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HOME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sakila&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;db&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sakila&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;sql&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Confirm that the database has been created and populated correctly by
+executing the following statements:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;USE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sakila&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SHOW&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;FULL&lt;/span&gt; &lt;span class=&#34;kp&#34;&gt;TABLES&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The output looks like this:
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/show_sakila1.png&#34; alt=&#34;show sakila&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Run the following query to count the rows in the &lt;code&gt;actor&lt;/code&gt; table:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;COUNT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;actor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;The output looks like this:
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/exec_select_external.png&#34; alt=&#34;Query sakila actor table&#34;&gt;
+200 rows in the &lt;code&gt;actor&lt;/code&gt; table in the &lt;code&gt;sakila&lt;/code&gt; database on the external MySQL
+server. Take note of this result, you&#39;ll later compare it to the number
+of rows in the &lt;code&gt;actor&lt;/code&gt; table in the replicated database.&lt;/p&gt;
+&lt;h2 id=&#34;prepare-your-mysql-database-server-for-migration&#34;&gt;Prepare your MySQL database server for migration&lt;/h2&gt;
+&lt;p&gt;There are &lt;a href=&#34;https://cloud.google.com/sql/docs/mysql/replication/replication-from-external#server-requirements&#34;&gt;configuration prerequisites&lt;/a&gt;
+that your external MySQL database server must meet before you can use the
+automated migration workflow to migrate to Cloud SQL.&lt;/p&gt;
+&lt;p&gt;Let&#39;s check these Cloud SQL migration prerequisites one by one:&lt;/p&gt;
+&lt;p&gt;First of all, you have to set the &lt;code&gt;server_id&lt;/code&gt;. The &lt;code&gt;server_id&lt;/code&gt; must be
+specified on each server, i.e. the master server and each slave server.
+It has to be in the range from 1 to 2^32 − 1 and must be unique.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;server-id = 2&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/mysql/mysql.conf.d/mysqld.cnf&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&#34;1-running-mysql-community-edition-version-56-or-57&#34;&gt;1. Running MySQL Community Edition, version 5.6 or 5.7&lt;/h3&gt;
+&lt;p&gt;Confirm that you&#39;ve installed the required version, which is MySQL
+Community Edition version 5.6 or 5.7, by logging in to MySQL
+server.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mysql -u root -p&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then enter the MySQL root user password that you set during the installation.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/mysql_version_check.png&#34; alt=&#34;MySQL server version&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;2-binary-logs-enabled&#34;&gt;2. Binary logs enabled&lt;/h3&gt;
+&lt;p&gt;With MySQL replication, one or more MySQL database servers (the slaves)
+copy data from a MySQL database server (the master).
+For replication to work, events regarding how the database has changed
+have to be recorded in the master&#39;s binary log, then the slaves read and
+processed them.&lt;/p&gt;
+&lt;p&gt;In the MySQL configuration file &lt;code&gt;/etc/mysql/mysql.conf.d/mysqld.cnf&lt;/code&gt;, enable
+&lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/replication-options-binary-log.html&#34;&gt;binary logging&lt;/a&gt;
+and set the filename the database will use
+to store the logs in to &lt;code&gt;mysql-bin&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;log-bin = mysql-bin&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/mysql/mysql.conf.d/mysqld.cnf&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&#34;3-using-row-based-binary-logging&#34;&gt;3. Using row-based binary logging.&lt;/h3&gt;
+&lt;p&gt;Replication can be done using statement-based binary logging or row-based
+logging or both. In MySQL 5.7.7 and later, row-based format is the default.
+If you are using an earlier version, run the following command to
+set the binary logging format to &lt;code&gt;ROW&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;binlog-format = ROW&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/mysql/mysql.conf.d/mysqld.cnf&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&#34;4-gtid-enabled-and-gtid-consistency-enforced&#34;&gt;4. GTID enabled, and GTID consistency enforced.&lt;/h3&gt;
+&lt;p&gt;A &lt;a href=&#34;http://dev.mysql.com/doc/refman/5.7/en/replication-gtids-concepts.html&#34;&gt;global transaction identifier&lt;/a&gt;
+(GTID) is a unique identifier created and associated with each database
+change (DDL or DML) that is written to the binary log. With GTID enables,
+the replication is completely transaction-based, making it simple to
+synchronize masters and slaves, since it comes done whether or not all
+transactions committed on a master are also committed on a slave. However
+&lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/replication-options-gtids.html#sysvar_enforce_gtid_consistency&#34;&gt;when GTID is enabled, operations that violate GTID consistency are not allowed&lt;/a&gt;.
+MySQL &lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/replication-gtids-restrictions.html&#34;&gt;restricts&lt;/a&gt;
+those operations to ensure a consistent replication process.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo -s
+&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;gtid_mode = ON&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/mysql/mysql.conf.d/mysqld.cnf
+&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;enforce-gtid-consistency = TRUE&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/mysql/mysql.conf.d/mysqld.cnf
+&lt;span class=&#34;ln&#34;&gt;4&lt;/span&gt;exit&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&#34;5-all-tables-except-tables-in-system-databases-use-the-innodb-storage-engine&#34;&gt;5. All tables (except tables in system databases) use the InnoDB storage engine.&lt;/h3&gt;
+&lt;p&gt;Connect to your MySQL database as the root user on the Compute Engine VM
+and run this command to make sure that all the tables in your database
+are using &lt;code&gt;InnoDB&lt;/code&gt; storage engine; enter the MySQL root password when
+prompted:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mysql -u root -p sakila &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;     -e &lt;span class=&#34;s2&#34;&gt;&amp;#34;SHOW TABLE STATUS WHERE Engine != &amp;#39;InnoDB&amp;#39; \G&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If this command returns an empty result, you are good to go, all your
+tables are using the &lt;code&gt;InnoDB&lt;/code&gt; storage engine. But if the command returns
+a list of tables, those are probably using &lt;code&gt;MyISAM&lt;/code&gt; storage engine. You
+have to &lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html#innodb-convert-convert&#34;&gt;convert them to InnoDB&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;6-mysql-user-account-with-the-replication_slave-privilege&#34;&gt;6. MySQL user account with the REPLICATION_SLAVE privilege.&lt;/h3&gt;
+&lt;p&gt;There must be a user account on the your external MySQL server (master)
+that the Cloud SQL replica instance (slave) can use to connect. The account has
+to be granted the &lt;code&gt;REPLICATION SLAVE&lt;/code&gt; privilege.
+Connect to your MySQL database as the root user, enter the MySQL root
+password when you prompted:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mysql -u root -p&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then create the MySQL replication user:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;CREATE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;USER&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;repl&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;@&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;%&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;IDENTIFIED&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;BY&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;replpassword&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And grant it &lt;code&gt;REPLICATION SLAVE&lt;/code&gt; privilege.
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;GRANT&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;REPLICATION&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;SLAVE&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;ON&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;TO&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;repl&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;@&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;%&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;This replication user can connect from any host, you will
+restrict the connections to only Cloud SQL read replica
+&lt;strong&gt;outgoing IP address&lt;/strong&gt; in a later step.&lt;/p&gt;
+&lt;p&gt;You have to configure the external MySQL server to allow external
+connections. This is done by changing the &lt;code&gt;bind-address&lt;/code&gt; entry in the
+MySQL configuration file.&lt;/p&gt;
+&lt;p&gt;In the external MySQL server, run the following command in the terminal:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo sed -i &lt;span class=&#34;s1&#34;&gt;&amp;#39;s/bind-address.*/bind-address = 0.0.0.0/&amp;#39;&lt;/span&gt; /etc/mysql/mysql.conf.d/mysqld.cnf&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;At this point, you need to restart your MySQL server for the new
+configurations to take effect:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo service mysql restart&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&#34;7-an-externally-accessible-ipv4-address-and-tcp-port&#34;&gt;7. An externally accessible IPv4 address and TCP port.&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://console.cloud.google.com/compute/instances&#34;&gt;Go to the VM Instances page&lt;/a&gt;
+and note the external IP address of your MySQL server.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/mysql_server_ip.png&#34; alt=&#34;MySQL server ip&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;8-ssltls-configuration-optional-but-recommended&#34;&gt;8. SSL/TLS configuration (optional but recommended)&lt;/h3&gt;
+&lt;p&gt;You can use &lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/creating-ssl-rsa-files-using-mysql.html&#34;&gt;mysql_ssl_rsa_setup&lt;/a&gt;
+to create the SSL certificate and key files to support secure connections
+between the external MySQL server and the Cloud SQL read replica.
+&lt;code&gt;mysql_ssl_rsa_setup&lt;/code&gt; uses &lt;code&gt;openssl&lt;/code&gt;, so you need to
+have it installed on your server before you can use &lt;code&gt;mysql_ssl_rsa_setup&lt;/code&gt;.
+Run the following command to generate the SSL files:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo mysql_ssl_rsa_setup --verbose&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If the SSL files have already been generated by MySQL and are present in
+the data directory for SSL files ( &lt;code&gt;/var/lib/mysql&lt;/code&gt;), &lt;code&gt;mysql_ssl_rsa_setup&lt;/code&gt;
+creates nothing. Otherwise, it creates the files.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/ssl_generation.png&#34; alt=&#34;Generate ssl files&#34;&gt;
+You will use these files to enable Cloud SQL to use SSL/TLS encryption
+for the replication connection.&lt;/p&gt;
+&lt;h2 id=&#34;replication-configuration-process&#34;&gt;Replication configuration process&lt;/h2&gt;
+&lt;p&gt;Having your external MySQL server met the requirements for replication
+to Cloud SQL, you can now move on to the replication process. You will
+perform the following steps in this process:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Create a Cloud Storage bucket.&lt;/li&gt;
+&lt;li&gt;Use &lt;code&gt;mysqldump&lt;/code&gt; to backup of the external database.&lt;/li&gt;
+&lt;li&gt;Copy the dump file to the Cloud Storage bucket.&lt;/li&gt;
+&lt;li&gt;Create Cloud SQL read replica of your external MySQL server,
+&lt;ul&gt;
+&lt;li&gt;Configure Cloud SQL read replica to use SSL/TLS encryption.&lt;/li&gt;
+&lt;li&gt;Import the dump file into the Cloud SQL read replica,&lt;/li&gt;
+&lt;li&gt;Restrict the MySQL replication user to accept connections only from
+the replica&#39;s &lt;strong&gt;outgoing IP address&lt;/strong&gt; (for security reasons).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Set the replica&#39;s root user password.&lt;/li&gt;
+&lt;li&gt;Confirm replication status.&lt;/li&gt;
+&lt;li&gt;Promote the replica to primary.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;1-create-a-cloud-storage-bucket&#34;&gt;1. Create a Cloud Storage bucket&lt;/h3&gt;
+&lt;p&gt;Using Cloud Shell, create a Cloud Storage bucket to store your MySQL
+database backup:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gsutil mb gs://cloud-engineer-project-mysql/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Note that Cloud Storage bucket names have to be globally unique. Using
+project IDs is an easy way to have a unique name. However exposing
+project IDs can pose security problems.&lt;/p&gt;
+&lt;h3 id=&#34;2-use-mysqldump-to-export-data-from-the-database&#34;&gt;2. Use mysqldump to export data from the database&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo mysqldump &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    -h localhost -P &lt;span class=&#34;m&#34;&gt;3306&lt;/span&gt; -u root -p &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --databases sakila --order-by-primary &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --hex-blob --master-data&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; --no-autocommit &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --skip-triggers --skip-add-drop-table &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --skip-add-locks --skip-disable-keys --skip-set-charset &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;7&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --default-character-set&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;utf8 --single-transaction &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;8&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --set-gtid-purged&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;on &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; gzip &amp;gt; sakila_backup1.sql.gz&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;There are many things going on with this &lt;code&gt;mysqldump&lt;/code&gt; command. Check out the
+&lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/mysqldump.html&#34;&gt;documentation&lt;/a&gt;
+for more details. Essentially,&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;--master-data=1&lt;/code&gt; option makes &lt;code&gt;mysqldump&lt;/code&gt; writes the binary log file
+name and position to the dump file. The Cloud SQL replica (slave) will
+use that information to determine where to start replicating from the
+master after the dump file has been imported. The external MySQL server
+can continue accepting write operations.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;--opt&lt;/code&gt; option is enabled by default. According to the
+&lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/mysqldump.html#option_mysqldump_opt&#34;&gt;documentation&lt;/a&gt;,
+&amp;quot;it gives a fast dump operation and produces a dump file that can be
+reloaded into a MySQL server quickly&amp;quot;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;3-copy-the-dump-file-to-cloud-storage&#34;&gt;3. Copy the dump file to Cloud Storage&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo gsutil cp sakila_backup1.sql.gz gs://cloud-engineer-project-mysql&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&#34;4-create-the-cloud-sql-replica-using-the-automated-migration-workflow&#34;&gt;4. Create the Cloud SQL replica using the automated migration workflow&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://console.cloud.google.com/sql/instances&#34;&gt;Go the Cloud SQL page&lt;/a&gt;
+and click on &lt;strong&gt;MIGRATE DATA&lt;/strong&gt;:
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migrate.png&#34; alt=&#34;Cloud SQL migrate&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Then click on &lt;strong&gt;Begin migration&lt;/strong&gt;.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_begin_migration.png&#34; alt=&#34;Cloud SQL begin migrate&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Fill out the data source details.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Name of data source: &lt;strong&gt;sakila-datasource&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;The &lt;strong&gt;Public IP address of source&lt;/strong&gt; is the external IP
+address of your MySQL server.&lt;/li&gt;
+&lt;li&gt;Make sure to &lt;strong&gt;enable SSL/TLS security&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration1.png&#34; alt=&#34;Cloud SQL migration 1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;You have to upload or copy the PEM-encoded CA certificate of your
+external MySQL database server. We went with the old copy and paste.
+Use &lt;code&gt;sudo cat&lt;/code&gt; command to display the &lt;code&gt;ca.pem&lt;/code&gt; file from &lt;code&gt;/var/lib/mysql&lt;/code&gt;,
+copy the output and paste it in the certificate value box as shown below.
+That&#39;s the only file required for the server-only authentication.
+However if you want to have the strongest security, you should use
+server-client authentication; check &lt;strong&gt;Use SSL client authentication&lt;/strong&gt; box
+for that.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration1_ca.png&#34; alt=&#34;Cloud SQL migration 1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;You have to provide the client certificate and the private key. From
+&lt;code&gt;/var/lib/mysql&lt;/code&gt; directory, use &lt;code&gt;sudo cat&lt;/code&gt; command to display the content
+of the &lt;code&gt;client-cert.pem&lt;/code&gt; and &lt;code&gt;client-key.pem&lt;/code&gt; files. Copy the contents of
+those and paste them in their respective boxes as shown below. Then click
+&lt;strong&gt;Next&lt;/strong&gt; to continue.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration1_client-cert.png&#34; alt=&#34;Cloud SQL migration 1&#34;&gt;
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/next.png&#34; alt=&#34;Cloud SQL migration next&#34;&gt;&lt;/p&gt;
+&lt;p&gt;For better performance, it&#39;s recommended to create the replica close to
+the data source. In other words create the replica in the same region/zone
+as the external MySQL server.
+It&#39;s also recommended to choose a &lt;code&gt;machine-type&lt;/code&gt; that has
+at least the same specs as your external server.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration2.png&#34; alt=&#34;Cloud SQL migration 2&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Still in the &lt;strong&gt;Cloud SQL read replica creation&lt;/strong&gt; section, make sure
+&lt;strong&gt;Enable automatic storage increases&lt;/strong&gt; is checked.&lt;/p&gt;
+&lt;p&gt;Click on &lt;strong&gt;Browse&lt;/strong&gt; to import the dump file that you created and copied
+to Cloud Storage bucket earlier.&lt;/p&gt;
+&lt;p&gt;Then click on &lt;strong&gt;Show advanced settings&lt;/strong&gt;.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration3.png&#34; alt=&#34;Cloud SQL migration 3&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Allow your external MySQL server to access the Cloud SQL replica.
+Click on &lt;strong&gt;+ Add network&lt;/strong&gt;, enter &lt;code&gt;external-mysql-network&lt;/code&gt; for the &lt;strong&gt;Name&lt;/strong&gt;
+and enter the external IP address of your MySQL server for the &lt;strong&gt;Network&lt;/strong&gt;.
+In this case, it&#39;s the external IP address of the VM you deployed MySQL on.
+Then click &lt;strong&gt;Done&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration4.png&#34; alt=&#34;Cloud SQL migration 4&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Click &lt;strong&gt;Create&lt;/strong&gt; to start the creation of your Cloud SQL replica instance.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration5.png&#34; alt=&#34;Cloud SQL migration 5&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Take note of the &lt;strong&gt;Outgoing IP address&lt;/strong&gt;.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration6.png&#34; alt=&#34;Cloud SQL migration 6&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The MySQL replication user you created earlier accepts connections from
+any host. For security reasons, you should restrict the connections to
+only the Cloud SQL replica&#39;s &lt;strong&gt;outgoing IP address&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;UPDATE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mysql&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;user&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;SET&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Host&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;35.225.210.234&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Host&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;%&amp;#39;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;AND&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;User&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;repl&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;FLUSH&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;PRIVILEGES&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Change &lt;code&gt;35.225.210.234&lt;/code&gt; in the command above for the &lt;strong&gt;outgoing IP address&lt;/strong&gt;
+that is actually provisioned for your Cloud SQL read replica instance.&lt;/p&gt;
+&lt;p&gt;Go back to &lt;strong&gt;Data Synchronization&lt;/strong&gt; section in the migration workflow,
+Click &lt;strong&gt;Next&lt;/strong&gt; to continue. Then you&#39;ll see the page below; click &lt;strong&gt;Finish&lt;/strong&gt;
+to complete the migration workflow.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration7.png&#34; alt=&#34;Cloud SQL migration 7&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Depending on the size of your database, the network throughput, the IOPS,
+the import can take up to a couple of minutes or hours. When the green check
+mark appears next to the Cloud SQL read replica (&lt;strong&gt;MySQL read replica&lt;/strong&gt;)
+like below, the import has completed and the replication is enabled.
+Click on the instance to go to the replica instance overview page:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migrate_import_complete.png&#34; alt=&#34;Cloud SQL migration import_complete&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;5-set-the-replicas-root-user-password&#34;&gt;5. Set the replica&#39;s root user password&lt;/h3&gt;
+&lt;p&gt;In the replica instance overview, you&#39;ll see details about the instance
+and the replication status.
+Click on &lt;strong&gt;Users&lt;/strong&gt; in the left menu to set the root password for the
+replica instance.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migrate_replication1.png&#34; alt=&#34;Cloud SQL migration import_complete&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Click on the 3 vertical dots, then on &lt;strong&gt;Change password&lt;/strong&gt;. Input a password
+and click &lt;strong&gt;OK&lt;/strong&gt; to complete the operation.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migrate_changepass.png&#34; alt=&#34;Cloud SQL migration import_complete&#34;&gt;&lt;/p&gt;
+&lt;p&gt;You can also use &lt;a href=&#34;https://console.cloud.google.com/?cloudshell=true&#34;&gt;Cloud Shell&lt;/a&gt;
+to change the password:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud sql users set-password root --host&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;% &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --instance&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;sakila-datasource-cloudsql &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --password&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;root-password-here&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;To mininmize downtime, re-create all the critical database user accounts
+for your applications. You just have to click on &lt;strong&gt;Create user account&lt;/strong&gt;
+and set the username and password of the account.&lt;/p&gt;
+&lt;h3 id=&#34;6-confirm-replication-status&#34;&gt;6. Confirm replication status&lt;/h3&gt;
+&lt;p&gt;You are now going to connect to the replica instance to query the database
+and see the replication in action. In the replica instance overview page,
+scroll down to the &lt;strong&gt;Connnect to this instance&lt;/strong&gt; card and click on
+&lt;strong&gt;Connect using Cloud Shell&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/connect_replica_instance.png&#34; alt=&#34;Connect to replica instance&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Cloud Shell opens up, if it wasn&#39;t already; and the &lt;code&gt;gcloud sql connect&lt;/code&gt;
+command with the replica name is input in the terminal. Press &lt;strong&gt;ENTER&lt;/strong&gt;
+to execute the command.
+When prompted for password, enter the root user password of the replica
+instance you just set above.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/connecting_replica_instance.png&#34; alt=&#34;Connecting to replica instance&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Execute the same statements you executed on the external MySQL database
+server, you&#39;ll get the same results.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;USE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sakila&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SHOW&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;FULL&lt;/span&gt; &lt;span class=&#34;kp&#34;&gt;TABLES&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;To verify that the replication is activated, first run the following query
+to count the rows in the &lt;code&gt;actor&lt;/code&gt; table.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;COUNT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;actor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The output looks like this.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/exec_select_cloudsql.png&#34; alt=&#34;Query cloud sql actor table&#34;&gt;&lt;/p&gt;
+&lt;p&gt;200 rows in the &lt;code&gt;actor&lt;/code&gt; table in the &lt;code&gt;sakila&lt;/code&gt; database on the replica
+instance. It matches that of the external MySQL:&lt;/p&gt;
+&lt;p&gt;Now go back to the external MySQL server terminal, connect to MySQL
+server and insert a row into the &lt;code&gt;actor&lt;/code&gt; table by executing the query below:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;INSERT&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;INTO&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;actor&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;first_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;last_name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;VALUES&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Denzel&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;Washington&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Count the number rows: It&#39;s now 201 as shown below.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/verify_replication.png&#34; alt=&#34;Verify replication&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Now check that the new inserted data has been replicated. Go back to
+Cloud Shell, connect to your replica instance and run the queries below
+against the &lt;code&gt;actor&lt;/code&gt; table in the replica.&lt;/p&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;COUNT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;actor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-mysql&#34; data-lang=&#34;mysql&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;SELECT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;FROM&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;actor&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;WHERE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;last_name&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;Washington&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;The output looks like this:
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/replication_verified.png&#34; alt=&#34;Replication verified&#34;&gt;
+This confirms that the replication is enabled and properly working.&lt;/p&gt;
+&lt;h3 id=&#34;7-promoting-the-replica-to-a-stand-alone-instance&#34;&gt;7. Promoting the replica to a stand-alone instance&lt;/h3&gt;
+&lt;p&gt;For all this time, your applications are online. They are not affected
+by all the replication setup you have done. But now is the downtime time.
+You have to take your applications offline and update them to point to
+Cloud SQL read replica, promote the replica, then bring your apps back on
+line.
+To connect your apps to Cloud SQL instances, it&#39;s recommended to use
+&lt;a href=&#34;https://cloud.google.com/sql/docs/mysql/sql-proxy&#34;&gt;Cloud SQL Proxy&lt;/a&gt; unless
+your apps are in the same region as your Cloud SQL instance, and on the
+VPC network in the GCP or on a VPN configured to connect to the the Cloud
+SQL instance network through a private connection. When you use Cloud SQL Proxy,
+&lt;a href=&#34;https://cloud.google.com/sql/docs/mysql/sql-proxy#what_the_proxy_provides&#34;&gt;you get a secured connection to your Cloud SQL instance without
+management overhead&lt;/a&gt;.
+And because of &lt;a href=&#34;https://cloud.google.com/sql/docs/mysql/sql-proxy#how-works&#34;&gt;the way Cloud SQL Proxy works&lt;/a&gt;,
+you access your Cloud SQL instance as if it was running in the local environment.&lt;/p&gt;
+&lt;h4 id=&#34;71-so-download-cloud-sql-proxy-to-your-applications-server-and-make-it-executable&#34;&gt;7.1. So download Cloud SQL Proxy to your applications server and make it executable:&lt;/h4&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;chmod +x cloud_sql_proxy&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;h4 id=&#34;72-create-a-service-account-for-cloud-sql-proxy&#34;&gt;7.2. Create a service account for Cloud SQL Proxy&lt;/h4&gt;
+&lt;p&gt;You need to create a service account with a Cloud SQL Client role to provide
+the credentials for the proxy.
+Use Cloud Shell to enable the Cloud SQL Admin API.
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud services &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; sqladmin.googleapis.com&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Next, &lt;a href=&#34;https://console.cloud.google.com/iam-admin/serviceaccounts/&#34;&gt;Go to the Service accounts page&lt;/a&gt;,
+Click &lt;strong&gt;Create service account&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/create_sa_click.png&#34; alt=&#34;create a service account&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Provide a name and description for the service account. Then click on &lt;strong&gt;CREATE&lt;/strong&gt;
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/create_sa.png&#34; alt=&#34;create a service account&#34;&gt;&lt;/p&gt;
+&lt;p&gt;For Role, you can select either one of these: Cloud SQL Client, Cloud SQL Editor,
+Cloud SQL Admin:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/create_sa_role.png&#34; alt=&#34;create a service account select role&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Click on &lt;strong&gt;CONTINUE&lt;/strong&gt; to create a private key.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/create_sa_role1.png&#34; alt=&#34;create a service account select role&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Then click on &lt;strong&gt;CREATE KEY&lt;/strong&gt; to choose the key type format &lt;strong&gt;JSON&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/create_sa_create_key.png&#34; alt=&#34;create a service account select role&#34;&gt;&lt;/p&gt;
+&lt;p&gt;And finally download the key by clicking on &lt;strong&gt;CREATE&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/create_sa_download_key.png&#34; alt=&#34;create a service account select role&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The private key file is downloaded to your machine. Move it to the applications
+server, where the Cloud SQL proxy will run.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/create_sa_downloaded.png&#34; alt=&#34;create a service account select role&#34;&gt;&lt;/p&gt;
+&lt;h4 id=&#34;73-take-your-applications-offline&#34;&gt;7.3. Take your applications offline.&lt;/h4&gt;
+&lt;p&gt;Update them with the Cloud SQL credentials.
+Note that if you have re-created the database user accounts on the Cloud SQL
+replica database, at this point you wouldn&#39;t have to change udpate anything
+on your applications.
+Besides taking your apps offline, stop the external MySQL instance:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;sudo service mysql stop&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;h4 id=&#34;74-promote-the-replica&#34;&gt;7.4. Promote the replica&lt;/h4&gt;
+&lt;p&gt;In the replica instance overview page, Click on &lt;strong&gt;PROMOTE REPLICA&lt;/strong&gt;, then
+on &lt;strong&gt;OK&lt;/strong&gt; to start the promotion.
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/promote_replica.png&#34; alt=&#34;Replication verified&#34;&gt;
+It will take a few minutes. When it&#39;s done you will see the replica instance
+becoming a stand-alone instance:
+&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/promotion_complete.png&#34; alt=&#34;Replication verified&#34;&gt;&lt;/p&gt;
+&lt;h4 id=&#34;74-start-the-cloud-sql-proxy-and-restart-your-applications&#34;&gt;7.4. Start the Cloud SQL proxy and restart your applications&lt;/h4&gt;
+&lt;p&gt;In the replica instance overview page,
+scroll down to the &lt;strong&gt;Connnect to this instance&lt;/strong&gt; card and note the
+&lt;strong&gt;instance connection name&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Start the proxy
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;./cloud_sql_proxy -instances&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;lt;INSTANCE_CONNECTION_NAME&amp;gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;tcp:3306 &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;                  -credential_file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&amp;lt;PATH_TO_KEY_FILE&amp;gt; &lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Restart your apps.&lt;/p&gt;
+&lt;p&gt;Thanks for reading!&lt;/p&gt;
+&lt;p&gt;To learn more about Google Cloud SQL, visit &lt;a href=&#34;http://cloud.google.com/sql&#34;&gt;http://cloud.google.com/sql&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+
+        
+      </description>
+    </item>
+    
+  </channel>
+</rss>

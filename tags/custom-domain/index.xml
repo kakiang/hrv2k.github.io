@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Custom Domain on Hervé Kakiang&#39;s blog</title>
+    <link>https://hrv2k.github.io/tags/custom-domain/</link>
+    <description>Recent content in Custom Domain on Hervé Kakiang&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright>
+    <lastBuildDate>Wed, 15 Jan 2020 04:50:57 +0000</lastBuildDate><atom:link href="https://hrv2k.github.io/tags/custom-domain/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Mapping a Cloud Run Service to a Custom Domain</title>
+      <link>https://hrv2k.github.io/post/mapping-a-cloud-run-service-to-a-custom-domain/</link>
+      <pubDate>Wed, 15 Jan 2020 04:50:57 +0000</pubDate>
+      
+      <guid>https://hrv2k.github.io/post/mapping-a-cloud-run-service-to-a-custom-domain/</guid>
+      <description>
+        
+          &lt;p&gt;When you deploy a service to Cloud Run, you are provided with a default
+domain to access the service. However, you can use your own domain or
+subdomain instead of the default one.&lt;/p&gt;
+&lt;p&gt;In the &lt;em&gt;Cloud Run services&lt;/em&gt; page, Click &lt;strong&gt;MANAGE CUSTOM DOMAINS&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/service.png&#34; alt=&#34;cloud Run service&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In the &lt;em&gt;Domain Mappings&lt;/em&gt; page, click &lt;strong&gt;ADD MAPPING&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/add_mapping.png&#34; alt=&#34;Add Mapping&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In the &lt;em&gt;Add Mapping form&lt;/em&gt;, select the service you are mapping the custom
+domain to, and your domain name. If your domain is not verified, you&#39;ll
+be required to do it as shown below. Click &lt;strong&gt;VERIFY IN WEBMASTER CENTRAL&lt;/strong&gt;
+to do it.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/add_mapping_form.png&#34; alt=&#34;Add Mapping&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The verification takes a couple of minutes. Click &lt;strong&gt;REFRESH&lt;/strong&gt; to check if
+it&#39;s done.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/verification.png&#34; alt=&#34;Add Mapping&#34;&gt;&lt;/p&gt;
+&lt;p&gt;When verification completes successfully, specify the domain or subdomain
+to map to the service you have selected, then click &lt;strong&gt;CONTINUE&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/domain_to_use.png&#34; alt=&#34;Domain_to_use&#34;&gt;&lt;/p&gt;
+&lt;p&gt;You are provided with the DNS records for the custom domain that
+maps to your Cloud Run service. You&#39;ll need to add these records to the
+host records at your domain registrar.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/dns_record.png&#34; alt=&#34;Update DNS Records&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Copy the DNS records, log in to your domain registrar, go to the host
+records section of your domain&#39;s configuration page and then add the records.
+Depending on your registrar and the TTL configured in your DNS records,
+can take a few minutes or several for the changes to take effect.&lt;/p&gt;
+&lt;p&gt;Finally, when the DNS records have been successfully updated, you can use
+your custom domain to access your deployed Cloud Run service.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/end-result.png&#34; alt=&#34;End result&#34;&gt;&lt;/p&gt;
+&lt;p&gt;When you map a Cloud Run service to a custom domain, an SSL certificate
+is issued and managed for you automatically. The connections to and from
+your service are secured.&lt;/p&gt;
+&lt;p&gt;For more details about a Cloud Run service to a custom domain check out the
+&lt;a href=&#34;https://cloud.google.com/run/docs/mapping-custom-domains&#34;&gt;Google Cloud documentation on mapping custom domains&lt;/a&gt;.&lt;/p&gt;
+
+        
+      </description>
+    </item>
+    
+  </channel>
+</rss>

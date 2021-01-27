@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cloud Functions on Hervé Kakiang&#39;s blog</title>
+    <link>https://hrv2k.github.io/tags/cloud-functions/</link>
+    <description>Recent content in Cloud Functions on Hervé Kakiang&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright>
+    <lastBuildDate>Fri, 31 Jan 2020 14:28:34 +0000</lastBuildDate><atom:link href="https://hrv2k.github.io/tags/cloud-functions/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Deploy to Firebase Hosting Using Cloud Build, Use Cloud KMS to Encrypt tokens</title>
+      <link>https://hrv2k.github.io/post/deploy-to-firebase-hosting-using-cloud-build/</link>
+      <pubDate>Fri, 31 Jan 2020 14:28:34 +0000</pubDate>
+      
+      <guid>https://hrv2k.github.io/post/deploy-to-firebase-hosting-using-cloud-build/</guid>
+      <description>
+        
+          &lt;p&gt;&lt;a href=&#34;https://firebase.google.com/docs/hosting&#34;&gt;Firebase Hosting&lt;/a&gt; is Google
+hosting service for Web and mobile Web apps. Using the
+&lt;a href=&#34;https://firebase.google.com/docs/cli&#34;&gt;Firebase CLI&lt;/a&gt;, you can deploy files
+from local directories on your computer to your Hosting server.
+Deploying to Firebase Hosting using Google Cloud Build will allow you to
+automate all the build, test and deployment phases.
+And when it comes to continuous integration/deployment systems, it is
+often the case that you have to provide sensitive information such as
+authorization tokens, deploy api keys or other resources to the CI/CD
+tool or service. However it&#39;s never a good practice to store them in
+plaintext in config or source code files. They should be encrypted and
+stored where they will not be compromised. That&#39;s when
+&lt;a href=&#34;https://cloud.google.com/kms&#34;&gt;Cloud Key Management Service (KMS)&lt;/a&gt; comes in.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://cloud.google.com/kms&#34;&gt;Cloud KMS&lt;/a&gt; is a cloud-hosted key management
+service that lets you manage cryptographic keys for your cloud services.
+You can generate, use, rotate, and destroy cryptographic keys.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Essentially, Cloud KMS is a cloud service that provides cryptographic
+functions that encrypt and decrypt sensitive information.
+Cloud KMS allows you to protect secrets and other sensitive data that
+you store on the GCP. Because Cloud KMS is integrated with
+&lt;a href=&#34;https://cloud.google.com/kms/docs/iam&#34;&gt;Cloud Identity and Access Management (IAM)&lt;/a&gt;
+and &lt;a href=&#34;https://cloud.google.com/logging/docs/audit/&#34;&gt;Cloud Audit Logging&lt;/a&gt;,
+you can manage permissions on individual cryptographic keys and monitor
+activities involving your keys. Only users who have the necessary IAM
+permissions to use the CryptoKey can encrypt or decrypt resources with
+that key. Cloud IAM gives you the ability to assigned fined-grained
+permissions to specific users or service accounts to perform specific
+tasks on specific resources.
+Cloud Audit Logging tells you who did what, where, and when within your
+GCP project.&lt;/p&gt;
+&lt;p&gt;Cryptographic keys managed by Cloud KMS can be directly used by other GCP
+services and by the applications you deploy on the GCP.&lt;/p&gt;
+&lt;p&gt;In this post we shall take a look at using Cloud KMS to encrypt Firebase
+deployment token, passing the encrypted token and the CryptoKey to a build
+request to allow Cloud build to deploy an app to Firebase Hosting.&lt;/p&gt;
+&lt;h1 id=&#34;what-you-should-know-before-getting-hands-on&#34;&gt;What you should know before getting hands-on&lt;/h1&gt;
+&lt;h2 id=&#34;1-cloud-kms&#34;&gt;1. Cloud KMS&lt;/h2&gt;
+&lt;p&gt;Cloud KMS organizes cryptographic keys in a hierarchical structure, and uses
+Cloud IAM to manage access to resources at each level of the hierarchy.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a href=&#34;https://cloud.google.com/kms/docs/object-hierarchy#project&#34;&gt;Project&lt;/a&gt; &amp;gt;
+&lt;a href=&#34;https://cloud.google.com/kms/docs/object-hierarchy#location&#34;&gt;Location&lt;/a&gt; &amp;gt;
+&lt;a href=&#34;https://cloud.google.com/kms/docs/object-hierarchy#key_ring&#34;&gt;Key ring&lt;/a&gt; &amp;gt;
+&lt;a href=&#34;https://cloud.google.com/kms/docs/object-hierarchy#key&#34;&gt;Key&lt;/a&gt; &amp;gt;
+&lt;a href=&#34;https://cloud.google.com/kms/docs/object-hierarchy#key_version&#34;&gt;Key version&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Like any other GCP resource, Cloud KMS resources belong to a GCP project.&lt;/p&gt;
+&lt;p&gt;In a project, Cloud KMS resources are created in a regional,
+or multi-regional location. The location determines where the resources
+are stored and where requests regarding those resources are processed.
+Specifically, there are four types of
+&lt;a href=&#34;https://cloud.google.com/kms/docs/locations&#34;&gt;locations&lt;/a&gt; where you can
+create Cloud KMS resources: regional, dual-regional, multi-regional and global.
+Resources created in the &lt;code&gt;global&lt;/code&gt; location are available from zones spread
+around the globe.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Key ring&lt;/strong&gt; is a logical grouping of cryptographic keys, It&#39;s a group of
+keys created for a particular purpose. How you group your keys is
+completely up to you. Keys inherit permissions from the key ring that
+contains them. This allows you to manage permissions on keys at the key
+ring level. For instance you can have one key ring for each one of your
+environments, production key ring and development key ring.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/cloud-hosting-cbuild/keyring.png&#34; alt=&#34;Key ring (https://cloud.google.com/kms/docs/object-hierarchy#key)&#34;&gt;&lt;/p&gt;
+&lt;p&gt;A &lt;strong&gt;key&lt;/strong&gt; in the GCP, is a named object that represents a cryptographic
+key used for a specific purpose.&lt;/p&gt;
+&lt;p&gt;A &lt;strong&gt;key version&lt;/strong&gt; represents the key material, the actual bits used for
+encryption. A key must have at least one key version. It can have many
+key versions at the same time.&lt;/p&gt;
+&lt;p&gt;Key rings and keys, once created in a project cannot be deleted. Key
+versions, however, can be destroyed.&lt;/p&gt;
+&lt;h2 id=&#34;2-cloud-build&#34;&gt;2. Cloud Build&lt;/h2&gt;
+&lt;p&gt;Cloud Build is a CI/CD service on the GCP. It&#39;s used to build, test and
+deploy artifacts to various environments. It does so by using docker
+containers to execute different sort of tasks specified in the build
+configuration file. Check out
+&lt;a href=&#34;https://cloud.google.com/cloud-build/docs&#34;&gt;this page&lt;/a&gt; and
+&lt;a href=&#34;https://cloud.google.com/cloud-build/docs/configuring-builds/build-test-deploy-artifacts&#34;&gt;this one&lt;/a&gt;
+if you are not familiar with Cloud Build and want to learn more about it.
+My &lt;a href=&#34;https://hrv2k.github.io/posts/getting-started-with-cloud-build/&#34;&gt;Getting Started with Cloud Build post&lt;/a&gt;
+can also get you up to speed.&lt;/p&gt;
+&lt;p&gt;Going forward, I&#39;ll assume that you know how Cloud Build works.&lt;/p&gt;
+&lt;h1 id=&#34;gcp-setup&#34;&gt;GCP Setup&lt;/h1&gt;
+&lt;p&gt;Before you begin, complete the following steps:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://accounts.google.com/Login&#34;&gt;Sign in&lt;/a&gt; to your Google Account.
+If you don&#39;t already have one,
+&lt;a href=&#34;https://accounts.google.com/SignUp&#34;&gt;sign up for a new account&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;In the Cloud Console, on the
+&lt;a href=&#34;https://console.cloud.google.com/projectselector2/home/dashboard&#34;&gt;project selector page&lt;/a&gt;,
+select or create a Google Cloud project.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Make sure that billing is enabled for your Google Cloud project.
+&lt;a href=&#34;https://cloud.google.com/billing/docs/how-to/modify-project&#34;&gt;Learn how to confirm billing is enabled for your project&lt;/a&gt;
+You are required to enable billing to use the GCP services that are used
+here, however none of them will cost you money if you haven&#39;t used up the
+&lt;a href=&#34;https://cloud.google.com/free&#34;&gt;free tier&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The gcloud SDK&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;You can use Google Cloud Shell to follow along. Cloud Shell is
+loaded with development tools, including the gcloud SDK which provides
+command-line access to GCP resources. Navigate to
+&lt;a href=&#34;https://console.cloud.google.com/&#34;&gt;GCP Console&lt;/a&gt;, on the top right
+toolbar, click the Cloud Shell button to activate it.
+You don&#39;t need to install anything if you are using Google Cloud Shell,
+the next step from here is to
+&lt;a href=&#34;#initialize-your-firebase-project&#34;&gt;initialize your Firebase project&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Or you can use the &lt;a href=&#34;https://cloud.google.com/sdk/docs/&#34;&gt;gcloud SDK&lt;/a&gt;
+on your personal computer. Follow
+&lt;a href=&#34;https://cloud.google.com/sdk/docs/downloads-interactive&#34;&gt;this  link&lt;/a&gt;,
+select the correct SDK for your OS and install it. Once it is installed,
+open the command line to initialize your cloud environment by typing the
+command below, and follow the instructions to log in to GCP.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud init&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Test that gcloud CLI tool is properly logged in to GCP by checking the
+active account. Run the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud auth list&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h1 id=&#34;install-firebase-cli&#34;&gt;Install Firebase CLI&lt;/h1&gt;
+&lt;p&gt;Follow the instructions set
+&lt;a href=&#34;https://firebase.google.com/docs/cli#install_the_firebase_cli&#34;&gt;here&lt;/a&gt;
+to install Firebase CLI.
+After installing the CLI, you must authenticate by signing into Firebase
+using your Google account. Run the following command to sign in:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;firebase login&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;When you are properly signed into Firebase, your local machine is
+connected to Firebase and you can access your Firebase projects by running
+the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;firebase projects:list&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h1 id=&#34;initialize-your-firebase-project&#34;&gt;Initialize your Firebase project&lt;/h1&gt;
+&lt;p&gt;Create a directory named &lt;code&gt;firebase-hosting-cb&lt;/code&gt; for your Firebase project,
+then change directory into it:&lt;/p&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mkdir firebase-hosting-cb&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; firebase-hosting-cb&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Follow the instructions set
+&lt;a href=&#34;https://firebase.google.com/docs/cli#initialize_a_firebase_project&#34;&gt;here&lt;/a&gt;
+to initialize a Firebase project. Select &lt;code&gt;Hosting&lt;/code&gt; as the Firebase feature
+you want to set up for your Firebase project. Choose to use an existing
+project, then select the project you want to associate with your project.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/cloud-hosting-cbuild/out.gif&#34; alt=&#34;firebase init&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Once the Firebase initialization completes, an &lt;code&gt;index.html&lt;/code&gt; file is
+created inside of a directory named &lt;code&gt;public&lt;/code&gt; if you didn&#39;t change the
+default settings during the initialization. Update the &lt;code&gt;index.html&lt;/code&gt; file
+to your satisfaction.&lt;/p&gt;
+&lt;p&gt;Let&#39;s initialize git as well:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;git init&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Run the command below to test your project locally&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;firebase serve&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h1 id=&#34;deploy-to-firebase-hosting-manually&#34;&gt;Deploy to Firebase Hosting (manually)&lt;/h1&gt;
+&lt;p&gt;To deploy a release of your project to Firebase Hosting, run the
+following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;firebase deploy -m &lt;span class=&#34;s2&#34;&gt;&amp;#34;First deployment&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You&#39;ll see an output similar to this.  Notice that &lt;code&gt;your-project-id&lt;/code&gt; will
+be replaced by your actual project ID.&lt;/p&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;ln&#34;&gt; 1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;===&lt;/span&gt; Deploying to &lt;span class=&#34;s1&#34;&gt;&amp;#39;your-project-id&amp;#39;&lt;/span&gt;...
+&lt;span class=&#34;ln&#34;&gt; 2&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 3&lt;/span&gt;i  deploying hosting
+&lt;span class=&#34;ln&#34;&gt; 4&lt;/span&gt;i  hosting&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;your-project-id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: beginning deploy...
+&lt;span class=&#34;ln&#34;&gt; 5&lt;/span&gt;i  hosting&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;your-project-id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: found &lt;span class=&#34;m&#34;&gt;3&lt;/span&gt; files in public
+&lt;span class=&#34;ln&#34;&gt; 6&lt;/span&gt;✔  hosting&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;your-project-id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: file upload &lt;span class=&#34;nb&#34;&gt;complete&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 7&lt;/span&gt;i  hosting&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;your-project-id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: finalizing version...
+&lt;span class=&#34;ln&#34;&gt; 8&lt;/span&gt;✔  hosting&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;your-project-id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: version finalized
+&lt;span class=&#34;ln&#34;&gt; 9&lt;/span&gt;i  hosting&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;your-project-id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: releasing new version...
+&lt;span class=&#34;ln&#34;&gt;10&lt;/span&gt;✔  hosting&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;your-project-id&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: release &lt;span class=&#34;nb&#34;&gt;complete&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;11&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;12&lt;/span&gt;✔  Deploy complete!
+&lt;span class=&#34;ln&#34;&gt;13&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;14&lt;/span&gt;Project Console: https://console.firebase.google.com/project/your-project-id/overview
+&lt;span class=&#34;ln&#34;&gt;15&lt;/span&gt;Hosting URL: https://your-project-id.firebaseapp.com&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+At this point you can access your site at the Hosting URL.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;NB&lt;/strong&gt;: If you already have one Firebase Hosting site in your Firebase
+project, you have to specify your site in &lt;code&gt;firebase.json&lt;/code&gt;. Add your site
+name to the &lt;code&gt;firebase.json&lt;/code&gt; configuration file.
+Or else the new deployment will override the existing site.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;hosting&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;site&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;your-site-name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;4&lt;/span&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;public&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;public&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;5&lt;/span&gt;    &lt;span class=&#34;err&#34;&gt;...&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;6&lt;/span&gt;  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;7&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then, run this command from your app&#39;s root directory to deploy your site:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;firebase deploy --only hosting:your-site-name&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Going forward, I&#39;ll assume that you have one site in your
+Firebase project.&lt;/p&gt;
+&lt;p&gt;You just manually deployed your app to Firebase Hosting. You&#39;ll have to
+check your code to a source repository also separately. Let&#39;s
+automate the process with Cloud Build.&lt;/p&gt;
+&lt;h1 id=&#34;deploy-to-firebase-hosting-cloud-build&#34;&gt;Deploy to Firebase Hosting (cloud build)&lt;/h1&gt;
+&lt;h2 id=&#34;firebase-token&#34;&gt;Firebase token&lt;/h2&gt;
+&lt;p&gt;When you deployed to Firebase Hosting with &lt;code&gt;firebase deploy&lt;/code&gt;, it worked
+because your local machine is connected to Firebase. But if you want to
+deploy using another platform other than your local machine where you are
+signed into Firebase, such as Cloud Build, Travis CI or CircleCI, you
+have provide that platform a token and use the &lt;code&gt;--token&lt;/code&gt; flag of the Firebase CLI.
+To get the token, run the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;firebase login:ci&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You&#39;ll be instructed to log in using the browser. After a succesful login,
+the token will be printed to the console.&lt;/p&gt;
+&lt;h2 id=&#34;encrypt-firebase-token-using-cloud-kms&#34;&gt;Encrypt Firebase token using Cloud KMS&lt;/h2&gt;
+&lt;p&gt;You have the token, it&#39;s sensitive information. Anyone who has access to
+that token can delete your app and redeploy whatever they want. So you
+have to keep it secret, and at the same time you need to pass it to Cloud
+Build. That&#39;s where Cloud KMS comes into play.&lt;/p&gt;
+&lt;p&gt;Before you can encrypt your token using Cloud KMS, you have to create a
+Cloud KMS KeyRing and CryptoKey.&lt;/p&gt;
+&lt;p&gt;Initialize some environment variables
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;KEYRING_NAME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;cicd-keyring&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;KEY_NAME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;firebase-token&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Initialize an environment variable &lt;code&gt;FIREBASE_TOKEN&lt;/code&gt; with your token value.
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;FIREBASE_TOKEN&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;YOUR_GENERATED_TOKEN&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Run the following command to create a KeyRing:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud kms keyrings create &lt;span class=&#34;nv&#34;&gt;$KEYRING_NAME&lt;/span&gt; --location global&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Run the following command to create a CryptoKey:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud kms keys create &lt;span class=&#34;nv&#34;&gt;$KEY_NAME&lt;/span&gt; --location&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;global &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;   --keyring&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$KEYRING_NAME&lt;/span&gt; --purpose&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;encryption&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The CryptoKey is created.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/cloud-hosting-cbuild/key-created.png&#34; alt=&#34;crypto-created&#34;&gt;&lt;/p&gt;
+&lt;p&gt;You can now use the CryptoKey to encrypt your
+Firebase token. Remember that your Firebase token is in &lt;code&gt;$FIREBASE_TOKEN&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud kms encrypt --plaintext-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$FIREBASE_TOKEN&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;   --ciphertext-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;- &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# - writes to stdout&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;   --location&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;global --keyring&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$KEYRING_NAME&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;   --key&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$KEY_NAME&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; base64&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;With this command, you encrypt the value of the environment variable
+&lt;code&gt;$FIREBASE_TOKEN&lt;/code&gt; using the CryptoKey, and base64-encoded the encrypted
+value. The output is the base64-encoded string of the encrypted token.&lt;/p&gt;
+&lt;h2 id=&#34;cloud-build-config&#34;&gt;Cloud Build config&lt;/h2&gt;
+&lt;p&gt;Now, let&#39;s write the build steps for Cloud Build. Probably what makes
+Cloud Build so cool is its flexibility. You can do anything with it as
+long as you package what you want to do in a docker image. In our case,
+we need to have a Firebase build step whereby we use the firebase-tools
+to deploy our app. We could create the docker image to containerize
+firebase-tools, push the containerized image to Container Registry and
+use it to deploy our app. Details regarding that process can be found
+&lt;a href=&#34;https://cloud.google.com/cloud-build/docs/configuring-builds/build-test-deploy-artifacts&#34;&gt;here&lt;/a&gt;.
+However we will use &lt;a href=&#34;https://github.com/GoogleCloudPlatform/cloud-builders-community/tree/master/firebase&#34;&gt;this docker image&lt;/a&gt;.
+Clone the &lt;a href=&#34;https://github.com/GoogleCloudPlatform/cloud-builders-community.git&#34;&gt;cloud-builders-community repo&lt;/a&gt;
+move the &lt;code&gt;firebase&lt;/code&gt; folder to your app&#39;s root directory. you can delete the
+repo from your computer. Or at least make it is not in your app directory.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; firebase-hosting-cb&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;git clone https://github.com/GoogleCloudPlatform/cloud-builders-community.git&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; cloud-builders-community&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mv firebase ../ &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ../&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;rm -rf cloud-builders-community/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Create the &lt;code&gt;cloudbuild.yaml&lt;/code&gt; file and paste in the following contents.
+Make sure to replace &lt;code&gt;your-project-id&lt;/code&gt; with your actual project ID and
+&lt;code&gt;YOUR_ENCRYPTED_TOKEN&lt;/code&gt; with the actual value.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;steps&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;- &lt;span class=&#34;nt&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;gcr.io/cloud-builders/docker&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;build&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;-t&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;gcr.io/$PROJECT_ID/firebase&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;.&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;dir&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;firebase&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;- &lt;span class=&#34;nt&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;gcr.io/$PROJECT_ID/firebase&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;args&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;deploy&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;--project&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;$PROJECT_ID&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;secretEnv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;FIREBASE_TOKEN&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;secrets&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;- &lt;span class=&#34;nt&#34;&gt;kmsKeyName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;projects/your-project-id/locations/global/keyRings/cicd-keyring/cryptoKeys/firebase-token&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;secretEnv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;FIREBASE_TOKEN&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;YOUR_ENCRYPTED_TOKEN&amp;#39;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;images&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;gcr.io/$PROJECT_ID/firebase&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;You have to grant the Cloud Build service account the CryptoKeyDecrypter
+role&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud kms keys add-iam-policy-binding &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;   &lt;span class=&#34;nv&#34;&gt;$KEY_NAME&lt;/span&gt; --location&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;global --keyring&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$KEYRING_NAME&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;   --member&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;serviceAccount:PROJECT_NUMBER@cloudbuild.gserviceaccount.com &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;   --role&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;roles/cloudkms.cryptoKeyDecrypter&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Replace &lt;code&gt;PROJECT_NUMBER&lt;/code&gt; by your actual projectNumber. You can use this
+command &lt;code&gt;gcloud  projects describe your-project-id&lt;/code&gt; to find your project number.&lt;/p&gt;
+&lt;h2 id=&#34;enable-apis&#34;&gt;Enable APIs&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud services &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; cloudbuild.googleapis.com &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;   containerregistry.googleapis.com cloudkms.googleapis.com &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;   firebase.googleapis.com cloudresourcemanager.googleapis.com &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;   firebasehosting.googleapis.com&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;deploy&#34;&gt;Deploy&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud builds submit --config&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;cloudbuild.yaml .&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;rm -rf cloud-builders-community/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If you are interested in checking your code to GitHub and deploy to Firebase
+Hosting from there, check my &lt;a href=&#34;https://hrv2k.github.io/posts/integrate-github-with-cloud-build-deploy-to-cloud-run/&#34;&gt;post on integrating GitHub with Cloud Build&lt;/a&gt;.
+It details how to step by step how to integrate GitHub and Cloud Build, and
+how to trigger a deployment upon a push to your GitHub repo. Although in
+that post, we deploy to Cloud Run, the process is exactly the same as far
+as Cloud Build and GitHub are concerned. What is different is the steps
+in the &lt;code&gt;cloudbuild.yaml&lt;/code&gt; file. We&#39;ve already configured &lt;code&gt;cloudbuild.yaml&lt;/code&gt;
+to deploy to Firebase Hosting.&lt;/p&gt;
+&lt;p&gt;The source code for this post, including the &lt;code&gt;cloudbuild.yaml&lt;/code&gt; file is available
+&lt;a href=&#34;https://github.com/kakiang/firebase-hosting-cb&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Thanks for reading 🙌. À la prochaine.&lt;/p&gt;
+
+        
+      </description>
+    </item>
+    
+    <item>
+      <title>Deploy to Cloud Functions, Schedule invocations Using Cloud Scheduler</title>
+      <link>https://hrv2k.github.io/post/deploy-to-cloud-functions-schedule-invocations-using-cloud-scheduler/</link>
+      <pubDate>Fri, 15 Nov 2019 23:17:16 +0000</pubDate>
+      
+      <guid>https://hrv2k.github.io/post/deploy-to-cloud-functions-schedule-invocations-using-cloud-scheduler/</guid>
+      <description>
+        
+          &lt;p&gt;&lt;strong&gt;TL;DR&lt;/strong&gt;: This post is about Scheduling Firebase Cloud Functions with
+Cloud Scheduler. Precisely we use Cloud Functions to deploy a birthday
+reminder app and use Cloud Scheduler to invoke the app.&lt;/p&gt;
+&lt;p&gt;A couple of weeks ago, I stumbled upon &lt;a href=&#34;https://github.com/pybites/bday-app&#34;&gt;a repo on GitHub&lt;/a&gt;, it&#39;s a Flask app that uses &lt;a href=&#34;https://www.twilio.com/&#34;&gt;Twilio&lt;/a&gt; to send SMS notifications about your &lt;em&gt;friends&lt;/em&gt;&#39; upcoming birthdays. It has a script that can be run as a background job using &lt;a href=&#34;https://pypi.org/project/schedule/&#34;&gt;schedule&lt;/a&gt;, a lighweight python job scheduing library, to check once a day for birthdays and it sends out an SMS to your configured phone number if there is a birthday that day.&lt;/p&gt;
+&lt;p&gt;It&#39;s an interesting idea especially if you want to keep up with your friends&#39; birthdays and don&#39;t want to use Facebook for it. Unless you can (or want to?) memorize all of them or laboriously save them in your contacts, you probably need to have a mechanism to help you remember them. Know that you may memorize them and still forget to remember them when the actual days come.&lt;/p&gt;
+&lt;p&gt;Facebook already has all of your &lt;em&gt;friends&lt;/em&gt;&#39; birthdays data, at least of those who decided to share them. How to export them is covered &lt;a href=&#34;https://github.com/pybites/bday-app/blob/master/README.md&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This birthday app has a front-end with a page that displays birthdays by month, and other pages. But let&#39;s assumed we just have a backend that checks for birthdays and sends out SMS notifications, there is no front-end, at least not a &#39;meaningful&#39; one.&lt;/p&gt;
+&lt;p&gt;The question we then have to ask ourselves is where should we deploy and run our minimal birthday reminder app? We can run it on our laptop; but what if you don&#39;t have internet connection to call the Twilio&#39;s API? What if you don&#39;t turn on your laptop?
+Ok, so we should deploy it on a remote server. It should be low-cost, preferably free. And we don&#39;t want to have to manage it (restarting the job for example).
+To recap, we want a service that is&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;fully-managed&lt;/li&gt;
+&lt;li&gt;low-cost/cost-effective (I really mean &lt;em&gt;free&lt;/em&gt;, to be honest)&lt;/li&gt;
+&lt;li&gt;reliable&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Google Cloud Functions looks perfect for this.&lt;/p&gt;
+&lt;h1 id=&#34;1-what-is-google-cloud-functions&#34;&gt;1. What is Google Cloud Functions?&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://cloud.google.com/functions/docs&#34;&gt;Google Cloud Functions&lt;/a&gt; is a lightweight, event-based, asynchronous compute solution that allows you to create small, single-purpose functions that respond to cloud events without the need to manage a server or a runtime environment.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Essentially what this means is that you write a function that will be called upon an HTTP request or other events happening in Google Cloud (a message being published, a file being uploaded to or deleted from cloud storage, etc.), deploy it to Google Cloud and you relax.&lt;/p&gt;
+&lt;p&gt;Google Cloud Functions is fully-managed, you don&#39;t have to grapple with any management overhead. It&#39;s free for the first 2 million invocations per month. Only when you used up the &lt;a href=&#34;https://cloud.google.com/free/docs/gcp-free-tier&#34;&gt;free tier&lt;/a&gt; that you are billed for subsequent invocations. In our case, it&#39;s clear that we won&#39;t be paying anything; unless we screw up the job scheduler. Google Cloud Functions is highly available. If the service stops working because of whatever reason, the problem will be handled without your intervention and the service will come back up.&lt;/p&gt;
+&lt;h1 id=&#34;2-the-code&#34;&gt;2. The code&lt;/h1&gt;
+&lt;p&gt;I repurposed the initial &lt;a href=&#34;https://github.com/pybites/bday-app&#34;&gt;birthday app&lt;/a&gt; for Cloud Functions:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;34
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;35
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;36
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;37
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;38
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;39
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;40
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;41
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;42
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;43
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;44
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;45
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;46
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;47
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;48
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;49
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;50
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;51
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;52
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;53
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;54
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;55
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-Python&#34; data-lang=&#34;Python&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;os&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;icalendar&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Calendar&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;collections&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;namedtuple&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;datetime&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;date&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;twilio.rest&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Client&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;google.cloud&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;storage&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;# Access cloud storage bucket and download the Calendar&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;BUCKET_NAME&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;environ&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;CLOUD_STORAGE_BUCKET&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;storage_client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;storage&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;bucket&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;storage_client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;get_bucket&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;BUCKET_NAME&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;blob&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bucket&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;get_blob&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;bday-reminder/cal.ics&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;blob&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;download_to_filename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/tmp/cal.ics&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;n&#34;&gt;birth_day&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;namedtuple&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;BD&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;month&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;day&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;read_calendar&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&amp;#39; Reads the calendar file and generates
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    a tuple with name and birthday&amp;#39;s month and
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    date for each entry in the calendar file &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;with&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;open&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;/tmp/cal.ics&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;rb&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;calics&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Calendar&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;from_ical&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;read&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;())&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;component&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;calics&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;walk&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;VEVENT&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;component&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;SUMMARY&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;replace&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#39;s birthday&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;birth_date&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;component&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;get&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;DTSTART&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dt&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;yield&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;birth_day&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+                            &lt;span class=&#34;n&#34;&gt;month&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;birth_date&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;month&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+                            &lt;span class=&#34;n&#34;&gt;day&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;birth_date&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;day&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+
+&lt;span class=&#34;c1&#34;&gt;# Your Account Sid and Auth Token from twilio.com/console&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;account_sid&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;auth_token&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;n&#34;&gt;client&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Client&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;account_sid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;auth_token&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;send_sms&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;msg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;from_&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;+166...&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;to&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;+233...&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;message&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;client&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;messages&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;body&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;msg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;from_&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;from_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;to&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;to&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;message&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+
+&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;notify&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;request&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+    &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&amp;#39; HTTP Cloud Function
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    Checks if today is the birthday of a friend.
+&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;    If yes, send out a message &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;today&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;date&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;today&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;bday_names&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bday&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;read_calendar&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bday&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;month&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;today&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;month&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;and&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bday&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;day&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;today&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;day&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;bday_names&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;{}&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bday&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;msg&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;{}{}&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;today&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bday_names&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bday_names&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;send_sms&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;msg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;lt;br&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;msg&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;splitlines&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;())&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The content of the &lt;code&gt;requirements.txt&lt;/code&gt; file is below:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;icalendar==4.0.3
+twilio==6.26.2
+google-cloud-storage==1.22.0&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h1 id=&#34;3-birthday-data&#34;&gt;3. Birthday data&lt;/h1&gt;
+&lt;p&gt;As I mentioned it earlier, how to export your friends&#39; birthdays data from Facebook and export them as a calendar file (&lt;code&gt;cal.ics&lt;/code&gt;) is covered &lt;a href=&#34;https://github.com/pybites/bday-app/blob/master/README.md&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I created a Cloud Storage bucket where I uploaded the calendar file. To work with that calendar file I have to download it first. That&#39;s what happening at line 13. The file is downloaded inside &lt;code&gt;/tmp&lt;/code&gt; because during execution, a function can only write that location of the filesystem. You may have noticed that I am getting the bucket name from an environment variable. When deploying a cloud function, you can specify environment variables and use them in your code.&lt;/p&gt;
+&lt;h1 id=&#34;4-lets-deploy-the-app-to-google-cloud-functions&#34;&gt;4. Let&#39;s deploy the app to Google Cloud Functions&lt;/h1&gt;
+&lt;p&gt;Let&#39;s deploy our birthday app to Google Cloud Functions using Cloud Console. We will first create a new project. Then we create a cloud storage bucket and upload the calendar file to that bucket. Next, we create a cloud function and subsequently create a job that will call the function on a recurring schedule. I assume that you have a Google Cloud account&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;a. Navigate to &lt;a href=&#34;https://console.cloud.google.com&#34;&gt;Google Cloud Console&lt;/a&gt; and click &lt;code&gt;CREATE&lt;/code&gt; to create a new project&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/cloud-console.png&#34; alt=&#34;Navigate to console.cloud.google.com&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;b. Enter the project&#39;s name and click &lt;code&gt;CREATE&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/create_project.png&#34; alt=&#34;Create a project&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;c. Click on &lt;code&gt;Select a project&lt;/code&gt; on the app bar and select the project you just created&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/select_project.jpeg&#34; alt=&#34;Select the project&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;d. Click on the menu button (amburger icon) and click on &lt;code&gt;Storage&lt;/code&gt; to Create a bucket. Then click &lt;code&gt;Create bucket&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/create_bucket.png&#34; alt=&#34;Create a bucket&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;e. Enter a name for the bucket and click &lt;code&gt;CREATE&lt;/code&gt;. Bucket names have to be globally unique&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Take note of the bucket name, you will need it in the next steps.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/bucket_name.png&#34; alt=&#34;Name your bucket and click Create&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;f. Upload the calendar file to the bucket&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/upload_cal.png&#34; alt=&#34;Upload the calendar file&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;g. Move the calendar file inside of a folder that can be created by clicking on &lt;code&gt;Create folder&lt;/code&gt;&lt;/strong&gt;. Name the folder &lt;code&gt;bday-reminder&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/move_file_tofolder.png&#34; alt=&#34;Move the calendar file inside of a folder&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;h. Click on the menu button and click on &lt;code&gt;Cloud Functions&lt;/code&gt;. Then click &lt;code&gt;Create function&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;If the Cloud Functions API is not enabled, instead of a button &lt;code&gt;Create function&lt;/code&gt;, you would see &lt;code&gt;Enable API&lt;/code&gt;. Click on it to enable Cloud Functions and navigate back to the Cloud Functions console to finally create a function.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/click_create_cf.png&#34; alt=&#34;Cloud Functions console&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;i. Fill out the form with the relevant information and click &lt;code&gt;Create&lt;/code&gt; to deploy your function&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Function name: &lt;strong&gt;bday-reminder&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Memory allocated, the amount of memory to allocate to the function: &lt;strong&gt;128MB&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;Trigger: &lt;strong&gt;HTTP&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Source code, where to find the source code: &lt;strong&gt;Inline editor&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Runtime, the runtime to use to execute the code: &lt;strong&gt;Python 3.7&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/create_function.png&#34; alt=&#34;Create function&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Copy your code and paste it in the editor as shown below. We could use a different source, we could upload the code to cloud storage and specify the storage bucket, we could zip the code files and just upload it or specify a source repository.&lt;/p&gt;
+&lt;p&gt;Specify the function to execute. It&#39;s the name of the function in the code that will be executed when the Google Cloud Function is triggered: &lt;strong&gt;&lt;code&gt;notify&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/cf_code.png&#34; alt=&#34;code and function to execute&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Then click on the link &lt;code&gt;Environment variables, networking, timeouts and more&lt;/code&gt; to configure other Cloud Function options as shown below.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/advanced_options.png&#34; alt=&#34;advanced options&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The option we are most interested in is &lt;strong&gt;Environment variables&lt;/strong&gt;. Click &lt;code&gt;Add variable&lt;/code&gt; to create an environment variable that will store the name of the storage bucket we created earlier as shown below. Finally click &lt;code&gt;Create&lt;/code&gt; to deploy your cloud function.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/env_var.png&#34; alt=&#34;Environment variable&#34;&gt;&lt;/p&gt;
+&lt;p&gt;After your function is created, you will see a list of functions in the Cloud Functions console including the one you just created. Click on your newly deployed function to see the dashboard.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/cf_deployed.png&#34; alt=&#34;function created&#34;&gt;&lt;/p&gt;
+&lt;p&gt;When your function was created, a new URL was also created. You can use that URL to trigger your function. Take note of the URL, you will need it.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/cf_trigger.png&#34; alt=&#34;function trigger&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;5-lets-create-a-job-using-google-cloud-scheduler&#34;&gt;5. Let&#39;s create a job using Google Cloud Scheduler&lt;/h1&gt;
+&lt;p&gt;Now that your code is deployed to Cloud Functions is deployed and ready to be invoked, you are going to create a job to hit the function&#39;s URL every day at a specific time to receive the birthday notifation SMS. Click on the menu,  then on Cloud Scheduler. You will see the page below, click on &lt;code&gt;CREATE JOB&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/create_job.png&#34; alt=&#34;create job&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;51-specify-a-region-for-your-job-you-can-go-with-the-default&#34;&gt;5.1. Specify a region for your job. You can go with the default&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/job_location.png&#34; alt=&#34;job location&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;52-fill-out-the-form-with-the-relevant-information&#34;&gt;5.2. Fill out the form with the relevant information&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Name: &lt;strong&gt;bday-reminder-job&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Frequency, the schedule for running the job: &lt;code&gt;0 17 * * *&lt;/code&gt; (Every day at 17:00). Cron expressions can get confusing sometimes, during those times, &lt;a href=&#34;https://crontab.guru&#34;&gt;crontab.guru&lt;/a&gt; can help you.&lt;/li&gt;
+&lt;li&gt;Target: &lt;strong&gt;HTTP&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;URL: paste your function&#39;s URL here.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Finally click &lt;code&gt;Create&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/job.png&#34; alt=&#34;create job&#34;&gt;&lt;/p&gt;
+&lt;p&gt;You can set a schedule for your job to be run right away to make sure everything is set up correctly. Click on &lt;code&gt;RUN NOW&lt;/code&gt; to test whether your job will run succesfully when its scheduled time time comes.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/bday-reminder/job-1.png&#34; alt=&#34;job&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Check the Result column to see if the job succeeded. If it failed click
+on &lt;code&gt;View&lt;/code&gt; in the Logs column to diagnose the error.&lt;/p&gt;
+&lt;p&gt;That&#39;s all cloud people! Thanks for reading :raised_hands:!&lt;/p&gt;
+
+        
+      </description>
+    </item>
+    
+  </channel>
+</rss>

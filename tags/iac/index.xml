@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>IaC on Hervé Kakiang&#39;s blog</title>
+    <link>https://hrv2k.github.io/tags/iac/</link>
+    <description>Recent content in IaC on Hervé Kakiang&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright>
+    <lastBuildDate>Sat, 29 Feb 2020 21:25:21 +0000</lastBuildDate><atom:link href="https://hrv2k.github.io/tags/iac/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Deploy a Flask &#43; MySQL App to GCE Using Deployment Manager</title>
+      <link>https://hrv2k.github.io/post/deploy-a-flask-mysql-app-to-gce-using-deployment-manager/</link>
+      <pubDate>Sat, 29 Feb 2020 21:25:21 +0000</pubDate>
+      
+      <guid>https://hrv2k.github.io/post/deploy-a-flask-mysql-app-to-gce-using-deployment-manager/</guid>
+      <description>
+        
+          &lt;p&gt;&lt;a href=&#34;https://cloud.google.com/deployment-manager/&#34;&gt;Google Cloud Deployment Manager&lt;/a&gt;
+is Google&#39;s Infrastracture as Code service. It allows you to deploy and
+manage cloud resources (compute, storage, and network resources, and
+GCP-specific services) without having to configure those resources
+every time you deploy them. Creating an infrastructure and deploying
+apps become a matter of executing a couple lines of config code. You
+specify the desired state of your infrastructure and the deployment
+manager figures out how to make the actual state match the desired state.&lt;/p&gt;
+&lt;p&gt;To use deployment manager, you create templates. You define the resources
+you want to provision in those templates. Templates allow for resource
+definitions reusability, since you can factor out properties such as
+machine type, disk image, storage class, some metadata etc. Then you can
+reuse the same template to create a different infrastructure with
+different characteristics.&lt;/p&gt;
+&lt;p&gt;Template can be written in Python or Jinja2. Let&#39;s go with Python here.&lt;/p&gt;
+&lt;h2 id=&#34;assumptions-about-the-reader&#34;&gt;Assumptions about the reader&lt;/h2&gt;
+&lt;p&gt;I assume that you have an account on the &lt;a href=&#34;https://cloud.google.com/&#34;&gt;GCP&lt;/a&gt;
+and have a &lt;a href=&#34;https://console.cloud.google.com/projectselector2/home/dashboard&#34;&gt;GCP project&lt;/a&gt;.
+Install and authenticate the &lt;a href=&#34;https://cloud.google.com/sdk/downloads&#34;&gt;gcloud command-line tool&lt;/a&gt; on a local host,
+or use &lt;a href=&#34;https://console.cloud.google.com/?cloudshell=true&#34;&gt;Cloud Shell&lt;/a&gt;
+to create and control GCP resources.&lt;/p&gt;
+&lt;h2 id=&#34;python-instance-template&#34;&gt;Python instance template&lt;/h2&gt;
+&lt;p&gt;This template defines 2 resources: a compute instance, and a firewall rule
+that allows external traffic into the compute instance&#39;s port 80.
+The compute instance is provisioned in the default network.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;ln&#34;&gt; 1&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&amp;#34;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 2&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;Deployment Manager Template for creating a GCE instance
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 3&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;vm-template.py
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 4&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 5&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;COMPUTE_URL_BASE&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;https://www.googleapis.com/compute/v1/&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 6&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 7&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 8&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;global_compute_url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;project&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;collection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 9&lt;/span&gt;    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;([&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;COMPUTE_URL_BASE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;projects/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;project&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;10&lt;/span&gt;                    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/global/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;collection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;11&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;12&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;13&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;zonal_compute_url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;project&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zone&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;collection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;14&lt;/span&gt;    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;([&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;COMPUTE_URL_BASE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;projects/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;project&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;15&lt;/span&gt;                    &lt;span class=&#34;s1&#34;&gt;&amp;#39;/zones/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zone&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;collection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;16&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;17&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;18&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;generate_config&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;19&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;20&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;base_name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;env&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;deployment&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;-&amp;#39;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;env&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;21&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;22&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;items&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;23&lt;/span&gt;    &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;properties&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;metadata-from-file&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;items&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;24&lt;/span&gt;        &lt;span class=&#34;n&#34;&gt;items&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;append&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;({&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;25&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;key&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;26&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;value&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;imports&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;27&lt;/span&gt;        &lt;span class=&#34;p&#34;&gt;})&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;28&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;metadata&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;items&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;items&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;29&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;30&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;resources&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;31&lt;/span&gt;        &lt;span class=&#34;s1&#34;&gt;&amp;#39;type&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;compute.v1.instance&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;32&lt;/span&gt;        &lt;span class=&#34;s1&#34;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;app-vm&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;33&lt;/span&gt;        &lt;span class=&#34;s1&#34;&gt;&amp;#39;properties&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;34&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;zone&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;properties&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;zone&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;],&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;35&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;machineType&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zonal_compute_url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;env&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;project&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;],&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;36&lt;/span&gt;                                             &lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;properties&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;zone&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;],&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;37&lt;/span&gt;                                             &lt;span class=&#34;s1&#34;&gt;&amp;#39;machineTypes&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;38&lt;/span&gt;                                             &lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;properties&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;machine-type&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]),&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;39&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;tags&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;40&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;items&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;flask-mysql-server&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;41&lt;/span&gt;            &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;42&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;metadata&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;metadata&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;43&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;disks&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;44&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;deviceName&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;boot&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;45&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;type&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;PERSISTENT&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;46&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;autoDelete&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;47&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;boot&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;True&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;48&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;initializeParams&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;49&lt;/span&gt;                    &lt;span class=&#34;s1&#34;&gt;&amp;#39;diskName&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;base_name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;-disk&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;50&lt;/span&gt;                    &lt;span class=&#34;s1&#34;&gt;&amp;#39;sourceImage&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;global_compute_url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;debian-cloud&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;51&lt;/span&gt;                                                      &lt;span class=&#34;s1&#34;&gt;&amp;#39;images&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;family/debian-9&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;52&lt;/span&gt;                &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;53&lt;/span&gt;            &lt;span class=&#34;p&#34;&gt;}],&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;54&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;networkInterfaces&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;55&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;network&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;global_compute_url&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;context&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;env&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;project&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;],&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;56&lt;/span&gt;                                              &lt;span class=&#34;s1&#34;&gt;&amp;#39;networks&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;57&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;accessConfigs&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;58&lt;/span&gt;                    &lt;span class=&#34;s1&#34;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;External NAT&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;59&lt;/span&gt;                    &lt;span class=&#34;s1&#34;&gt;&amp;#39;type&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;ONE_TO_ONE_NAT&amp;#39;&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;60&lt;/span&gt;                &lt;span class=&#34;p&#34;&gt;}]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;61&lt;/span&gt;            &lt;span class=&#34;p&#34;&gt;}]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;62&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;63&lt;/span&gt;        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;64&lt;/span&gt;    &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;65&lt;/span&gt;        &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;66&lt;/span&gt;        &lt;span class=&#34;s1&#34;&gt;&amp;#39;type&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;compute.v1.firewall&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;67&lt;/span&gt;        &lt;span class=&#34;s1&#34;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;app-firewall&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;68&lt;/span&gt;        &lt;span class=&#34;s1&#34;&gt;&amp;#39;properties&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;69&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;allowed&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[{&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;70&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;IPProtocol&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;TCP&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;71&lt;/span&gt;                &lt;span class=&#34;s1&#34;&gt;&amp;#39;ports&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;80&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;72&lt;/span&gt;            &lt;span class=&#34;p&#34;&gt;}],&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;73&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;sourceRanges&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;0.0.0.0/0&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;],&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;74&lt;/span&gt;            &lt;span class=&#34;s1&#34;&gt;&amp;#39;targetTags&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;flask-mysql-server&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;75&lt;/span&gt;        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;76&lt;/span&gt;    &lt;span class=&#34;p&#34;&gt;}]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;77&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;78&lt;/span&gt;    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;resources&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;resources&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;startup-script&#34;&gt;Startup script&lt;/h2&gt;
+&lt;p&gt;You need to create a startup script to be executed when the compute instance
+is installed. the script will clone the Flask + MySQL app from GitHub and
+install and run on the compute instance. It will also install MySQL server
+version 5.7, set it up with a default password, download the
+&lt;a href=&#34;https://dev.mysql.com/doc/sakila/en/&#34;&gt;Sakila sample database&lt;/a&gt; schema
+and data and load it to the newly installed MySQL server.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;ln&#34;&gt; 1&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#!/bin/bash
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 2&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 3&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Install Stackdriver logging agent&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 4&lt;/span&gt;curl -sSO https://dl.google.com/cloudagents/install-logging-agent.sh
+&lt;span class=&#34;ln&#34;&gt; 5&lt;/span&gt;sudo bash install-logging-agent.sh
+&lt;span class=&#34;ln&#34;&gt; 6&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 7&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Install or update needed software&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt; 8&lt;/span&gt;sudo apt-get update
+&lt;span class=&#34;ln&#34;&gt; 9&lt;/span&gt;sudo apt-get install -yq git python python-pip
+&lt;span class=&#34;ln&#34;&gt;10&lt;/span&gt;pip install --upgrade pip virtualenv
+&lt;span class=&#34;ln&#34;&gt;11&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;12&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Download the MySQL GPG Public key&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;13&lt;/span&gt;sudo apt install dirmngr
+&lt;span class=&#34;ln&#34;&gt;14&lt;/span&gt;sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5
+&lt;span class=&#34;ln&#34;&gt;15&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;16&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# write into mysql.list repository entries for mysql&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;17&lt;/span&gt;sudo cat &amp;gt; /etc/apt/sources.list.d/mysql.list &lt;span class=&#34;s&#34;&gt;&amp;lt;&amp;lt;EOF
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;18&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;deb http://repo.mysql.com/apt/debian/ stretch mysql-5.7
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;19&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;deb http://repo.mysql.com/apt/debian/ stretch mysql-tools
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;20&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;#deb http://repo.mysql.com/apt/debian/ stretch mysql-tools-preview
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;21&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;deb-src http://repo.mysql.com/apt/debian/ stretch mysql-5.7
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;22&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;EOF&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;23&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;24&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# update packages&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;25&lt;/span&gt;sudo apt-get update
+&lt;span class=&#34;ln&#34;&gt;26&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;27&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Install debconf-utils to set debconf variable&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;28&lt;/span&gt;sudo apt-get install debconf-utils
+&lt;span class=&#34;ln&#34;&gt;29&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;30&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# set the root password for the server installation&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;31&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;mysql-community-server mysql-community-server/root-pass password rootpassword&amp;#34;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sudo debconf-set-selections
+&lt;span class=&#34;ln&#34;&gt;32&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;mysql-community-server mysql-community-server/re-root-pass password rootpassword&amp;#34;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sudo debconf-set-selections
+&lt;span class=&#34;ln&#34;&gt;33&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;34&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# set the env var DEBIAN_FRONTEND to noninteractive then install MySQL noninteractively (no prompt)&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;35&lt;/span&gt;sudo &lt;span class=&#34;nv&#34;&gt;DEBIAN_FRONTEND&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;noninteractive apt-get -y install mysql-server
+&lt;span class=&#34;ln&#34;&gt;36&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;37&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# download sakila schema and data&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;38&lt;/span&gt;wget https://downloads.mysql.com/docs/sakila-db.tar.gz -O /tmp/sakila-db.tar.gz
+&lt;span class=&#34;ln&#34;&gt;39&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# unzip&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;40&lt;/span&gt;tar -zxvf /tmp/sakila-db.tar.gz
+&lt;span class=&#34;ln&#34;&gt;41&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# create database schema&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;42&lt;/span&gt;mysql -uroot -prootpassword -e &lt;span class=&#34;s2&#34;&gt;&amp;#34;SOURCE sakila-db/sakila-schema.sql;&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;43&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# populate the database with data&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;44&lt;/span&gt;mysql -uroot -prootpassword -e &lt;span class=&#34;s2&#34;&gt;&amp;#34;SOURCE sakila-db/sakila-data.sql;&amp;#34;&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;45&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;46&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;APP_DIR&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/src/sakila-flask-app
+&lt;span class=&#34;ln&#34;&gt;47&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Fetch sakila-flask-app source code&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;48&lt;/span&gt;git clone https://github.com/kakiang/sakila-flask-app.git &lt;span class=&#34;nv&#34;&gt;$APP_DIR&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;49&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;50&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# Python environment setup&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;51&lt;/span&gt;virtualenv -p python3 &lt;span class=&#34;nv&#34;&gt;$APP_DIR&lt;/span&gt;/env
+&lt;span class=&#34;ln&#34;&gt;52&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$APP_DIR&lt;/span&gt;/env/bin/activate
+&lt;span class=&#34;ln&#34;&gt;53&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$APP_DIR&lt;/span&gt;/env/bin/pip install -r &lt;span class=&#34;nv&#34;&gt;$APP_DIR&lt;/span&gt;/requirements.txt
+&lt;span class=&#34;ln&#34;&gt;54&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;55&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# set env vars to run flask&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;56&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;FLASK_APP&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$APP_DIR&lt;/span&gt;/run.py
+&lt;span class=&#34;ln&#34;&gt;57&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;FLASK_DEBUG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;58&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# run flask&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;59&lt;/span&gt;flask run --host&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0.0.0.0 --port&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;80&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;deployment-manager-config-file&#34;&gt;Deployment Manager config file&lt;/h2&gt;
+&lt;p&gt;This is the Deployment Manager config file. It&#39;s written in YAML syntax.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;ln&#34;&gt; 1&lt;/span&gt;&lt;span class=&#34;c&#34;&gt;# config.yaml&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 2&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;imports&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 3&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;- &lt;span class=&#34;nt&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;vm-template.py&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 4&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;- &lt;span class=&#34;nt&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;startup-script.sh&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 5&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 6&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;resources&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 7&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;- &lt;span class=&#34;nt&#34;&gt;name&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;app-vm&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 8&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;vm-template.py&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt; 9&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;properties&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;10&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;zone&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;us-central1-f&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;11&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;machine-type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;g1-small&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;12&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;        &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;metadata-from-file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;ln&#34;&gt;13&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;            &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;startup-script&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;startup-script.sh&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;It&#39;s now time to create the infrastructure and deploy the app. Run the
+following command to bring your infra to live:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud deployment-manager deployments create app-deployment --config config.yaml&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The output looks something like this:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;The fingerprint of the deployment is &lt;span class=&#34;nv&#34;&gt;eg6AtNRQR67c8jixp43vUQ&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;2&lt;/span&gt;....
+&lt;span class=&#34;ln&#34;&gt;3&lt;/span&gt;Create operation operation-ae2bc00b completed successfully.
+&lt;span class=&#34;ln&#34;&gt;4&lt;/span&gt;NAME             TYPE                 STATE      ERRORS  INTENT
+&lt;span class=&#34;ln&#34;&gt;5&lt;/span&gt;app-firewall     compute.v1.firewall  COMPLETED  &lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt;
+&lt;span class=&#34;ln&#34;&gt;6&lt;/span&gt;app-vm           compute.v1.instance  COMPLETED  &lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;A compute instance virtual machine and a firewall have been created.
+Wait 1 to 2 minutes for the startup script to complete execution and use
+the external IP of the &lt;code&gt;app-vm&lt;/code&gt; instance to access the deployed app in
+a browser.&lt;/p&gt;
+&lt;p&gt;The template, the startup script and the config file can be found on
+&lt;a href=&#34;https://github.com/kakiang/sakila-flask-app-deployment-manager&#34;&gt;GitHub&lt;/a&gt;.
+You can clone it and use it to create the same infrastructure as described
+above.&lt;/p&gt;
+&lt;p&gt;You can clone it:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;git clone https://github.com/kakiang/sakila-flask-app-deployment-manager.git&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Change directory into it and review it:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; sakila-flask-app-deployment-manager/&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;Then deploy it:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud deployment-manager deployments create app-deployment --config config.yaml&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;h2 id=&#34;clean-up&#34;&gt;Clean up&lt;/h2&gt;
+&lt;p&gt;Run the following command to delete the environment you just deployed:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;gcloud deployment-manager deployments delete app-deployment&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+
+        
+      </description>
+    </item>
+    
+  </channel>
+</rss>
