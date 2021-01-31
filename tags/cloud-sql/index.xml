@@ -374,8 +374,8 @@ Then click &lt;strong&gt;Done&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration4.png&#34; alt=&#34;Cloud SQL migration 4&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Click &lt;strong&gt;Create&lt;/strong&gt; to start the creation of your Cloud SQL replica instance.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration5.png&#34; alt=&#34;Cloud SQL migration 5&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Take note of the &lt;strong&gt;Outgoing IP address&lt;/strong&gt;.
-&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration6.png&#34; alt=&#34;Cloud SQL migration 6&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Take note of the &lt;strong&gt;Outgoing IP address&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration6.png&#34; alt=&#34;Cloud SQL migration 6&#34;&gt;&lt;/p&gt;
 &lt;p&gt;The MySQL replication user you created earlier accepts connections from
 any host. For security reasons, you should restrict the connections to
 only the Cloud SQL replica&#39;s &lt;strong&gt;outgoing IP address&lt;/strong&gt;.&lt;/p&gt;

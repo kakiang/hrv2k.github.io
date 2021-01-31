@@ -6,102 +6,72 @@
     <description>Recent content on Hervé Kakiang&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright>
-    <lastBuildDate>Sun, 24 May 2020 10:17:43 +0000</lastBuildDate><atom:link href="https://hrv2k.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 01 Jan 2021 12:27:37 +0000</lastBuildDate><atom:link href="https://hrv2k.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>A NoSQL Database With MySQL Document Store</title>
-      <link>https://hrv2k.github.io/post/a-nosql-database-with-mysql-document-store/</link>
-      <pubDate>Sun, 24 May 2020 10:17:43 +0000</pubDate>
+      <title>IBM Cloud Offerings with no expiration and no credit card required</title>
+      <link>https://hrv2k.github.io/post/ibm-cloud-free-tier/</link>
+      <pubDate>Fri, 01 Jan 2021 12:27:37 +0000</pubDate>
       
-      <guid>https://hrv2k.github.io/post/a-nosql-database-with-mysql-document-store/</guid>
+      <guid>https://hrv2k.github.io/post/ibm-cloud-free-tier/</guid>
       <description>
         
-          &lt;h2 id=&#34;sql--nosql--mysql&#34;&gt;SQL + NoSQL = MySQL&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;http://www.mysql.com/&#34;&gt;MySQL&lt;/a&gt;, the world’s most popular database
-management system (DBMS) has been rightfully used purely to create and
-manage relational databases until recently.
-During the last  decade, due to the requirements to store large quantities
-of diverse data, we&#39;ve seen the rise in adoption and usage of NoSQL
-databases.&lt;/p&gt;
-&lt;p&gt;In &lt;a href=&#34;https://dev.mysql.com/doc/relnotes/mysql/5.7/en/news-5-7-12.html&#34;&gt;MySQL version 5.7.12&lt;/a&gt;,
-MySQL Document Store was introduced, enabling MySQL to act as a NoSQL
-JSON Document Store. MySQL is thereby both a relational and a NoSQL DBMS.&lt;/p&gt;
-&lt;p&gt;Though there are many types of NoSQL databases with varying features,
-they have all steered clear of the relational data model and are all
-schemaless by definition.
-There are mainly four categories of NoSQL databases.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Key-value Pair NoSQL DB&lt;/strong&gt;: They store data in key/value pairs.
-For instance, &lt;a href=&#34;https://aws.amazon.com/dynamodb/&#34;&gt;Amazon&#39;s Dynamo&lt;/a&gt;
-and &lt;a href=&#34;https://redis.io/topics/data-types-intro&#34;&gt;Redis&lt;/a&gt; are in this category.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Column or wide column NoSQL DB&lt;/strong&gt;: In column-based NoSQL databases,
-columns don&#39;t have to be consistent across records. You can add columns
-to specific rows without having to add them to every single record.
-&lt;a href=&#34;https://cloud.google.com/bigtable&#34;&gt;Google&#39;s Cloud BigTable&lt;/a&gt;,
-&lt;a href=&#34;http://cassandra.apache.org/&#34;&gt;Apache Cassandra&lt;/a&gt; are examples of
-column-based databases.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Graph-Based NoSQL DB&lt;/strong&gt;: They store data as well the relations amongst
-them. This model is based on graph theory where structures are composed
-of vertices and edges. An entity is stored as a node (vertex) with the
-relationship as edges.
-&lt;a href=&#34;https://neo4j.com/&#34;&gt;Neo4J&lt;/a&gt;, &lt;a href=&#34;http://objectivity.com/products/infinitegraph/&#34;&gt;Infinite Graph&lt;/a&gt;, &lt;a href=&#34;https://orientdb.com/&#34;&gt;OrientDB&lt;/a&gt;, &lt;a href=&#34;https://github.com/twitter-archive/flockdb&#34;&gt;FlockDB&lt;/a&gt;
-are some examples graph-based databases.&lt;/p&gt;
-&lt;p&gt;And finally &lt;strong&gt;Document-based NoSQL DB&lt;/strong&gt;: They store data as documents
-using JSON or XML formats.
-[Amazon SimpleDB], [CouchDB], the popular [MongoDB], are examples of popular
-document-based NoSQL DBMS. &lt;a href=&#34;https://dev.mysql.com/doc/refman/8.0/en/document-store.html&#34;&gt;MySQL Document Store&lt;/a&gt; falls in this category.&lt;/p&gt;
-&lt;p&gt;The advent of MySQL Document Store starts with the
-&lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/json.html&#34;&gt;support for native JSON data type in MySQL 5.7.8&lt;/a&gt;.
-This feature enables efficient access to JSON documents stored in MySQL
-databases. On top of this feature, MySQL Document Store was built, a pure
-document store solution and was introduced in &lt;a href=&#34;https://dev.mysql.com/doc/relnotes/mysql/5.7/en/news-5-7-12.html&#34;&gt;MySQL 5.7.12&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Currently when you&#39;re considering database solutions, you are forced to
-make a choice or combine multiple solutions – SQL/NoSQL,
-Relational/Document Store. MySQL folks thought why not build both into
-MySQL database. SQL and NoSQL build into one solution.
-Hence &lt;strong&gt;SQL + NoSQL = MySQL&lt;/strong&gt;... They are not only built into the database
-storage, but across all levels for the database stack – storage,
-structure, protocol, APIs, Tools, etc.
-And that’s what has been materialized with the release of&lt;/p&gt;
+          &lt;h2 id=&#34;paas&#34;&gt;Paas&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloud Foundry&lt;/strong&gt; is a Platform-as-a-service (PaaS) that enables you to deploy and
+scale apps without managing server. Quota 256 MB of storage.&lt;/p&gt;
+&lt;h2 id=&#34;storage&#34;&gt;Storage:&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloud Object Storage&lt;/strong&gt; provides flexible, cost-effective storage for unstructured data.
+You can use up to 25 GB per month for free under this offering.&lt;/p&gt;
+&lt;h2 id=&#34;database&#34;&gt;Database:&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;X Plugin in MySQL 5.7.12&lt;/li&gt;
-&lt;li&gt;X Dev API&lt;/li&gt;
-&lt;li&gt;MySQL connectors: Connector/C++, Connector/Java, Connector/Node.js,  Connector/NET,
-Connector/Python&lt;/li&gt;
-&lt;li&gt;MySQL Shell: provides implementations of X DevAPI in JavaScript and Python&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloudant&lt;/strong&gt; is a scalable JSON document database for web, mobile, IoT and serverless
+applications. You can store 1 GB of data in IBM Cloudant.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Db2 on Cloud&lt;/strong&gt; is a fully managed cloud SQL database with a turbo-charged Db2 engine.
+Under this offering, the quota is capped at 100 MB of data storage.&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;With this 2-in-1 solution, you can have both schemaless and schema data
-models in the same technology stack.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/mysql_doc_store/nosql_sql_mysql.png&#34; alt=&#34;SQL + NoSQL = MySQL&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;x-protocol-x-plugin-and-x-devapi&#34;&gt;X Protocol, X Plugin, and X DevAPI&lt;/h2&gt;
-&lt;h3 id=&#34;x-protocol&#34;&gt;X Protocol&lt;/h3&gt;
-&lt;p&gt;MySQL has introduced a new protocol called X Protocol, which is used for
-communications between MySQL Clients and a MySQL Server. It is based on
-&lt;a href=&#34;https://developers.google.com/protocol-buffers&#34;&gt;Google Protocol Buffers&lt;/a&gt;
-and supports asynchronous communication to the server. The X Protocol is
-optimized for &lt;a href=&#34;https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_crud&#34;&gt;CRUD&lt;/a&gt;
-as well as SQL API operations.&lt;/p&gt;
-&lt;h3 id=&#34;x-plugin&#34;&gt;X Plugin&lt;/h3&gt;
-&lt;p&gt;X Plugin is the MySQL Server plugin which enables client/server communication
-using the X Protocol. It enables you to use MySQL as a document store.
-Clients that implement X DevAPI, in other support the X Protocol, can
-communicate with MySQL server and issue CRUD requests and send to and
-receive JSON from the server.&lt;/p&gt;
-&lt;p&gt;To verify that X Plugin is installed on an instance of MySQL server
-using MySQL Client, run the following command to to view the plugins list:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mysql -u user -p -e &lt;span class=&#34;s2&#34;&gt;&amp;#34;SHOW plugins&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h3 id=&#34;x-devapi&#34;&gt;X DevAPI&lt;/h3&gt;
-&lt;p&gt;The X DevAPI is a new, modern, async developer API for CRUD and SQL
-operations, built on several technologies including the X Protocol enabled
-through the X Plugin on top of X Protocol. It wraps powerful concepts in a simple
-API (such as collections, tables, SQL operations). It can be used to make
-non-blocking, asynchronous calls that follow common host language patterns.
-It introduces &lt;strong&gt;Collections&lt;/strong&gt; as a new schema object which is the basis for
-MySQL document store.&lt;/p&gt;
-&lt;p&gt;From the developer or application&#39;s perspective, the X DevAPI is an the
-API that (among other things) allows you to develop NoSQL solutions for
-MySQL and use it as a document store.&lt;/p&gt;
-&lt;p&gt;Thanks for reading! Stay tuned for the next part on how to set up and use
-MySQL as a document store and use &lt;a href=&#34;https://dev.mysql.com/doc/mysql-shell/8.0/en/&#34;&gt;MySQL Shell&lt;/a&gt;
-to interface with the server.&lt;/p&gt;
+&lt;h2 id=&#34;devops&#34;&gt;DevOps&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloud Availability Monitoring&lt;/strong&gt; enables you to ensure applications are always
+available and meeting user expectations for response time. Quota for this offering:
+3 million data points per month.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloud Continuous Delivery&lt;/strong&gt; provides the support for DevOps best practices by using
+Git, issue tracking, CI/CD pipelines and the Eclipse Orion Web IDE in the cloud. The quota
+500 delivery pipeline jobs.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloud Container Registry&lt;/strong&gt; manages Docker container images in a fully managed private
+registry. Quota 5 GB per month pull data transfer&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;security&#34;&gt;Security&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloud Activity Tracker&lt;/strong&gt; enables you to gain insights about your users and their
+applications with IBM Cloud services. Under this offerring you can inspect the 100,000
+most recent cloud activity events.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloud App ID&lt;/strong&gt; adds authentication to your mobile and web apps, and protect your APIs
+and back ends running on IBM Cloud. The quota 1,000 monthly events.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;analytics&#34;&gt;Analytics&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Cloud Analytics Engine&lt;/strong&gt; helps you develop and deploy analytics applications using
+open source Apache Spark and Apache Hadoop. The quota 50 node hours.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;IBM Streams&lt;/strong&gt; ingest, analyze, monitor and correlate data as it arrives from real-time
+data sources. Quota 1 dedicated application resource&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 
         
       </description>
@@ -698,8 +668,8 @@ Then click &lt;strong&gt;Done&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration4.png&#34; alt=&#34;Cloud SQL migration 4&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Click &lt;strong&gt;Create&lt;/strong&gt; to start the creation of your Cloud SQL replica instance.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration5.png&#34; alt=&#34;Cloud SQL migration 5&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Take note of the &lt;strong&gt;Outgoing IP address&lt;/strong&gt;.
-&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration6.png&#34; alt=&#34;Cloud SQL migration 6&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Take note of the &lt;strong&gt;Outgoing IP address&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migration6.png&#34; alt=&#34;Cloud SQL migration 6&#34;&gt;&lt;/p&gt;
 &lt;p&gt;The MySQL replication user you created earlier accepts connections from
 any host. For security reasons, you should restrict the connections to
 only the Cloud SQL replica&#39;s &lt;strong&gt;outgoing IP address&lt;/strong&gt;.&lt;/p&gt;
