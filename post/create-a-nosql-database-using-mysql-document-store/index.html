@@ -1,8 +1,8 @@
 
 <!DOCTYPE html>
-<html lang="en" data-figures="">
+<html lang="en" data-figures="" class="page">
   <head>
-<title>Tags | Hervé Kakiang&#39;s blog</title>
+<title>Create a NoSQL Database Using MySQL Document Store | Hervé Kakiang&#39;s blog</title>
 <meta charset="utf-8">
 <meta name="generator" content="Hugo 0.80.0" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,19 +14,18 @@
   gtag('js', new Date());
   gtag('config', 'UA-150847968-1');
 </script>
+  
 <meta property="og:locale" content="en" />
 
-<meta property="og:locale:alternate" content="fr" />
-
 <meta property="og:type" content="article">
-<meta name="description" content="">
+<meta name="description" content="MySQL engineers have embraced the NoSQL concept and introduced in MySQL version 5.7.12 a way of working with MySQL as a NoSQL database known as MySQL Document …">
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:creator" content="">
-<meta name="twitter:title" content="Tags" />
-<meta property="og:url" content="https://hrv2k.github.io/tags/" />
-<meta property="og:title" content="Tags" />
-<meta property="og:description" content="" />
-<meta property="og:image" content="https://hrv2k.github.io/images/thumbnail.png" />
+<meta name="twitter:title" content="Create a NoSQL Database Using MySQL Document Store" />
+<meta property="og:url" content="https://hrv2k.github.io/post/create-a-nosql-database-using-mysql-document-store/" />
+<meta property="og:title" content="Create a NoSQL Database Using MySQL Document Store" />
+<meta property="og:description" content="MySQL engineers have embraced the NoSQL concept and introduced in MySQL version 5.7.12 a way of working with MySQL as a NoSQL database known as MySQL Document …" />
+<meta property="og:image" content="https://hrv2k.github.io/images/mysql_doc_store/mysql_doc_store_archi.png" />
 <link rel="apple-touch-icon" sizes="180x180" href='https://hrv2k.github.io/icons/apple-touch-icon.png'>
 <link rel="icon" type="image/png" href='https://hrv2k.github.io/icons/favicon.ico'>
 <link rel="manifest" href='https://hrv2k.github.io/icons/site.webmanifest'>
@@ -34,8 +33,7 @@
 <meta name="msapplication-TileColor" content="#002538">
 <meta name="theme-color" content="#002538">
 
-<link rel="canonical" href="https://hrv2k.github.io/tags/">
-<link rel="alternate" type="application/rss+xml" href="https://hrv2k.github.io/tags/index.xml" title="Hervé Kakiang's blog" />
+<link rel="canonical" href="https://hrv2k.github.io/post/create-a-nosql-database-using-mysql-document-store/">
 
     
 
@@ -125,118 +123,163 @@
 </header>
 
     <main>
-
+  
 <div class="grid-inverse wrap content">
-  <ul class="posts" id="posts">
-      <li class="post_item">
-  <div class="excerpt">
-    <div class="excerpt_header">
-      <h3 class="post_link">
-        <a href="https://hrv2k.github.io/tags/cloud-scheduler/">Cloud Scheduler</a>
-      </h3>
-      <div class="post_meta">
+  <article class="post_content">
+    <h1 class="post_title">Create a NoSQL Database Using MySQL Document Store</h1><div class="post_meta">
   
     <svg class="icon">
   <use xlink:href="#calendar"></use>
 </svg>
     <span class="post_date">
-      Nov 21, 2019</span>
+      Mar 3, 2020</span>
 </div>
 
-    </div>
-      <div class="excerpt_footer">
-        <div>
-          <p class="pale">
-            
-          </p>
-          
-        </div>
-      </div>
-    </div>
-  </li>
-
-      <li class="post_item">
-  <div class="excerpt">
-    <div class="excerpt_header">
-      <h3 class="post_link">
-        <a href="https://hrv2k.github.io/tags/manage-instance-groups/">Manage instance groups</a>
-      </h3>
-      <div class="post_meta">
-  
-    <svg class="icon">
-  <use xlink:href="#calendar"></use>
+    
+  <div class="post_share">
+    Share on:
+    <a href="https://twitter.com/intent/tweet?text=Create%20a%20NoSQL%20Database%20Using%20MySQL%20Document%20Store&url=https%3a%2f%2fhrv2k.github.io%2fpost%2fcreate-a-nosql-database-using-mysql-document-store%2f&tw_p=tweetbutton" class="twitter" title="Share on Twitter" target="_blank" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#twitter"></use>
 </svg>
-    <span class="post_date">
-      Oct 23, 2019</span>
-</div>
-
-    </div>
-      <div class="excerpt_footer">
-        <div>
-          <p class="pale">
-            
-          </p>
-          
-        </div>
-      </div>
-    </div>
-  </li>
-
-      <li class="post_item">
-  <div class="excerpt">
-    <div class="excerpt_header">
-      <h3 class="post_link">
-        <a href="https://hrv2k.github.io/tags/ci/cd/">CI/CD</a>
-      </h3>
-      <div class="post_meta">
-  
-    <svg class="icon">
-  <use xlink:href="#calendar"></use>
+    </a>
+    <a href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fhrv2k.github.io%2fpost%2fcreate-a-nosql-database-using-mysql-document-store%2f&t=Create%20a%20NoSQL%20Database%20Using%20MySQL%20Document%20Store" class="facebook" title="Share on Facebook" target="_blank" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#facebook"></use>
 </svg>
-    <span class="post_date">
-      Jan 1, 0001</span>
-</div>
+    </a>
+    <a href="#linkedinshare" id = "linkedinshare" class="linkedin" title="Share on LinkedIn" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#linkedin"></use>
+</svg>
+    </a>
+    <a href="https://hrv2k.github.io/post/create-a-nosql-database-using-mysql-document-store/" title="Copy Link" class="link link_yank">
+      <svg class="icon">
+  <use xlink:href="#copy"></use>
+</svg>
+    </a>
+  </div>
 
-    </div>
-      <div class="excerpt_footer">
-        <div>
-          <p class="pale">
-            
-          </p>
-          
-        </div>
-      </div>
-    </div>
-  </li>
-
-    <li>
-<ul class="pagination">
-  <li class="page-item">
-    <a href="/tags/" class="page-link" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
-  </li>
-  <li class="page-item">
-    <a href="/tags/page/2/" class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
-  </li>
-  <li class="page-item">
-    <a class="page-link" href="/tags/">1</a>
-  </li>
-  <li class="page-item">
-    <a class="page-link" href="/tags/page/2/">2</a>
-  </li>
-  <li class="page-item active">
-    <a class="page-link" href="/tags/page/3/">3</a>
-  </li>
-  <li class="page-item disabled">
-    <a  class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
-  </li>
-  <li class="page-item">
-    <a href="/tags/page/3/" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
-  </li>
+    
+    <h2 id="sql--nosql--mysql">SQL + NoSQL = MySQL</h2>
+<p><a href="http://www.mysql.com/">MySQL</a>, the world’s most popular database
+management system (DBMS) has been rightfully used purely to create and
+manage relational databases until recently.
+During the last  decade, due to the requirements to store large quantities
+of diverse data, we've seen the rise in adoption and usage of NoSQL
+databases.</p>
+<p>In <a href="https://dev.mysql.com/doc/relnotes/mysql/5.7/en/news-5-7-12.html">MySQL version 5.7.12</a>,
+MySQL Document Store was introduced, enabling MySQL to act as a NoSQL
+JSON Document Store. MySQL is thereby both a relational and a NoSQL DBMS.</p>
+<p>Though there are many types of NoSQL databases with varying features,
+they have all steered clear of the relational data model and are all
+schemaless by definition.
+There are mainly four categories of NoSQL databases.</p>
+<p><strong>Key-value Pair NoSQL DB</strong>: They store data in key/value pairs.
+For instance, Amazon's Dynamo and Redis are in this category.</p>
+<p><strong>Column or wide column NoSQL DB</strong>: In column-based NoSQL databases,
+columns don't have to be consistent across records. You can add columns
+to specific rows without having to add them to every single record.
+Google's BigTable, Apache Cassandra are examples of column-based databases.</p>
+<p><strong>Graph-Based NoSQL DB</strong>: They store data as well the relations amongst
+them. This model is based on graph theory where structures are composed
+of vertices and edges. An entity is stored as a node (vertex) with the
+relationship as edges.
+Neo4J, Infinite Graph, OrientDB, FlockDB are some examples graph-based
+databases.</p>
+<p>And finally <strong>Document-based NoSQL DB</strong>: They store data as documents
+using JSON or XML formats.
+Amazon SimpleDB, CouchDB, MongoDB, are examples of popular document-based
+NoSQL DBMS. <a href="https://dev.mysql.com/doc/refman/8.0/en/document-store.html">MySQL Document Store</a>
+belongs to this last category.</p>
+<p>The advent of MySQL Document Store starts with the
+<a href="https://dev.mysql.com/doc/refman/5.7/en/json.html">support for native JSON data type in MySQL 5.7.8</a>.
+This feature enables efficient access to JSON documents stored in MySQL
+databases. On top of this feature, MySQL Document Store was built, a pure
+document store solution and was introduced in <a href="https://dev.mysql.com/doc/relnotes/mysql/5.7/en/news-5-7-12.html">MySQL 5.7.12</a>.</p>
+<p>Currently when you're considering database solutions, you are forced to
+make a choice or combine multiple solutions – SQL/NoSQL,
+Relational/Document Store. MySQL folks thought why not build both into
+MySQL database. SQL and NoSQL build into one solution.
+Hence <strong>SQL + NoSQL = MySQL</strong>...?? They are not only built into the database
+storage, but across all levels for the database stack – storage,
+structure, protocol, APIs, Tools, etc.
+And that’s what has been materialized with the release of</p>
+<ul>
+<li>X Plugin in MySQL 5.7.12</li>
+<li>X Dev API</li>
+<li>MySQL connectors: Connector/C++, Connector/Java, Connector/Node.js,  Connector/NET, Connector/Python</li>
+<li>MySQL Shell: provides implementations of X DevAPI in JavaScript and Python</li>
 </ul>
+<p>With this 2-in-1 solution, you can have both schemaless and schema data
+models in the same technology stack.</p>
+<p><img src="/images/mysql_doc_store/nosql_sql_mysql.png" alt="SQL + NoSQL = MySQL"></p>
+<h2 id="x-protocol-x-plugin-and-x-devapi">X Protocol, X Plugin, and X DevAPI</h2>
+<h3 id="x-protocol">X Protocol</h3>
+<p>MySQL has introduced a new protocol called X Protocol, which is used for
+communications between MySQL Clients and a MySQL Server. It is based on
+Google Protocol Buffers and supports asynchronous communication to the
+server. The X Protocol is optimized for <a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_crud">CRUD</a> as well as SQL API operations.</p>
+<h3 id="x-plugin">X Plugin</h3>
+<p>X Plugin is the MySQL Server plugin which enables client/server communication
+using the X Protocol. It enables you to use MySQL as a document store.
+Clients that implement X DevAPI, in other support the X Protocol, can
+communicate with MySQL server and issue CRUD requests and send to and
+receive JSON from the server.</p>
+<p>To verify that X Plugin is installed on an instance of MySQL server
+using MySQL Client, run the following command to to view the plugins list:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>mysql -u user -p -e <span class="s2">&#34;SHOW plugins&#34;</span></code></pre></div>
+<h3 id="x-devapi">X DevAPI</h3>
+<p>The X DevAPI is a new, modern, async developer API for CRUD and SQL
+operations, built on several technologies including the X Protocol enabled
+through the X Plugin on top of X Protocol. It wraps powerful concepts in a simple
+API (such as collections, tables, SQL operations). It can be used to make
+non-blocking, asynchronous calls that follow common host language patterns.
+It introduces Collections as new schema objects which is the basis for
+MySQL document store.</p>
+<p>From the developer or application's perspective, the X DevAPI is an the
+API that (among other things) allows you to develop NoSQL solutions for
+MySQL and use MySQL as a document store.</p>
+<h2 id="getting-ready-to-use-mysql-as-a-document-store">Getting ready to use MySQL as a document store</h2>
+<p>To interface with MySQL as a document store, you need to have X Plugin
+installed on MySQL server.
+If you are using MySQL 8, X Plugin is enabled by default in MySQL 8.
+Otherwise you have to install or upgrade to MySQL 5.7.12 or higher, then
+follow <a href="https://dev.mysql.com/doc/refman/5.7/en/document-store-setting-up.html">this guide to set up MySQL as a document store</a>.</p>
+<p>You can't use the old MySQL command-line client  to connect to MySQL as a
+document store, since it doesn't implement the X Protocol. You need
+<a href="https://dev.mysql.com/doc/mysql-shell/8.0/en/">MySQL Shell</a>.
+MySQL Shell is the new modern and advanced command-line client for MySQL.
+It is a unified scripting interface to MySQL Server. It supports scripting
+in JavaScript and Python. It can also operate in pure SQL mode.
+<a href="https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-install.html">Install MySQL Shell</a>
+and login to the local MySQL server using the root user using the following
+command; enter the root password when prompted:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>mysqlsh root@localhost</code></pre></div>
 
-
-    </li>
-  </ul>
+    
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hervekakiangblog" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+  </article>
 <aside class="sidebar">
   <section class="sidebar_inner">
     
@@ -251,10 +294,10 @@
         <a href="https://hrv2k.github.io/post/ibm-cloud-free-tier/" class="nav-link">IBM Cloud Offerings with no expiration and no credit card required</a>
       </li>
       <li>
-        <a href="https://hrv2k.github.io/post/create-a-nosql-database-using-mysql-document-store/" class="nav-link">Create a NoSQL Database Using MySQL Document Store</a>
+        <a href="https://hrv2k.github.io/post/deploy-a-flask-mysql-app-to-gce-using-deployment-manager/" class="nav-link">Deploy a Flask &#43; MySQL App to GCE Using Deployment Manager</a>
       </li>
       <li>
-        <a href="https://hrv2k.github.io/post/deploy-a-flask-mysql-app-to-gce-using-deployment-manager/" class="nav-link">Deploy a Flask &#43; MySQL App to GCE Using Deployment Manager</a>
+        <a href="https://hrv2k.github.io/post/migrate-your-mysql-database-to-google-cloud-sql-over-ssl-tls-encrypted-connection-with-minimal-downtime/" class="nav-link">Migrate Your MySQL Database to Google Cloud SQL over SSL/TLS Encrypted Connections With Minimal Downtime</a>
       </li>
     </ul>
     <div>
@@ -416,8 +459,6 @@
 </aside>
 
 </div>
-
-
     </main><svg width="0" height="0" class="hidden">
   <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="facebook">
     <path d="M437 0H75C33.648 0 0 33.648 0 75v362c0 41.352 33.648 75 75 75h151V331h-60v-90h60v-61c0-49.629 40.371-90 90-90h91v90h-91v61h91l-15 90h-76v181h121c41.352 0 75-33.648 75-75V75c0-41.352-33.648-75-75-75zm0 0"></path>
