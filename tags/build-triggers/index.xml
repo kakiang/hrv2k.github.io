@@ -15,7 +15,9 @@
       <guid>https://hrv2k.github.io/post/integrate-github-cloud-build-deploy-cloud-run/</guid>
       <description>
         
-          &lt;p&gt;In the &lt;a href=&#34;https://hrv2k.github.io/posts/getting-started-with-cloud-build/&#34;&gt;Getting started with Cloud Build&lt;/a&gt;
+          &lt;p&gt;&lt;strong&gt;Integrate GitHub with Cloud Build to build a container image from
+a GitHub repo, push the image to Container Registry and deploy it to Cloud Run.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;In the &lt;a href=&#34;https://hrv2k.github.io/posts/getting-started-with-cloud-build/&#34;&gt;Getting started with Cloud Build&lt;/a&gt;
 post, we automated the build of a container image and its deployment to
 &lt;a href=&#34;https://cloud.google.com/cloud-build/&#34;&gt;Cloud Run&lt;/a&gt; using
 &lt;a href=&#34;https://cloud.google.com/cloud-build/&#34;&gt;Cloud Build&lt;/a&gt;. But something was

@@ -15,9 +15,10 @@
       <guid>https://hrv2k.github.io/post/mapping-a-cloud-run-service-to-a-custom-domain/</guid>
       <description>
         
-          &lt;p&gt;When you deploy a service to Cloud Run, you are provided with a default
-domain to access the service. However, you can use your own domain or
-subdomain instead of the default one.&lt;/p&gt;
+          &lt;p&gt;&lt;strong&gt;When you deploy a service to Cloud Run, you are provided with a
+default domain to access the service. However, you can use your own domain
+or subdomain instead of the default one. So in this tutorial, I&#39;ll map a custom
+domain to a Cloud Run service.&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;In the &lt;em&gt;Cloud Run services&lt;/em&gt; page, Click &lt;strong&gt;MANAGE CUSTOM DOMAINS&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/service.png&#34; alt=&#34;cloud Run service&#34;&gt;&lt;/p&gt;
 &lt;p&gt;In the &lt;em&gt;Domain Mappings&lt;/em&gt; page, click &lt;strong&gt;ADD MAPPING&lt;/strong&gt;&lt;/p&gt;

@@ -1,8 +1,8 @@
 
 <!DOCTYPE html>
-<html lang="en" data-figures="" class="page">
+<html lang="en" data-figures="">
   <head>
-<title>Horizontal Scaling vs Vertical Scaling | Hervé Kakiang&#39;s blog</title>
+<title>Migration | Hervé Kakiang&#39;s blog</title>
 <meta charset="utf-8">
 <meta name="generator" content="Hugo 0.80.0" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,18 +14,17 @@
   gtag('js', new Date());
   gtag('config', 'UA-150847968-1');
 </script>
-  
 <meta property="og:locale" content="en" />
 
 <meta property="og:type" content="article">
-<meta name="description" content="Horizontal scaling means adding more instances (e.g. VMs) to previously &#39;running&#39; instance(s). And Vertical scaling means adding more power (e.g. cpu, memory) …">
+<meta name="description" content="">
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:creator" content="">
-<meta name="twitter:title" content="Horizontal Scaling vs Vertical Scaling" />
-<meta property="og:url" content="https://hrv2k.github.io/post/horizontal-vs-vertical-scaling/" />
-<meta property="og:title" content="Horizontal Scaling vs Vertical Scaling" />
-<meta property="og:description" content="Horizontal scaling means adding more instances (e.g. VMs) to previously &#39;running&#39; instance(s). And Vertical scaling means adding more power (e.g. cpu, memory) …" />
-<meta property="og:image" content="https://hrv2k.github.io/images/scaling-out-scaling-up.jpeg" />
+<meta name="twitter:title" content="Migration" />
+<meta property="og:url" content="https://hrv2k.github.io/tags/migration/" />
+<meta property="og:title" content="Migration" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="https://hrv2k.github.io/images/thumbnail.png" />
 <link rel="apple-touch-icon" sizes="180x180" href='https://hrv2k.github.io/icons/apple-touch-icon.png'>
 <link rel="icon" type="image/png" href='https://hrv2k.github.io/icons/favicon.ico'>
 <link rel="manifest" href='https://hrv2k.github.io/icons/site.webmanifest'>
@@ -33,7 +32,8 @@
 <meta name="msapplication-TileColor" content="#002538">
 <meta name="theme-color" content="#002538">
 
-<link rel="canonical" href="https://hrv2k.github.io/post/horizontal-vs-vertical-scaling/">
+<link rel="canonical" href="https://hrv2k.github.io/tags/migration/">
+<link rel="alternate" type="application/rss+xml" href="https://hrv2k.github.io/tags/migration/index.xml" title="Hervé Kakiang's blog" />
 
     
 
@@ -123,141 +123,57 @@
 </header>
 
     <main>
-  
+
 <div class="grid-inverse wrap content">
-  <article class="post_content">
-    <h1 class="post_title">Horizontal Scaling vs Vertical Scaling</h1><div class="post_meta">
+  <ul class="posts" id="posts">
+      <li class="post_item">
+  <div class="excerpt">
+    <div class="excerpt_header">
+      <h3 class="post_link">
+        <a href="https://hrv2k.github.io/post/migrate-your-mysql-database-to-google-cloud-sql-over-ssl-tls-encrypted-connection-with-minimal-downtime/">Migrate Your MySQL Database to Google Cloud SQL over SSL/TLS Encrypted Connections With Minimal Downtime</a>
+      </h3>
+      <div class="post_meta">
   
     <svg class="icon">
   <use xlink:href="#calendar"></use>
 </svg>
     <span class="post_date">
-      Nov 30, 2019</span>
-      <a href='https://hrv2k.github.io/tags/computing' class="post_tag button button_translucent">Computing
+      Feb 17, 2020</span>
+      <a href='https://hrv2k.github.io/tags/cloud-computing' class="post_tag button button_translucent">Cloud Computing
       </a>
       <a href='https://hrv2k.github.io/tags/gcp' class="post_tag button button_translucent">GCP
       </a>
-      <a href='https://hrv2k.github.io/tags/cloud-spanner' class="post_tag button button_translucent">Cloud Spanner
+      <a href='https://hrv2k.github.io/tags/cloud-sql' class="post_tag button button_translucent">Cloud SQL
       </a>
-      <a href='https://hrv2k.github.io/tags/cloud-bigtable' class="post_tag button button_translucent">Cloud Bigtable
+      <a href='https://hrv2k.github.io/tags/migration' class="post_tag button button_translucent">Migration
+      </a>
+      <a href='https://hrv2k.github.io/tags/mysql' class="post_tag button button_translucent">MySQL
       </a>
 </div>
 
-    
-  <div class="post_share">
-    Share on:
-    <a href="https://twitter.com/intent/tweet?text=Horizontal%20Scaling%20vs%20Vertical%20Scaling&url=https%3a%2f%2fhrv2k.github.io%2fpost%2fhorizontal-vs-vertical-scaling%2f&tw_p=tweetbutton" class="twitter" title="Share on Twitter" target="_blank" rel="nofollow">
-      <svg class="icon">
-  <use xlink:href="#twitter"></use>
-</svg>
-    </a>
-    <a href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fhrv2k.github.io%2fpost%2fhorizontal-vs-vertical-scaling%2f&t=Horizontal%20Scaling%20vs%20Vertical%20Scaling" class="facebook" title="Share on Facebook" target="_blank" rel="nofollow">
-      <svg class="icon">
-  <use xlink:href="#facebook"></use>
-</svg>
-    </a>
-    <a href="#linkedinshare" id = "linkedinshare" class="linkedin" title="Share on LinkedIn" rel="nofollow">
-      <svg class="icon">
-  <use xlink:href="#linkedin"></use>
-</svg>
-    </a>
-    <a href="https://hrv2k.github.io/post/horizontal-vs-vertical-scaling/" title="Copy Link" class="link link_yank">
-      <svg class="icon">
-  <use xlink:href="#copy"></use>
-</svg>
-    </a>
-  </div>
+    </div>
+    <div class="excerpt_footer partition">
+      <div class="excerpt_thumbnail">
+        <img src='https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migrate_replication1.png'>
+      </div>
+      
+        <div>
+          <p class="pale">
+            
+              With Google Cloud SQL, it&#39;s relatively easy to move your database from an external, self-managed server to the cloud with minimal downtime. I am going to migrate an external MySQL database to Google Cloud SQL
+            
+          </p>
+          
+        </div>
+      </div>
+    </div>
+  </li>
 
-    
-    
-    <h2>Overview</h2>
-    <nav id="TableOfContents"></nav>
-    <h1 id="what-is-it">What Is it?</h1>
-<p>Horizontal scaling means adding more instances (e.g. VMs) to
-previously 'running' instance(s). Vertical scaling onn the other hand,
-means adding more power (e.g. cpu, memory) to a 'running' instance.</p>
-<p>For example, let's say you have an instance that is running a workload,
-and that instance is no longer able to handle the workload. To solve the
-problem you add another instance and share the workload between the 2
-instances; that's horizontal scaling. But if instead of adding another
-instance to handle the increasing workload, you increase the number of
-CPUs and memory size of the running instance, that's vertical scaling.</p>
-<p>Horizontal scaling is also designated by scaling out. And vertical
-scaling is synonymous with scaling up.</p>
-<h1 id="example-cloud-spanner-and-cloud-sql">Example: Cloud Spanner and Cloud SQL</h1>
-<p>According to the <a href="https://cloud.google.com/spanner/">Cloud Spanner page</a>,</p>
-<blockquote>
-<p>Cloud Spanner is the first scalable, enterprise-grade, globally-distributed, and strongly consistent database service built for the cloud specifically to combine the benefits of relational database structure with non-relational horizontal scale.</p>
-</blockquote>
-<p>According to the <a href="https://cloud.google.com/sql/">Cloud SQL page</a>,</p>
-<blockquote>
-<p>Cloud SQL is a fully managed database service that makes it easy to set up, maintain, manage, and administer your relational PostgreSQL, MySQL, and SQL Server databases in the cloud.</p>
-</blockquote>
-<p>Cloud Spanner has the ability to scale horizontally
-(like other <a href="https://en.wikipedia.org/wiki/NoSQL">NoSQL databases</a>).
-That means we start off with one node (i.e VM instance), and when
-that single node reaches its capacity limit, another node is spun up and
-added to the previous node to handle the load and so on. Cloud SQL
-doesn't do that. If your Cloud SQL instance is no longer able to handle
-the amount of data it receives, its storage capacity increases.
-So Cloud Spanner scales out/horizontally by adding more instances to
-its cluster to handle increasing workload, whereas Cloud SQL scales
-up/vertically by increasing its storage capacity. Because Cloud Spanner
-and Cloud SQL are GCP's fully-managed services, the scalability feature
-is automated. If they weren't automated, we'd have to do the scaling
-ourselves, as it is the case in most on-premises environments.</p>
-<p>In fact horizontal scaling is possible with relational databases, it's
-called sharding. But implementing it is a pain in the neck.</p>
-<p>What's interesting with Cloud Spanner is despite the fact that it scales
-horizontally, it supports transactions and strong consistency. NoSQL
-databases aren't usually consistent, because it's difficult to have
-consistency when you are duplicating data. And when you don't have
-consistency there is no point in supporting transactions.</p>
-<p>To scale, Cloud Spanner uses multiple nodes. That means the data is in
-no single node, they are spread accross different nodes. Essentially,
-to have a consistent database, you need to have a mechanism that checks
-if after inserting new data, the database will still remain consistent.
-Your database has to go from one valid state to another after any
-completed operation. Now, with a database that operates accross a cluster
-of nodes, you have to check every node if you want to have a strongly
-consistent database; and that would be a lot of processing especially
-if you have a large amount of data.
-You can't do it without paying some performance cost. That is
-why when it comes to ingesting large amount of data at high velocity,
-<a href="https://cloud.google.com/bigtable/">Cloud Bigtable</a> does it better than
-Cloud Spanner. I believe that's mostly simply because Cloud Spanner cares about
-consistency while Cloud Bigtable doesn't. That makes Cloud Spanner not
-suitable for high-speed ingestion of large amount of data, because it
-has to check for consistency. Whereas Cloud Bigtable is very
-good at ingesting data at high-velocity, it's low-latency and supports
-millions of operations per second; it's a NoSQL database and doesn't care
-about consistency.</p>
-<p>To deep dive into Cloud Spanner, check this
-<a href="https://ai.google/research/pubs/pub39966">article</a> by Google's engineers</p>
+    <li>
 
-    
-      <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "hervekakiangblog" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-    
-  </article>
+
+    </li>
+  </ul>
 <aside class="sidebar">
   <section class="sidebar_inner">
     
@@ -437,6 +353,8 @@ about consistency.</p>
 </aside>
 
 </div>
+
+
     </main><svg width="0" height="0" class="hidden">
   <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="facebook">
     <path d="M437 0H75C33.648 0 0 33.648 0 75v362c0 41.352 33.648 75 75 75h151V331h-60v-90h60v-61c0-49.629 40.371-90 90-90h91v90h-91v61h91l-15 90h-76v181h121c41.352 0 75-33.648 75-75V75c0-41.352-33.648-75-75-75zm0 0"></path>

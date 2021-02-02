@@ -15,7 +15,14 @@
       <guid>https://hrv2k.github.io/post/deploy-a-flask-mysql-app-to-gce-using-deployment-manager/</guid>
       <description>
         
-          &lt;p&gt;&lt;a href=&#34;https://cloud.google.com/deployment-manager/&#34;&gt;Google Cloud Deployment Manager&lt;/a&gt;
+          &lt;p&gt;&lt;strong&gt;Using an infrastructure provisioning platform, you can bring an
+entire infrastructure to life using a couple lines of declarative code.
+This is infrastructure as Code, a way to define in code the resources you
+need for your infrastructure and to use an infrastructure provisioning engine
+to create and configure those resources. In this tutorial you&#39;ll create
+a Google Compute Engine (GCE) instance, then deploy a Flask + MySQL App
+on it using Google Cloud Deployment Manager.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://cloud.google.com/deployment-manager/&#34;&gt;Google Cloud Deployment Manager&lt;/a&gt;
 is Google&#39;s Infrastracture as Code service. It allows you to deploy and
 manage cloud resources (compute, storage, and network resources, and
 GCP-specific services) without having to configure those resources

@@ -18,13 +18,13 @@
 <meta property="og:locale" content="en" />
 
 <meta property="og:type" content="article">
-<meta name="description" content="With Google Cloud SQL, it&#39;s relatively easy to move your database between an external, self-managed server and the cloud with minimal downtime. With the …">
+<meta name="description" content="With Google Cloud SQL, it&#39;s relatively easy to move your database from an external, self-managed server to the cloud with minimal downtime. I am going to …">
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:creator" content="">
 <meta name="twitter:title" content="Migrate Your MySQL Database to Google Cloud SQL over SSL/TLS Encrypted Connections With Minimal Downtime" />
 <meta property="og:url" content="https://hrv2k.github.io/post/migrate-your-mysql-database-to-google-cloud-sql-over-ssl-tls-encrypted-connection-with-minimal-downtime/" />
 <meta property="og:title" content="Migrate Your MySQL Database to Google Cloud SQL over SSL/TLS Encrypted Connections With Minimal Downtime" />
-<meta property="og:description" content="With Google Cloud SQL, it&#39;s relatively easy to move your database between an external, self-managed server and the cloud with minimal downtime. With the …" />
+<meta property="og:description" content="With Google Cloud SQL, it&#39;s relatively easy to move your database from an external, self-managed server to the cloud with minimal downtime. I am going to …" />
 <meta property="og:image" content="https://hrv2k.github.io/images/migrate_cloudsql/cloudsql_migrate_replication1.png" />
 <link rel="apple-touch-icon" sizes="180x180" href='https://hrv2k.github.io/icons/apple-touch-icon.png'>
 <link rel="icon" type="image/png" href='https://hrv2k.github.io/icons/favicon.ico'>
@@ -39,12 +39,12 @@
 
     
     
-    <link rel="preload" href="https://hrv2k.github.io/css/styles.2c7a039ca654e98a4bbcdc27affbbd5d2c4756ba1937c909596644883e6c740f86855853713082a9b45ce91a88c6cf2b4cbacb1754b8bf9cb7c279d69e3c4d0f.css" integrity = "sha512-LHoDnKZU6YpLvNwnr/u9XSxHVroZN8kJWWZEiD5sdA&#43;GhVhTcTCCqbRc6RqIxs8rTLrLF1S4v5y3wnnWnjxNDw==" as="style" crossorigin="anonymous">
+    <link rel="preload" href="https://hrv2k.github.io/css/styles.fa564126ef946e7fbd1a66290bacc1bdd0db7cf90b016ca48c202da3affb2c4a8e2e2fc1c2accf04c77092d1b0c7bd5f844a1aad0832f128d100f8cd96b27418.css" integrity = "sha512-&#43;lZBJu&#43;Ubn&#43;9GmYpC6zBvdDbfPkLAWykjCAto6/7LEqOLi/BwqzPBMdwktGwx71fhEoarQgy8SjRAPjNlrJ0GA==" as="style" crossorigin="anonymous">
     <link rel="preload" href="https://hrv2k.github.io/js/bundle.min.cee36fbca464500550f3fdcee62b033060ebedabbfffa7f2961d06529ac3ffcf3c8d107e04af65ae030ed0918354da56a88baeabce9d950f354680c9fb346dde.js" as="script" integrity=
     "sha512-zuNvvKRkUAVQ8/3O5isDMGDr7au//6fylh0GUprD/888jRB&#43;BK9lrgMO0JGDVNpWqIuuq86dlQ81RoDJ&#43;zRt3g==" crossorigin="anonymous">
 
     
-    <link rel="stylesheet" type="text/css" href="https://hrv2k.github.io/css/styles.2c7a039ca654e98a4bbcdc27affbbd5d2c4756ba1937c909596644883e6c740f86855853713082a9b45ce91a88c6cf2b4cbacb1754b8bf9cb7c279d69e3c4d0f.css" integrity="sha512-LHoDnKZU6YpLvNwnr/u9XSxHVroZN8kJWWZEiD5sdA&#43;GhVhTcTCCqbRc6RqIxs8rTLrLF1S4v5y3wnnWnjxNDw==" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://hrv2k.github.io/css/styles.fa564126ef946e7fbd1a66290bacc1bdd0db7cf90b016ca48c202da3affb2c4a8e2e2fc1c2accf04c77092d1b0c7bd5f844a1aad0832f128d100f8cd96b27418.css" integrity="sha512-&#43;lZBJu&#43;Ubn&#43;9GmYpC6zBvdDbfPkLAWykjCAto6/7LEqOLi/BwqzPBMdwktGwx71fhEoarQgy8SjRAPjNlrJ0GA==" crossorigin="anonymous">
     
   </head>
   
@@ -139,7 +139,7 @@
       </a>
       <a href='https://hrv2k.github.io/tags/cloud-sql' class="post_tag button button_translucent">Cloud SQL
       </a>
-      <a href='https://hrv2k.github.io/tags/database-migration' class="post_tag button button_translucent">Database migration
+      <a href='https://hrv2k.github.io/tags/migration' class="post_tag button button_translucent">Migration
       </a>
       <a href='https://hrv2k.github.io/tags/mysql' class="post_tag button button_translucent">MySQL
       </a>
@@ -170,6 +170,8 @@
     </a>
   </div>
 
+    
+    <img src="/images/migrate_cloudsql/cloudsql_migrate_replication1.png" class="image_featured">
     
     
     <h2>Overview</h2>
@@ -204,7 +206,12 @@
     </li>
   </ul>
 </nav>
-    <p>The following is a step-by-step walkthrough of how to migrate a MySQL
+    <p><strong>With Google Cloud SQL, it's relatively easy to move your database
+from an external, self-managed server tp the cloud with minimal
+downtime. With the capability to move data in and out of Cloud SQL, you
+can quickly leverage your existing database on Google Cloud. So in this
+post, I am going to migrate an external MySQL database to Google Cloud SQL</strong></p>
+<p>The following is a step-by-step walkthrough of how to migrate a MySQL
 database to Google Cloud SQL.</p>
 <p><a href="https://cloud.google.com/sql">Google Cloud SQL</a> is a Database as a
 Service (DBaaS) that enables you to create, configure, and manage
@@ -855,10 +862,6 @@ scroll down to the <strong>Connnect to this instance</strong> card and note the
             </a>
             
             
-            <a href='https://hrv2k.github.io/tags/database-migration/' class=" post_tag button button_translucent" data-position=1>DATABASE-MIGRATION<span class="button_tally">1</span>
-            </a>
-            
-            
             <a href='https://hrv2k.github.io/tags/deployment-manager/' class=" post_tag button button_translucent" data-position=1>DEPLOYMENT-MANAGER<span class="button_tally">1</span>
             </a>
             
@@ -884,6 +887,10 @@ scroll down to the <strong>Connnect to this instance</strong> card and note the
             
             
             <a href='https://hrv2k.github.io/tags/manage-instance-groups/' class=" post_tag button button_translucent" data-position=1>MANAGE-INSTANCE-GROUPS<span class="button_tally">1</span>
+            </a>
+            
+            
+            <a href='https://hrv2k.github.io/tags/migration/' class=" post_tag button button_translucent" data-position=1>MIGRATION<span class="button_tally">1</span>
             </a>
             
             

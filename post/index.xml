@@ -193,7 +193,14 @@ command; enter the root password when prompted:&lt;/p&gt;
       <guid>https://hrv2k.github.io/post/deploy-a-flask-mysql-app-to-gce-using-deployment-manager/</guid>
       <description>
         
-          &lt;p&gt;&lt;a href=&#34;https://cloud.google.com/deployment-manager/&#34;&gt;Google Cloud Deployment Manager&lt;/a&gt;
+          &lt;p&gt;&lt;strong&gt;Using an infrastructure provisioning platform, you can bring an
+entire infrastructure to life using a couple lines of declarative code.
+This is infrastructure as Code, a way to define in code the resources you
+need for your infrastructure and to use an infrastructure provisioning engine
+to create and configure those resources. In this tutorial you&#39;ll create
+a Google Compute Engine (GCE) instance, then deploy a Flask + MySQL App
+on it using Google Cloud Deployment Manager.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://cloud.google.com/deployment-manager/&#34;&gt;Google Cloud Deployment Manager&lt;/a&gt;
 is Google&#39;s Infrastracture as Code service. It allows you to deploy and
 manage cloud resources (compute, storage, and network resources, and
 GCP-specific services) without having to configure those resources
@@ -417,7 +424,12 @@ above.&lt;/p&gt;
       <guid>https://hrv2k.github.io/post/migrate-your-mysql-database-to-google-cloud-sql-over-ssl-tls-encrypted-connection-with-minimal-downtime/</guid>
       <description>
         
-          &lt;p&gt;The following is a step-by-step walkthrough of how to migrate a MySQL
+          &lt;p&gt;&lt;strong&gt;With Google Cloud SQL, it&#39;s relatively easy to move your database
+from an external, self-managed server tp the cloud with minimal
+downtime. With the capability to move data in and out of Cloud SQL, you
+can quickly leverage your existing database on Google Cloud. So in this
+post, I am going to migrate an external MySQL database to Google Cloud SQL&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The following is a step-by-step walkthrough of how to migrate a MySQL
 database to Google Cloud SQL.&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://cloud.google.com/sql&#34;&gt;Google Cloud SQL&lt;/a&gt; is a Database as a
 Service (DBaaS) that enables you to create, configure, and manage
@@ -1254,9 +1266,10 @@ to deploy to Firebase Hosting.&lt;/p&gt;
       <guid>https://hrv2k.github.io/post/mapping-a-cloud-run-service-to-a-custom-domain/</guid>
       <description>
         
-          &lt;p&gt;When you deploy a service to Cloud Run, you are provided with a default
-domain to access the service. However, you can use your own domain or
-subdomain instead of the default one.&lt;/p&gt;
+          &lt;p&gt;&lt;strong&gt;When you deploy a service to Cloud Run, you are provided with a
+default domain to access the service. However, you can use your own domain
+or subdomain instead of the default one. So in this tutorial, I&#39;ll map a custom
+domain to a Cloud Run service.&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;In the &lt;em&gt;Cloud Run services&lt;/em&gt; page, Click &lt;strong&gt;MANAGE CUSTOM DOMAINS&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/map-domain-run/service.png&#34; alt=&#34;cloud Run service&#34;&gt;&lt;/p&gt;
 &lt;p&gt;In the &lt;em&gt;Domain Mappings&lt;/em&gt; page, click &lt;strong&gt;ADD MAPPING&lt;/strong&gt;&lt;/p&gt;
@@ -1301,7 +1314,9 @@ your service are secured.&lt;/p&gt;
       <guid>https://hrv2k.github.io/post/integrate-github-cloud-build-deploy-cloud-run/</guid>
       <description>
         
-          &lt;p&gt;In the &lt;a href=&#34;https://hrv2k.github.io/posts/getting-started-with-cloud-build/&#34;&gt;Getting started with Cloud Build&lt;/a&gt;
+          &lt;p&gt;&lt;strong&gt;Integrate GitHub with Cloud Build to build a container image from
+a GitHub repo, push the image to Container Registry and deploy it to Cloud Run.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;In the &lt;a href=&#34;https://hrv2k.github.io/posts/getting-started-with-cloud-build/&#34;&gt;Getting started with Cloud Build&lt;/a&gt;
 post, we automated the build of a container image and its deployment to
 &lt;a href=&#34;https://cloud.google.com/cloud-build/&#34;&gt;Cloud Run&lt;/a&gt; using
 &lt;a href=&#34;https://cloud.google.com/cloud-build/&#34;&gt;Cloud Build&lt;/a&gt;. But something was
