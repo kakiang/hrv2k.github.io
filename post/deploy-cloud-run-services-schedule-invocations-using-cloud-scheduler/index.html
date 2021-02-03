@@ -183,12 +183,7 @@
     <li><a href="#7-build-and-run-the-container-image">7. Build and run the container image</a>
       <ul>
         <li><a href="#71-build-and-run-locally">7.1. Build and run locally</a></li>
-        <li><a href="#72-tell-cloud-build-to-do-everything">7.2. Tell Cloud Build to do everything</a></li>
-        <li><a href="#enable-apis">Enable APIs</a></li>
-        <li><a href="#build-and-run">Build and run</a></li>
-        <li><a href="#define-the-build-steps-in-a-config-file">Define the build steps in a config file</a></li>
-        <li><a href="#iam-permissions">IAM permissions</a></li>
-        <li><a href="#lets-build-it">Let's build it</a></li>
+        <li><a href="#72-use-cloud-build-to-do-everything">7.2. Use Cloud Build to do everything</a></li>
       </ul>
     </li>
     <li><a href="#8-create-a-con-job-to-invoke-the-cloud-run-service">8. Create a con job to invoke the Cloud Run service</a></li>
@@ -587,7 +582,7 @@ Successfully built 44c25171620f
 Successfully tagged bdays-reminder:0.1</code></pre></td></tr></table>
 </div>
 </div>
-<p>If it worked, you should see the message &quot;Successfully tagged bdays-reminder:0.1&quot;.</p>
+<p>If it worked, you should see the message <em>&quot;Successfully tagged bdays-reminder:0.1&quot;</em>.</p>
 <p>Run <code>docker images</code> to list docker images. The output looks like this:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -631,10 +626,17 @@ db3382796905      bdays-reminder:0.1   Up <span class="m">21</span> minutes     
 </div>
 <p>Navigate to <a href="127.0.0.1:8080">127.0.0.1:8080</a>, <a href="127.0.0.1:8080/birthday_friends">127.0.0.1:8080/birthday_friends</a>.
 Trigger a SMS to be sent by hitting <a href="127.0.0.1:8080/birthday_friends?notify=true">127.0.0.1:8080/birthday_friends?notify=true</a>. These routes were defined in the Flask app code.</p>
-<p>To stop a running container, we use <code>docker stop</code> command with the container ID; for example in this case, the <code>container ID</code> is <code>db3382796905</code>. So to stop it, we run
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>docker stop db3382796905</code></pre></div></p>
+<p>To stop a running container, we use <code>docker stop</code> command with the container ID; for example in this case, the <code>container ID</code> is <code>db3382796905</code>. So to stop it, we run</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker stop db3382796905</code></pre></td></tr></table>
+</div>
+</div>
 <p>Run <code>docker ps</code> to make sure that the container has been effectively stopped.</p>
-<h3 id="72-tell-cloud-build-to-do-everything">7.2. Tell Cloud Build to do everything</h3>
+<h3 id="72-use-cloud-build-to-do-everything">7.2. Use Cloud Build to do everything</h3>
 <p>In this section, we are going to use <a href="https://cloud.google.com/cloud-build/">Cloud Build</a> to build and tag a Docker image, push the to Google Container Registry and deploy it to Cloud Run. Cloud Build is a Google's service that offers <a href="https://cloud.google.com/docs/ci-cd/">CI/CD</a> <a href="https://cloud.google.com/solutions/continuous-delivery/">fonctionalities</a> that cover all the software development stages in cloud environments as well as on premises environments. Essentially you submit the build, test and deployment processes to Cloud Build by providing the build steps in a configuration file. The builds run on the GCP and you can use high-CPU VMs to further increase the build speed.</p>
 <p>We will be using Cloud SDK gcloud command-line tool  If you haven't installed it yet, go ahead and <a href="https://cloud.google.com/sdk/docs/">install it</a>. If you have already installed it, run <code>gcloud components update</code> to have the latest available version.</p>
 <p>Run this command to log in to GCP</p>
@@ -674,7 +676,7 @@ Trigger a SMS to be sent by hitting <a href="127.0.0.1:8080/birthday_friends?not
 <pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">PROJECT_NUMBER</span><span class="o">=</span><span class="sb">`</span><span class="o">(</span>gcloud projects describe <span class="nv">$GCLOUD_PROJECT</span> --format<span class="o">=</span><span class="s2">&#34;value(projectNumber)&#34;</span><span class="o">)</span><span class="sb">`</span></code></pre></td></tr></table>
 </div>
 </div>
-<h3 id="enable-apis">Enable APIs</h3>
+<h4 id="enable-apis">Enable APIs</h4>
 <p>To build container images on the GCP and deploy them to Cloud Run, we have to enable the Resource Manager API, Cloud Build API, the Container Registry API and Cloud Run API:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -690,7 +692,7 @@ Trigger a SMS to be sent by hitting <a href="127.0.0.1:8080/birthday_friends?not
 </span><span class="se"></span>    run.googleapis.com</code></pre></td></tr></table>
 </div>
 </div>
-<h3 id="build-and-run">Build and run</h3>
+<h4 id="build-and-run">Build and run</h4>
 <p>Now let's build a docker image and push it to Container Registry with the command below.
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -716,7 +718,7 @@ Trigger a SMS to be sent by hitting <a href="127.0.0.1:8080/birthday_friends?not
 </div>
 </div></p>
 <p>Now, you are probably thinking, didn't you write &quot;Tell Cloud Build to do everything&quot;, but Cloud Build didn't actually do everything, we just manually deployed a container image to Cloud Run. You are right. We tell Cloud Build to do everything in the section below.</p>
-<h3 id="define-the-build-steps-in-a-config-file">Define the build steps in a config file</h3>
+<h4 id="define-the-build-steps-in-a-config-file">Define the build steps in a config file</h4>
 <p>Instead of typing the build and running commands one after the other, we can use Cloud Build configuration file to do it at once.
 In the same directory that contains our app code and the Dockerfile, let's create a file named <code>cloudbuild.yaml</code>. This file will contain instructions that tell Cloud Build to build, push and run our container image. The contents of the build config file is as follow:</p>
 <div class="highlight"><div class="chroma">
@@ -748,7 +750,7 @@ In the same directory that contains our app code and the Dockerfile, let's creat
 </div>
 </div>
 <p>Cloud Build will substitute <code>$PROJECT_ID</code> with the actual project ID set in the active Cloud SDK configuration (<code>gcloud config set project PROJECT_ID</code>). In lines 3-4, Cloud build builds a docker image named and tagged <code>gcr.io/$PROJECT_ID/bdays-reminder:0.2</code>. In lines 6-7, the image is pushed to Container Registry. In lines 9-10, the image built in previous steps is deployed to Cloud Run.</p>
-<h3 id="iam-permissions">IAM permissions</h3>
+<h4 id="iam-permissions">IAM permissions</h4>
 <p>Before we start the build, let's talk (think) about IAM permissions.</p>
 <p>If we were using Cloud Console, we wouldn't have any problem with the build and deployment. In fact when we previously ran <code>gcloud builds</code> and <code>gcloud beta run deploy</code> commands we didn't worry about permissions. Why? Because as project owner, you have all the permissions to do everything to your project including screwing everything up. But since we are going to use Cloud Build to deploy our container image to Cloud Run, Cloud Build service account has to be granted Cloud Run Admin role, else it can't deploy to Cloud Run. The same thing apply to other GCP services. For Cloud Build to interact with other GCP services, we have to grant Cloud Build service account the necessary roles so it has the permission to perform the tasks.</p>
 <p>With the command below, we are adding an IAM policy binding for the role of <code>roles/run.admin</code> to the Cloud Build service account which is <code>$PROJECT_NUMBER@cloudbuild.gserviceaccount.com</code>. Remember that we exported the actual project number as the env var <code>$PROJECT_NUMBER</code>.</p>
@@ -870,7 +872,7 @@ etag: <span class="nv">AmPYO1jtPiLH</span><span class="o">=</span>
 version: <span class="m">1</span></code></pre></td></tr></table>
 </div>
 </div>
-<h3 id="lets-build-it">Let's build it</h3>
+<h4 id="lets-build-it">Let's build it</h4>
 <p>Now we are all set to start the build by running the command below from the directory containing the <code>Dockerfile</code> and the <code>cloudbuild.yaml</code> file. Run the magic command below:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
