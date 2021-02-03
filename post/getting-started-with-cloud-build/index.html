@@ -174,24 +174,30 @@
     <h2>Overview</h2>
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#21-build-steps">2.1. Build steps</a></li>
-    <li><a href="#22-options">2.2. Options</a></li>
-    <li><a href="#23-substitutions">2.3. Substitutions</a></li>
-    <li><a href="#24-cloud-build-artifacts">2.4. Cloud Build Artifacts</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#31-create-react-app">3.1. create-react-app</a></li>
-    <li><a href="#32-dockerfile">3.2. Dockerfile</a></li>
-    <li><a href="#33-test-locally">3.3. Test locally</a></li>
-    <li><a href="#34-cloudbuildyaml">3.4. cloudbuild.yaml</a></li>
-    <li><a href="#35-gcp-logistics">3.5. GCP logistics</a></li>
-    <li><a href="#36-enable-apis">3.6. Enable APIs</a></li>
-    <li><a href="#37-iam-permissions">3.7. IAM permissions</a></li>
-    <li><a href="#38-gcloud-builds-submit">3.8. gcloud builds submit</a></li>
+    <li><a href="#1-what-is-cloud-build">1. What is Cloud Build?</a></li>
+    <li><a href="#2-build-config-file">2. Build config file</a>
+      <ul>
+        <li><a href="#21-build-steps">2.1. Build steps</a></li>
+        <li><a href="#22-options">2.2. Options</a></li>
+        <li><a href="#23-substitutions">2.3. Substitutions</a></li>
+        <li><a href="#24-cloud-build-artifacts">2.4. Cloud Build Artifacts</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-dockerize-your-react-app-and-deploy-it-to-cloud-run-using-cloud-build">3. Dockerize your React App and deploy it to Cloud Run using Cloud Build</a>
+      <ul>
+        <li><a href="#31-create-react-app">3.1. create-react-app</a></li>
+        <li><a href="#32-dockerfile">3.2. Dockerfile</a></li>
+        <li><a href="#33-test-locally">3.3. Test locally</a></li>
+        <li><a href="#34-cloudbuildyaml">3.4. cloudbuild.yaml</a></li>
+        <li><a href="#35-gcp-logistics">3.5. GCP logistics</a></li>
+        <li><a href="#36-enable-apis">3.6. Enable APIs</a></li>
+        <li><a href="#37-iam-permissions">3.7. IAM permissions</a></li>
+        <li><a href="#38-gcloud-builds-submit">3.8. gcloud builds submit</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
-    <h1 id="1-what-is-cloud-build">1. What is Cloud Build?</h1>
+    <h2 id="1-what-is-cloud-build">1. What is Cloud Build?</h2>
 <p>Cloud Build is a Google's service that offers
 <a href="https://cloud.google.com/docs/ci-cd/">CI/CD</a> fonctionalities
 that cover all the software development stages in cloud as well as in
@@ -202,8 +208,8 @@ that contains the tasks you want Cloud Build to execute. The build config file h
 <a href="https://cloud.google.com/cloud-build/docs/build-config#structure_of_a_build_config_file">many sections</a>,
 and each section can have many fields. One of the sections, maybe the most
 important, is the <strong>Build steps</strong>.</p>
-<h1 id="2-build-config-file">2. Build config file</h1>
-<h2 id="21-build-steps">2.1. Build steps</h2>
+<h2 id="2-build-config-file">2. Build config file</h2>
+<h3 id="21-build-steps">2.1. Build steps</h3>
 <p>Build steps is one of the sections of the build config file. A build step
 has a <code>name</code> field and an <code>args</code> field. The <code>name</code> field specifies a
 <a href="https://github.com/GoogleCloudPlatform/cloud-builders">builder</a>,
@@ -255,7 +261,7 @@ the default one or wasn't in the current directory, we'd have to specify
 it in the command line like this.</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud builds submit --config<span class="o">=</span>path/to/build_config_file.yaml</code></pre></div>
 <p>The build config file can be a YAML or JSON file.</p>
-<h2 id="22-options">2.2. Options</h2>
+<h3 id="22-options">2.2. Options</h3>
 <p>Another section that is part of the build config file structure is the
 <code>options</code> field. It specifies the arguments that are used for the build,
 although they are optional.</p>
@@ -295,7 +301,7 @@ like this:</p>
 <code>diskSizeGb</code> option.</p>
 <p>There are <a href="https://cloud.google.com/cloud-build/docs/build-config">plenty of options</a>
 that you can use for your builds</p>
-<h2 id="23-substitutions">2.3. Substitutions</h2>
+<h3 id="23-substitutions">2.3. Substitutions</h3>
 <p>When writing your build config file, you don't have to write out explicitly
 your project ID. You can simply specify it by using
 the a <a href="https://cloud.google.com/cloud-build/docs/configuring-builds/substitute-variable-values">substitution variable</a>
@@ -319,7 +325,7 @@ configuration. Cloud Build provides built-in substitutions such as
 </span><span class="w"></span><span class="nt">images</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;gcr.io/$PROJECT_ID/hw-image:tag&#39;</span><span class="p">]</span></code></pre></td></tr></table>
 </div>
 </div>
-<h2 id="24-cloud-build-artifacts">2.4. Cloud Build Artifacts</h2>
+<h3 id="24-cloud-build-artifacts">2.4. Cloud Build Artifacts</h3>
 <p>When we build a container image with Cloud Build, we can push it
 to Container Registry in two different ways: first, by executing
 a step that runs <code>docker push</code> command or second, by adding an <code>images</code>
@@ -367,12 +373,12 @@ stored:</p>
 </div>
 <p>Learn more about <a href="https://cloud.google.com/cloud-build/docs">Cloud Build</a>
 and <a href="https://cloud.google.com/cloud-build/docs/build-config">the structure of build config</a></p>
-<h1 id="3-dockerize-your-react-app-and-deploy-it-to-cloud-run-using-cloud-build">3. Dockerize your React App and deploy it to Cloud Run using Cloud Build</h1>
+<h2 id="3-dockerize-your-react-app-and-deploy-it-to-cloud-run-using-cloud-build">3. Dockerize your React App and deploy it to Cloud Run using Cloud Build</h2>
 <p>In a bid to consolidate our knowledge of the fundamentals of Cloud Build,
 we are going to package up a simple React App in a container image, build
 and tag it using docker, push it to Container Registry and deploy it to
 Cloud Run, all using Cloud Build. We will use nginx to serve the React app.</p>
-<h2 id="31-create-react-app">3.1. create-react-app</h2>
+<h3 id="31-create-react-app">3.1. create-react-app</h3>
 <p>This is not a React tutorial. However we will generate React boilerplate
 code using <a href="https://github.com/facebook/create-react-app">Facebook Create React App</a>.</p>
 <p>Assuming that you have <a href="https://nodejs.org/en/">node</a> installed, run the
@@ -398,7 +404,7 @@ following command to install <code>create-react-app</code> and create a React ap
 <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span></code></pre></td></tr></table>
 </div>
 </div>
-<h2 id="32-dockerfile">3.2. Dockerfile</h2>
+<h3 id="32-dockerfile">3.2. Dockerfile</h3>
 <p>Our React app is ready to be packaged up. Let's create the <code>Dockerfile</code>:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -585,7 +591,7 @@ http <span class="o">{</span>
 the container listens on port defined by the <code>$PORT</code> environment variable,
 which is set to 8080.</em></p>
 <p>Create the <code>.dockerignore</code> file and paste in it the content of <code>.gitignore</code>.</p>
-<h2 id="33-test-locally">3.3. Test locally</h2>
+<h3 id="33-test-locally">3.3. Test locally</h3>
 <p>We can build and run the container image locally to make sure it works.
 You can continue to the next section, this section is totally optional.</p>
 <p>You need to have <a href="https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-docker-ce">docker</a>
@@ -600,7 +606,7 @@ installed to build and run images locally. Make sure you are in the docker-react
 <p>Open your browser and navigate to <a href="127.0.0.1:80">127.0.0.1:80</a> to access
 your React app.</p>
 <p>Exit the command line to stop the container.</p>
-<h2 id="34-cloudbuildyaml">3.4. cloudbuild.yaml</h2>
+<h3 id="34-cloudbuildyaml">3.4. cloudbuild.yaml</h3>
 <p>Now let's create the <code>cloudbuild.yaml</code> file at the <code>docker-react-app-starter</code>
 root directory</p>
 <div class="highlight"><div class="chroma">
@@ -641,7 +647,7 @@ root directory</p>
 </div>
 <p>Duplicate <code>.dockerignore</code>, then rename the duplicate <code>.gcloudignore</code>.
 The <code>.dockerignore</code> file is ignored by Cloud Build.</p>
-<h2 id="35-gcp-logistics">3.5. GCP logistics</h2>
+<h3 id="35-gcp-logistics">3.5. GCP logistics</h3>
 <p>From now on, we are going to use
 <a href="https://cloud.google.com/sdk/docs/">Cloud SDK gcloud command-line tool</a>
 and work with a GCP project.</p>
@@ -654,13 +660,13 @@ and work with a GCP project.</p>
 <p>Let's also export the project number, because we are going to use it a
 couple of times.</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">export</span> <span class="nv">PROJECT_NUMBER</span><span class="o">=</span><span class="sb">`</span><span class="o">(</span>gcloud projects describe <span class="nv">$GCLOUD_PROJECT</span> --format<span class="o">=</span><span class="s2">&#34;value(projectNumber)&#34;</span><span class="o">)</span><span class="sb">`</span></code></pre></div>
-<h2 id="36-enable-apis">3.6. Enable APIs</h2>
+<h3 id="36-enable-apis">3.6. Enable APIs</h3>
 <p>To build container images on the GCP and deploy them to Cloud Run, we
 have to enable Cloud Build API, Container Registry API and Cloud Run API:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud services <span class="nb">enable</span> cloudbuild.googleapis.com <span class="se">\
 </span><span class="ln">2</span><span class="se"></span>  containerregistry.googleapis.com <span class="se">\
 </span><span class="ln">3</span><span class="se"></span>  run.googleapis.com</code></pre></div>
-<h2 id="37-iam-permissions">3.7. IAM permissions</h2>
+<h3 id="37-iam-permissions">3.7. IAM permissions</h3>
 <p>Before we can start the build, we have to grant Cloud Build service account
 the Cloud Run Admin role (<code>roles/run.admin</code>) so that it has permissions to
 deploy to Cloud Run.</p>
@@ -673,7 +679,7 @@ I explain the reason why <a href="https://kakiang.github.io/blog/posts/birthday-
 </span><span class="ln">2</span><span class="se"></span>      <span class="nv">$PROJECT_NUMBER</span>-compute@developer.gserviceaccount.com <span class="se">\
 </span><span class="ln">3</span><span class="se"></span>      --member<span class="o">=</span><span class="s2">&#34;serviceAccount:</span><span class="nv">$PROJECT_NUMBER</span><span class="s2">@cloudbuild.gserviceaccount.com&#34;</span> <span class="se">\
 </span><span class="ln">4</span><span class="se"></span>      --role<span class="o">=</span><span class="s1">&#39;roles/iam.serviceAccountUser&#39;</span></code></pre></div>
-<h2 id="38-gcloud-builds-submit">3.8. gcloud builds submit</h2>
+<h3 id="38-gcloud-builds-submit">3.8. gcloud builds submit</h3>
 <p>We are all set. We can now submit the build to Cloud Build.
 From the root directory of docker-react-app-starter where the <code>Dockerfile</code> and
 <code>cloudbuild.yaml</code> are located, run this command to start the build:</p>
