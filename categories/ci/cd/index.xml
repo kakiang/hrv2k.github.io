@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CI/CD&#34; on Hervé Kakiang&#39;s blog</title>
+    <link>https://hrv2k.github.io/categories/ci/cd/</link>
+    <description>Recent content in CI/CD&#34; on Hervé Kakiang&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright><atom:link href="https://hrv2k.github.io/categories/ci/cd/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Integrate GitHub with Cloud Build, Deploy to Cloud Run</title>
+      <link>https://hrv2k.github.io/post/integrate-github-cloud-build-deploy-cloud-run/</link>
+      <pubDate>Thu, 12 Dec 2019 18:00:32 +0000</pubDate>
+      
+      <guid>https://hrv2k.github.io/post/integrate-github-cloud-build-deploy-cloud-run/</guid>
+      <description>
+        
+          &lt;p&gt;&lt;strong&gt;Integrate GitHub with Cloud Build to build a container image from
+a GitHub repo, push the image to Container Registry and deploy it to Cloud Run.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;In the &lt;a href=&#34;https://hrv2k.github.io/posts/getting-started-with-cloud-build/&#34;&gt;Getting started with Cloud Build&lt;/a&gt;
+post, we automated the build of a container image and its deployment to
+&lt;a href=&#34;https://cloud.google.com/cloud-build/&#34;&gt;Cloud Run&lt;/a&gt; using
+&lt;a href=&#34;https://cloud.google.com/cloud-build/&#34;&gt;Cloud Build&lt;/a&gt;. But something was
+missing. We didn&#39;t use code management system, i.e. version control.
+Who doesn&#39;t version control their codebase? Luckily for us Cloud Build
+integrate nicely with GitHub. Cloud Build helps us create fast, consistent,
+reliable builds. Integrating it with GitHub will enable us to easily set
+up CI through Cloud Build and automate builds and tests as part of our
+development workflow. So check your code to GitHub like I did
+&lt;a href=&#34;https://github.com/kakiang/docker-react-app-starter&#34;&gt;here&lt;/a&gt; and let&#39;s
+create a push trigger to run a build every time we push code to a
+branch. That means instead of running &lt;code&gt;gcloud builds submit&lt;/code&gt; to build and
+deploy to Cloud Run, we will just push code to GitHub and builds will be
+triggered. To achieve this, we have to connect our repository on GitHub
+to Cloud Build and configure a build trigger.&lt;/p&gt;
+&lt;p&gt;I assume that you have a GCP account. If you don&#39;t, go to
+&lt;a href=&#34;https://console.cloud.google.com/&#34;&gt;Cloud Console&lt;/a&gt; to set it up.
+You will get $300 worth of credit for free to experiment with.
+I also assume that you have read my previous post
+&lt;a href=&#34;https://hrv2k.github.io/posts/intro-to-cloud-build/&#34;&gt;Introduction to Cloud Build&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Navigate to &lt;a href=&#34;https://console.cloud.google.com/&#34;&gt;Cloud Console&lt;/a&gt;, and go to
+&lt;strong&gt;Navigation menu &amp;gt; Cloud Build&lt;/strong&gt;. If Cloud Build API isn&#39;t enabled, you
+will be prompted to enable it. Click on &lt;strong&gt;Triggers&lt;/strong&gt;, you will see the
+interface below where you&#39;re asked to select where your code is located.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/select_source.png&#34; alt=&#34;docker-react-app-service on Cloud Run&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Our code is on GitHub, so let&#39;s select the first option, GitHub. Notice
+the message that says &amp;quot;&lt;em&gt;You&#39;ll be asked to authorize the Google Build
+GitHub App to access your GitHub Account to proceed&lt;/em&gt;&amp;quot;. That&#39;s what happens
+once you click &lt;strong&gt;Continue&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/authenticate.png&#34; alt=&#34;docker-react-app-service on Cloud Run&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Authorize Google Build to access your GitHub account. Then you&#39;ll be asked
+to connect Cloud Build to your repositories as depicted below&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/install_cb_repo1.png&#34; alt=&#34;docker-react-app-service on Cloud Run&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Click on &lt;strong&gt;Install Google Cloud Build&lt;/strong&gt; button and you&#39;ll be prompted to
+choose the repositories that you&#39;d like to be connected to Cloud Build.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/install_cb_repoo1.png&#34; alt=&#34;install_cb_repo&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The first option will connect all your current and future repositories
+with Cloud Build. Let&#39;s go with the second option where we can select only
+the repository that we need it connected to Cloud Build. Once it&#39;s done
+click on &lt;strong&gt;Install&lt;/strong&gt;. Then you&#39;ll be brought back to select the repository
+to connect to Cloud Build as shown below.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/select_repo.png&#34; alt=&#34;select_repo&#34;&gt;&lt;/p&gt;
+&lt;p&gt;As you can see I selected only one repository, &lt;code&gt;docker-react-app-starter&lt;/code&gt;,
+to connect to Cloud Build. That&#39;s why we see only one repository listed
+here. If you&#39;d selected to connect all repositories to Cloud Build in the
+previous step, you&#39;d see all your repos listed. Check
+&amp;quot;&lt;em&gt;I Understand that GitHub content...&lt;/em&gt;&amp;quot; and click &lt;strong&gt;Connect repository&lt;/strong&gt;.
+It&#39;s now time to create a push trigger.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/create_push_trigger.png&#34; alt=&#34;create_push_trigger&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Click &lt;strong&gt;Create push trigger&lt;/strong&gt;. And voila, your build trigger.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/default_push_trigger.png&#34; alt=&#34;default_push_trigger&#34;&gt;&lt;/p&gt;
+&lt;p&gt;This build trigger will start a build any time we push to any git branch,
+it will autodetect the build configuration (&lt;code&gt;Dockerfile&lt;/code&gt; or &lt;code&gt;cloudbuild.yaml&lt;/code&gt;).
+As you can see, it&#39;s possible choose to trigger the build upon a push
+to a specific branch, a pull request, or when you tag a new release.&lt;/p&gt;
+&lt;p&gt;Disable this build trigger. We are going to create another one. Click &lt;strong&gt;CREATE TRIGGER&lt;/strong&gt;
+and you&#39;ll get a form like below. Fill it out with relevant information.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/create_trigger.png&#34; alt=&#34;create_trigger&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Notice below how we explicitly specified the build config file.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/create_trigger2.png&#34; alt=&#34;create_trigger&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Finally click &lt;strong&gt;Create trigger&lt;/strong&gt;. If everything goes well, you&#39;ll see the
+list of the repositories connected to Cloud Build and the triggers
+configured for each repo.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/list_triggers.png&#34; alt=&#34;list_triggers&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Now let&#39;s test our pipeline. Yeah it&#39;s a pipeline, a proportionate CI/CD
+pipeline.&lt;/p&gt;
+&lt;p&gt;Change something in the code, commit and push it to GitHub.&lt;/p&gt;
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;git commit -am &lt;span class=&#34;s2&#34;&gt;&amp;#34;Test Cloud Build Trigger&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;git push&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/commit_github.png&#34; alt=&#34;commit_github&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Take note of the hash of the lastest commit (&lt;code&gt;d7e27b1&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;Now go back to Cloud Console &lt;strong&gt;Navigation &amp;gt; Cloud Build&lt;/strong&gt;, you&#39;ll notice
+that a build has been triggered. Pay attention to the &lt;strong&gt;Git commit&lt;/strong&gt;
+column, compare the value with the commit hash from GitHub. It&#39;s the same :smile:.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/build_triggered.png&#34; alt=&#34;build_triggered&#34;&gt;&lt;/p&gt;
+&lt;p&gt;When the build complete, go to &lt;strong&gt;Navigation &amp;gt; Cloud Run&lt;/strong&gt; in the Cloud
+Console to see a new version of &lt;code&gt;docker-react-app-starter-service&lt;/code&gt; deployed.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/build-trigger/new_service_version.png&#34; alt=&#34;new_service_version&#34;&gt;&lt;/p&gt;
+&lt;p&gt;That was fun.&lt;/p&gt;
+&lt;p&gt;I probably know what you are probably saying to yourself;
+&lt;em&gt;it doesn&#39;t look like a &#39;real&#39; CI/CD pipeline&lt;/em&gt;. Well... basically 2
+things are missing: There were no tests, and there was only one deployment
+environment. About deployment environment, we can configure a push trigger
+that runs a build when we push code to the dev branch and deploy to dev/staging
+environment. And another push trigger for the master branch with a deployment
+to the production environment. For the tests, they can easily be executed
+with Cloud Build.&lt;/p&gt;
+&lt;p&gt;Thanks for reading :raised_hands:. À la prochaine&lt;/p&gt;
+
+        
+      </description>
+    </item>
+    
+  </channel>
+</rss>

@@ -19,7 +19,7 @@
 <meta property="og:type" content="article">
 <meta name="description" content="Using Google Cloud Deployment Manager, an infrastructure provisioning platform, I&#39;ll create a Google Compute Engine (GCE) instance, then deploy a Flask &#43; MySQL …">
 <meta name="twitter:card" content="summary" />
-<meta name="twitter:creator" content="">
+<meta name="twitter:creator" content="@hrv2k">
 <meta name="twitter:title" content="Deploy a Flask &#43; MySQL App to GCE Using Deployment Manager" />
 <meta property="og:url" content="https://hrv2k.github.io/post/deploy-a-flask-mysql-app-to-gce-using-deployment-manager/" />
 <meta property="og:title" content="Deploy a Flask &#43; MySQL App to GCE Using Deployment Manager" />
@@ -38,19 +38,19 @@
 
     
     
-    <link rel="preload" href="https://hrv2k.github.io/css/styles.fa564126ef946e7fbd1a66290bacc1bdd0db7cf90b016ca48c202da3affb2c4a8e2e2fc1c2accf04c77092d1b0c7bd5f844a1aad0832f128d100f8cd96b27418.css" integrity = "sha512-&#43;lZBJu&#43;Ubn&#43;9GmYpC6zBvdDbfPkLAWykjCAto6/7LEqOLi/BwqzPBMdwktGwx71fhEoarQgy8SjRAPjNlrJ0GA==" as="style" crossorigin="anonymous">
+    <link rel="preload" href="https://hrv2k.github.io/css/styles.6be07df1f446d1e4a7748ad15e16f98c970f537e49e7a315d21987628ca7211ac2451901b78bc99a671ae144e2a70a341b6e0775d6e4c794422d3190f8337417.css" integrity = "sha512-a&#43;B98fRG0eSndIrRXhb5jJcPU35J56MV0hmHYoynIRrCRRkBt4vJmmca4UTipwo0G24Hddbkx5RCLTGQ&#43;DN0Fw==" as="style" crossorigin="anonymous">
     <link rel="preload" href="https://hrv2k.github.io/js/bundle.min.cee36fbca464500550f3fdcee62b033060ebedabbfffa7f2961d06529ac3ffcf3c8d107e04af65ae030ed0918354da56a88baeabce9d950f354680c9fb346dde.js" as="script" integrity=
     "sha512-zuNvvKRkUAVQ8/3O5isDMGDr7au//6fylh0GUprD/888jRB&#43;BK9lrgMO0JGDVNpWqIuuq86dlQ81RoDJ&#43;zRt3g==" crossorigin="anonymous">
 
     
-    <link rel="stylesheet" type="text/css" href="https://hrv2k.github.io/css/styles.fa564126ef946e7fbd1a66290bacc1bdd0db7cf90b016ca48c202da3affb2c4a8e2e2fc1c2accf04c77092d1b0c7bd5f844a1aad0832f128d100f8cd96b27418.css" integrity="sha512-&#43;lZBJu&#43;Ubn&#43;9GmYpC6zBvdDbfPkLAWykjCAto6/7LEqOLi/BwqzPBMdwktGwx71fhEoarQgy8SjRAPjNlrJ0GA==" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://hrv2k.github.io/css/styles.6be07df1f446d1e4a7748ad15e16f98c970f537e49e7a315d21987628ca7211ac2451901b78bc99a671ae144e2a70a341b6e0775d6e4c794422d3190f8337417.css" integrity="sha512-a&#43;B98fRG0eSndIrRXhb5jJcPU35J56MV0hmHYoynIRrCRRkBt4vJmmca4UTipwo0G24Hddbkx5RCLTGQ&#43;DN0Fw==" crossorigin="anonymous">
     
   </head>
   
   
     
   
-  <body data-code="7" data-lines="false" id="documentTop">
+  <body data-code="100" data-lines="false" id="documentTop">
 
 <header class="nav_header" >
   <nav class="nav">
@@ -90,19 +90,19 @@
       </div>
       
 <div class='follow'>
-  <a href="https://github.com/herve2k">
+  <a href="https://github.com/hrv2k">
     <svg class="icon">
   <use xlink:href="#github"></use>
-</svg>
-  </a>
-  <a href="https://twitter.com/#">
-    <svg class="icon">
-  <use xlink:href="#twitter"></use>
 </svg>
   </a>
   <a href="https://www.linkedin.com/in/kakiang">
     <svg class="icon">
   <use xlink:href="#linkedin"></use>
+</svg>
+  </a>
+  <a href="https://twitter.com/hrv2k">
+    <svg class="icon">
+  <use xlink:href="#twitter"></use>
 </svg>
   </a>
     
@@ -123,7 +123,8 @@
 
     <main>
   
-<div class="grid-inverse wrap content">
+
+<div class="wrap singlecontent">
   <article class="post_content">
     <h1 class="post_title">Deploy a Flask &#43; MySQL App to GCE Using Deployment Manager</h1><div class="post_meta">
   
@@ -132,8 +133,6 @@
 </svg>
     <span class="post_date">
       Feb 29, 2020</span>
-      <a href='https://hrv2k.github.io/tags/cloud-computing' class="post_tag button button_translucent">Cloud Computing
-      </a>
       <a href='https://hrv2k.github.io/tags/gcp' class="post_tag button button_translucent">GCP
       </a>
       <a href='https://hrv2k.github.io/tags/deployment-manager' class="post_tag button button_translucent">Deployment Manager
@@ -412,184 +411,7 @@ above.</p>
 <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     
   </article>
-<aside class="sidebar">
-  <section class="sidebar_inner">
-    
-      <h2>Hervé Kakiang</h2>
-      <div>
-        Technologist, perpetual student, continual incremental improvement.
-      </div>
-      <a href='https://hrv2k.github.io/about/' class="button mt-1" role="button">Read More</a>
-    <h2 class="mt-4">Recent Posts</h2>
-    <ul class="flex-column">
-      <li>
-        <a href="https://hrv2k.github.io/post/ibm-cloud-free-tier/" class="nav-link">IBM Cloud Offerings with no expiration and no credit card required</a>
-      </li>
-      <li>
-        <a href="https://hrv2k.github.io/post/create-a-nosql-database-using-mysql-document-store/" class="nav-link">Create a NoSQL Database Using MySQL Document Store</a>
-      </li>
-      <li>
-        <a href="https://hrv2k.github.io/post/migrate-your-mysql-database-to-google-cloud-sql-over-ssl-tls-encrypted-connection-with-minimal-downtime/" class="nav-link">Migrate Your MySQL Database to Google Cloud SQL over SSL/TLS Encrypted Connections With Minimal Downtime</a>
-      </li>
-    </ul>
-    <div>
-      <h2 class="mt-4 taxonomy" id="categories-section">Categories</h2>
-      <nav class="tags_nav">
-        <a href='https://hrv2k.github.io/categories/cloud/' class="post_tag button button_translucent">
-          CLOUD
-          <span class="button_tally">1</span>
-        </a>
-        
-        
-      </nav>
-    </div>
-    <div>
-      <h2 class="mt-4 taxonomy" id="tags-section">Tags</h2>
-      <nav class="tags_nav">
-        <a href='https://hrv2k.github.io/tags/gcp/' class="post_tag button button_translucent">
-          GCP
-          <span class="button_tally">10</span>
-        </a>
-        
-        <a href='https://hrv2k.github.io/tags/cloud-computing/' class="post_tag button button_translucent">
-          CLOUD-COMPUTING
-          <span class="button_tally">9</span>
-        </a>
-        
-        <a href='https://hrv2k.github.io/tags/cloud-build/' class="post_tag button button_translucent">
-          CLOUD-BUILD
-          <span class="button_tally">3</span>
-        </a>
-        
-        <a href='https://hrv2k.github.io/tags/cloud-run/' class="post_tag button button_translucent">
-          CLOUD-RUN
-          <span class="button_tally">3</span>
-        </a>
-        
-        <a href='https://hrv2k.github.io/tags/cloud-functions/' class="post_tag button button_translucent">
-          CLOUD-FUNCTIONS
-          <span class="button_tally">2</span>
-        </a>
-        
-        <a href='https://hrv2k.github.io/tags/cloud-scheduler/' class="post_tag button button_translucent">
-          CLOUD-SCHEDULER
-          <span class="button_tally">2</span>
-        </a>
-        
-        <a href='https://hrv2k.github.io/tags/build-triggers/' class="post_tag button button_translucent">
-          BUILD-TRIGGERS
-          <span class="button_tally">1</span>
-        </a>
-        
-        
-        <br>
-        <div class="post_tags_toggle button">All Tags</div>
-        <div class="post_tags">
-          <div class="tags_list">
-            
-            <a href='https://hrv2k.github.io/tags/build-triggers/' class=" post_tag button button_translucent" data-position=1>BUILD-TRIGGERS<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/ci/cd/' class=" post_tag button button_translucent" data-position=1>CI/CD<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud/' class=" post_tag button button_translucent" data-position=1>CLOUD<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-bigtable/' class=" post_tag button button_translucent" data-position=1>CLOUD-BIGTABLE<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-build/' class=" post_tag button button_translucent" data-position=3>CLOUD-BUILD<span class="button_tally">3</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-computing/' class=" post_tag button button_translucent" data-position=9>CLOUD-COMPUTING<span class="button_tally">9</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-functions/' class=" post_tag button button_translucent" data-position=2>CLOUD-FUNCTIONS<span class="button_tally">2</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-kms/' class=" post_tag button button_translucent" data-position=1>CLOUD-KMS<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-run/' class=" post_tag button button_translucent" data-position=3>CLOUD-RUN<span class="button_tally">3</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-scheduler/' class=" post_tag button button_translucent" data-position=2>CLOUD-SCHEDULER<span class="button_tally">2</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-spanner/' class=" post_tag button button_translucent" data-position=1>CLOUD-SPANNER<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/cloud-sql/' class=" post_tag button button_translucent" data-position=1>CLOUD-SQL<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/computing/' class=" post_tag button button_translucent" data-position=1>COMPUTING<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/custom-domain/' class=" post_tag button button_translucent" data-position=1>CUSTOM-DOMAIN<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/deployment-manager/' class=" post_tag button button_translucent" data-position=1>DEPLOYMENT-MANAGER<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/encryption/' class=" post_tag button button_translucent" data-position=1>ENCRYPTION<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/gcp/' class=" post_tag button button_translucent" data-position=10>GCP<span class="button_tally">10</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/github/' class=" post_tag button button_translucent" data-position=1>GITHUB<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/iac/' class=" post_tag button button_translucent" data-position=1>IAC<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/ibm-cloud/' class=" post_tag button button_translucent" data-position=1>IBM-CLOUD<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/manage-instance-groups/' class=" post_tag button button_translucent" data-position=1>MANAGE-INSTANCE-GROUPS<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/migration/' class=" post_tag button button_translucent" data-position=1>MIGRATION<span class="button_tally">1</span>
-            </a>
-            
-            
-            <a href='https://hrv2k.github.io/tags/mysql/' class=" post_tag button button_translucent" data-position=1>MYSQL<span class="button_tally">1</span>
-            </a>
-            
-            <div class="tags_sort"><span title="sort alphabetically">[A~Z]</span><span title="sort by count">[0~9]</span>
-            </div>
-            <span class="tags_hide"><svg class="icon">
-            <use xlink:href="#closeme"></use>
-          </svg></span>
-          </div>
-        </div>
-      </nav>
-    </div>
-  </section>
-</aside>
-
+  
 </div>
     </main><svg width="0" height="0" class="hidden">
   <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="facebook">

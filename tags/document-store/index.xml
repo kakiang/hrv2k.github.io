@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Document Store on Hervé Kakiang&#39;s blog</title>
+    <link>https://hrv2k.github.io/tags/document-store/</link>
+    <description>Recent content in Document Store on Hervé Kakiang&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright>
+    <lastBuildDate>Tue, 03 Mar 2020 15:14:31 +0000</lastBuildDate><atom:link href="https://hrv2k.github.io/tags/document-store/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Create a NoSQL Database Using MySQL Document Store</title>
+      <link>https://hrv2k.github.io/post/create-a-nosql-database-using-mysql-document-store/</link>
+      <pubDate>Tue, 03 Mar 2020 15:14:31 +0000</pubDate>
+      
+      <guid>https://hrv2k.github.io/post/create-a-nosql-database-using-mysql-document-store/</guid>
+      <description>
+        
+          &lt;h2 id=&#34;sql--nosql--mysql&#34;&gt;SQL + NoSQL = MySQL&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;http://www.mysql.com/&#34;&gt;MySQL&lt;/a&gt;, the world’s most popular database
+management system (DBMS) has been rightfully used purely to create and
+manage relational databases until recently.
+During the last  decade, due to the requirements to store large quantities
+of diverse data, we&#39;ve seen the rise in adoption and usage of NoSQL
+databases.&lt;/p&gt;
+&lt;p&gt;In &lt;a href=&#34;https://dev.mysql.com/doc/relnotes/mysql/5.7/en/news-5-7-12.html&#34;&gt;MySQL version 5.7.12&lt;/a&gt;,
+MySQL Document Store was introduced, enabling MySQL to act as a NoSQL
+JSON Document Store. MySQL is thereby both a relational and a NoSQL DBMS.&lt;/p&gt;
+&lt;p&gt;Though there are many types of NoSQL databases with varying features,
+they have all steered clear of the relational data model and are all
+schemaless by definition.
+There are mainly four categories of NoSQL databases.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Key-value Pair NoSQL DB&lt;/strong&gt;: They store data in key/value pairs.
+For instance, Amazon&#39;s Dynamo and Redis are in this category.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Column or wide column NoSQL DB&lt;/strong&gt;: In column-based NoSQL databases,
+columns don&#39;t have to be consistent across records. You can add columns
+to specific rows without having to add them to every single record.
+Google&#39;s BigTable, Apache Cassandra are examples of column-based databases.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Graph-Based NoSQL DB&lt;/strong&gt;: They store data as well the relations amongst
+them. This model is based on graph theory where structures are composed
+of vertices and edges. An entity is stored as a node (vertex) with the
+relationship as edges.
+Neo4J, Infinite Graph, OrientDB, FlockDB are some examples graph-based
+databases.&lt;/p&gt;
+&lt;p&gt;And finally &lt;strong&gt;Document-based NoSQL DB&lt;/strong&gt;: They store data as documents
+using JSON or XML formats.
+Amazon SimpleDB, CouchDB, MongoDB, are examples of popular document-based
+NoSQL DBMS. &lt;a href=&#34;https://dev.mysql.com/doc/refman/8.0/en/document-store.html&#34;&gt;MySQL Document Store&lt;/a&gt;
+belongs to this last category.&lt;/p&gt;
+&lt;p&gt;The advent of MySQL Document Store starts with the
+&lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/json.html&#34;&gt;support for native JSON data type in MySQL 5.7.8&lt;/a&gt;.
+This feature enables efficient access to JSON documents stored in MySQL
+databases. On top of this feature, MySQL Document Store was built, a pure
+document store solution and was introduced in &lt;a href=&#34;https://dev.mysql.com/doc/relnotes/mysql/5.7/en/news-5-7-12.html&#34;&gt;MySQL 5.7.12&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Currently when you&#39;re considering database solutions, you are forced to
+make a choice or combine multiple solutions – SQL/NoSQL,
+Relational/Document Store. MySQL folks thought why not build both into
+MySQL database. SQL and NoSQL build into one solution.
+Hence &lt;strong&gt;SQL + NoSQL = MySQL&lt;/strong&gt;...?? They are not only built into the database
+storage, but across all levels for the database stack – storage,
+structure, protocol, APIs, Tools, etc.
+And that’s what has been materialized with the release of&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;X Plugin in MySQL 5.7.12&lt;/li&gt;
+&lt;li&gt;X Dev API&lt;/li&gt;
+&lt;li&gt;MySQL connectors: Connector/C++, Connector/Java, Connector/Node.js,  Connector/NET, Connector/Python&lt;/li&gt;
+&lt;li&gt;MySQL Shell: provides implementations of X DevAPI in JavaScript and Python&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;With this 2-in-1 solution, you can have both schemaless and schema data
+models in the same technology stack.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://hrv2k.github.io/images/mysql_doc_store/nosql_sql_mysql.png&#34; alt=&#34;SQL + NoSQL = MySQL&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;x-protocol-x-plugin-and-x-devapi&#34;&gt;X Protocol, X Plugin, and X DevAPI&lt;/h2&gt;
+&lt;h3 id=&#34;x-protocol&#34;&gt;X Protocol&lt;/h3&gt;
+&lt;p&gt;MySQL has introduced a new protocol called X Protocol, which is used for
+communications between MySQL Clients and a MySQL Server. It is based on
+Google Protocol Buffers and supports asynchronous communication to the
+server. The X Protocol is optimized for &lt;a href=&#34;https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_crud&#34;&gt;CRUD&lt;/a&gt; as well as SQL API operations.&lt;/p&gt;
+&lt;h3 id=&#34;x-plugin&#34;&gt;X Plugin&lt;/h3&gt;
+&lt;p&gt;X Plugin is the MySQL Server plugin which enables client/server communication
+using the X Protocol. It enables you to use MySQL as a document store.
+Clients that implement X DevAPI, in other support the X Protocol, can
+communicate with MySQL server and issue CRUD requests and send to and
+receive JSON from the server.&lt;/p&gt;
+&lt;p&gt;To verify that X Plugin is installed on an instance of MySQL server
+using MySQL Client, run the following command to to view the plugins list:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mysql -u user -p -e &lt;span class=&#34;s2&#34;&gt;&amp;#34;SHOW plugins&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&#34;x-devapi&#34;&gt;X DevAPI&lt;/h3&gt;
+&lt;p&gt;The X DevAPI is a new, modern, async developer API for CRUD and SQL
+operations, built on several technologies including the X Protocol enabled
+through the X Plugin on top of X Protocol. It wraps powerful concepts in a simple
+API (such as collections, tables, SQL operations). It can be used to make
+non-blocking, asynchronous calls that follow common host language patterns.
+It introduces Collections as new schema objects which is the basis for
+MySQL document store.&lt;/p&gt;
+&lt;p&gt;From the developer or application&#39;s perspective, the X DevAPI is an the
+API that (among other things) allows you to develop NoSQL solutions for
+MySQL and use MySQL as a document store.&lt;/p&gt;
+&lt;h2 id=&#34;using-mysql-as-a-document-store&#34;&gt;Using MySQL as a document store&lt;/h2&gt;
+&lt;p&gt;To interface with MySQL as a document store, you need to have X Plugin
+installed on MySQL server.
+If you are using MySQL 8, X Plugin is enabled by default in MySQL 8.
+Otherwise you have to install or upgrade to MySQL 5.7.12 or higher, then
+follow &lt;a href=&#34;https://dev.mysql.com/doc/refman/5.7/en/document-store-setting-up.html&#34;&gt;this guide to set up MySQL as a document store&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can&#39;t use the old MySQL command-line client  to connect to MySQL as a
+document store, since it doesn&#39;t implement the X Protocol. You need
+&lt;a href=&#34;https://dev.mysql.com/doc/mysql-shell/8.0/en/&#34;&gt;MySQL Shell&lt;/a&gt;.
+MySQL Shell is the new modern and advanced command-line client for MySQL.
+It is a unified scripting interface to MySQL Server. It supports scripting
+in JavaScript and Python. It can also operate in pure SQL mode.
+&lt;a href=&#34;https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-install.html&#34;&gt;Install MySQL Shell&lt;/a&gt;
+and login to the local MySQL server using the root user using the following
+command; enter the root password when prompted:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;ln&#34;&gt;1&lt;/span&gt;mysqlsh root@localhost&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+        
+      </description>
+    </item>
+    
+  </channel>
+</rss>

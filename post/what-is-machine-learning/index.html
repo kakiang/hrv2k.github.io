@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<html lang="en" data-figures="" class="page">
+  <head>
+<title>Hello, Machine Learning | Hervé Kakiang&#39;s blog</title>
+<meta charset="utf-8">
+<meta name="generator" content="Hugo 0.80.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-150847968-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-150847968-1');
+</script>
+  
+<meta property="og:locale" content="en" />
+
+<meta property="og:type" content="article">
+<meta name="description" content="The field of study that gives computers the ability to learn without being explicitly programmed. ML algorithms generate models by extracting patterns from …">
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:creator" content="@hrv2k">
+<meta name="twitter:title" content="Hello, Machine Learning" />
+<meta property="og:url" content="https://hrv2k.github.io/post/what-is-machine-learning/" />
+<meta property="og:title" content="Hello, Machine Learning" />
+<meta property="og:description" content="The field of study that gives computers the ability to learn without being explicitly programmed. ML algorithms generate models by extracting patterns from …" />
+<meta property="og:image" content="https://hrv2k.github.io/images/ml.jpeg" />
+<link rel="apple-touch-icon" sizes="180x180" href='https://hrv2k.github.io/icons/apple-touch-icon.png'>
+<link rel="icon" type="image/png" href='https://hrv2k.github.io/icons/favicon.ico'>
+<link rel="manifest" href='https://hrv2k.github.io/icons/site.webmanifest'>
+<link rel="mask-icon" href='https://hrv2k.github.io/safari-pinned-tab.svg' color="#002538">
+<meta name="msapplication-TileColor" content="#002538">
+<meta name="theme-color" content="#002538">
+
+<link rel="canonical" href="https://hrv2k.github.io/post/what-is-machine-learning/">
+
+    
+
+    
+    
+    <link rel="preload" href="https://hrv2k.github.io/css/styles.6be07df1f446d1e4a7748ad15e16f98c970f537e49e7a315d21987628ca7211ac2451901b78bc99a671ae144e2a70a341b6e0775d6e4c794422d3190f8337417.css" integrity = "sha512-a&#43;B98fRG0eSndIrRXhb5jJcPU35J56MV0hmHYoynIRrCRRkBt4vJmmca4UTipwo0G24Hddbkx5RCLTGQ&#43;DN0Fw==" as="style" crossorigin="anonymous">
+    <link rel="preload" href="https://hrv2k.github.io/js/bundle.min.cee36fbca464500550f3fdcee62b033060ebedabbfffa7f2961d06529ac3ffcf3c8d107e04af65ae030ed0918354da56a88baeabce9d950f354680c9fb346dde.js" as="script" integrity=
+    "sha512-zuNvvKRkUAVQ8/3O5isDMGDr7au//6fylh0GUprD/888jRB&#43;BK9lrgMO0JGDVNpWqIuuq86dlQ81RoDJ&#43;zRt3g==" crossorigin="anonymous">
+
+    
+    <link rel="stylesheet" type="text/css" href="https://hrv2k.github.io/css/styles.6be07df1f446d1e4a7748ad15e16f98c970f537e49e7a315d21987628ca7211ac2451901b78bc99a671ae144e2a70a341b6e0775d6e4c794422d3190f8337417.css" integrity="sha512-a&#43;B98fRG0eSndIrRXhb5jJcPU35J56MV0hmHYoynIRrCRRkBt4vJmmca4UTipwo0G24Hddbkx5RCLTGQ&#43;DN0Fw==" crossorigin="anonymous">
+    
+  </head>
+  
+  
+    
+  
+  <body data-code="100" data-lines="false" id="documentTop">
+
+<header class="nav_header" >
+  <nav class="nav">
+    <a href='https://hrv2k.github.io/' class="nav_brand nav_item">
+      <img src="https://hrv2k.github.io/logos/logo.png" class="logo">
+      <div class="nav_close">
+        <div>
+          <svg class="icon">
+  <use xlink:href="#open-menu"></use>
+</svg>
+          <svg class="icon">
+  <use xlink:href="#closeme"></use>
+</svg>
+        </div>
+      </div>
+    </a>
+    <div class='nav_body nav_body_left'>
+      
+      
+      
+        
+
+  <div class="nav_parent">
+    <a href="https://hrv2k.github.io/" class="nav_item">Home </a>
+  </div>
+      
+      <div class="nav_parent">
+        <a href="#" class="nav_item"></a>
+        <div class="nav_sub">
+          <span class="nav_child"></span>
+          
+          <a href="https://hrv2k.github.io/" class="nav_child nav_item">English</a>
+          
+          <a href="https://hrv2k.github.io/fr/" class="nav_child nav_item">French</a>
+          
+        </div>
+      </div>
+      
+<div class='follow'>
+  <a href="https://github.com/hrv2k">
+    <svg class="icon">
+  <use xlink:href="#github"></use>
+</svg>
+  </a>
+  <a href="https://www.linkedin.com/in/kakiang">
+    <svg class="icon">
+  <use xlink:href="#linkedin"></use>
+</svg>
+  </a>
+  <a href="https://twitter.com/hrv2k">
+    <svg class="icon">
+  <use xlink:href="#twitter"></use>
+</svg>
+  </a>
+    
+  <a href="https://hrv2k.github.io/index.xml">
+    <svg class="icon">
+  <use xlink:href="#rss"></use>
+</svg>
+  </a>
+<div class="color_mode">
+  <input type="checkbox" class="color_choice" id="mode">
+</div>
+
+</div>
+
+    </div>
+  </nav>
+</header>
+
+    <main>
+  
+
+<div class="wrap singlecontent">
+  <article class="post_content">
+    <h1 class="post_title">Hello, Machine Learning</h1><div class="post_meta">
+  
+    <svg class="icon">
+  <use xlink:href="#calendar"></use>
+</svg>
+    <span class="post_date">
+      Dec 9, 2020</span>
+      <a href='https://hrv2k.github.io/tags/machine-learning' class="post_tag button button_translucent">Machine Learning
+      </a>
+</div>
+
+    
+  <div class="post_share">
+    Share on:
+    <a href="https://twitter.com/intent/tweet?text=Hello%2c%20Machine%20Learning&url=https%3a%2f%2fhrv2k.github.io%2fpost%2fwhat-is-machine-learning%2f&tw_p=tweetbutton" class="twitter" title="Share on Twitter" target="_blank" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#twitter"></use>
+</svg>
+    </a>
+    <a href="https://www.facebook.com/sharer.php?u=https%3a%2f%2fhrv2k.github.io%2fpost%2fwhat-is-machine-learning%2f&t=Hello%2c%20Machine%20Learning" class="facebook" title="Share on Facebook" target="_blank" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#facebook"></use>
+</svg>
+    </a>
+    <a href="#linkedinshare" id = "linkedinshare" class="linkedin" title="Share on LinkedIn" rel="nofollow">
+      <svg class="icon">
+  <use xlink:href="#linkedin"></use>
+</svg>
+    </a>
+    <a href="https://hrv2k.github.io/post/what-is-machine-learning/" title="Copy Link" class="link link_yank">
+      <svg class="icon">
+  <use xlink:href="#copy"></use>
+</svg>
+    </a>
+  </div>
+
+    
+    <img src="/images/ml.jpeg" class="image_featured">
+    
+    
+    <h2>Overview</h2>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-a-brief-history-of-machine-learning">1. A brief history of Machine Learning</a></li>
+    <li><a href="#2-what-is-machine-learning">2. What Is Machine Learning</a></li>
+    <li><a href="#3-learning-problem">3. Learning problem</a>
+      <ul>
+        <li><a href="#task-t">Task T</a></li>
+        <li><a href="#performance-measure-p">Performance measure P</a></li>
+        <li><a href="#experience-e">Experience E</a></li>
+      </ul>
+    </li>
+    <li><a href="#4-types-of-machine-learning-tasks">4. Types of Machine Learning Tasks</a>
+      <ul>
+        <li><a href="#supervised-learning">Supervised Learning</a></li>
+        <li><a href="#unsupervised-learning">Unsupervised Learning</a></li>
+        <li><a href="#reinforcement-learning">Reinforcement Learning</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    <h2 id="1-a-brief-history-of-machine-learning">1. A brief history of Machine Learning</h2>
+<p>Scientists have long dreamed of building machines that would be able to perfectly simulate the cognitive faculties of the human mind and doing so free of human interference. It all started in 1842 with Lady Lovelace, the world’s first programmer who wrote programs about 100 years before there were computers to run them, when asked whether computers could get really smart. she responded by saying, &quot;The Analytical Engine has no pretensions to originate anything. It can do whatever we know how to order it to perform&quot;.</p>
+<p>Since the first programmables computers, AI researchers have attempted not just to understand how humans think in order to replicate it but also to build intelligent agents. Before the 1980s, AI research was divided between what is called “strong AI” and “weak AI”. “Strong AI” referred to AI that could generally perform any intellectual task that a human could, whereas “weak AI”, also called functional or narrow AI, referred to the applications of AI techniques to solve practical problems.</p>
+<p>In order to behave in a way that humans do, AI systems need to acquire the large amount of knowledge that humans have. A machine that could exhibit a human-like intelligence, an AI agent per se, would need to possess the following capabilities: knowledge representations, automated reasoning, machine learning, representations of vision and language and robotics (Luger, 2008; Russell &amp; Norvig, 2009). At its minimum, an AI agent should be capable of learning, processing and understanding visual and linguistic data, reasoning and performing motor movements. Many AI projects have had the goal to incorporate knowledge about the world by devising a database of formal rules written by human experts that supposedly describe the world. An example of such a project is Cyc (Lenat &amp; Guha, 1989). This approach known as knowledge base approach has not led to major success in the AI field. In the case of the Cyc project, the system was told a story of a person named Fred shaving with an electrical razor, it detected an inconsistency in the story because it wasn’t sure whether Fred had electrical parts or not. Then it asked if Fred while shaving was still a person. This difficulty demonstrates the necessity for AI systems to have the ability to extract knowledge about the world from raw data themselves without being explicitly told what to infer in every situation. This is called Machine Learning.</p>
+<p>The origins of machine learning can be traced back to 1943, when McCulloch and Pitts (1943) introduced the first artificial neuron. They showed that networks of these neurons could, in principle, compute any arithmetic or logical function. As no training method was available, the parameters of their networks had to be designed. However, the perceived connection between biology and digital computers generated a great deal of interest. In 1950 Alan Turing, an English mathematician who had previously won the Second World War by breaking the German code, wrote his famous paper, Computing Machinery and Intelligence, in which he introduced the Turing test. The Turing test is a test of a machine’s ability to exhibit intelligent behavior equivalent to, or indistinguishable from, that of a human. To pass the test, a computer must be able to fool a human into believing it is also human. Around the same time in 1952, Arthur Samuel wrote the first computer learning program. The program was a game of checkers, and the IBM computer improved at the game the more it played, studying which moves made up winning strategies in a “supervised learning mode”and incorporating those moves into its program. Rosenblatt (1958) developed a class of neural networks called perceptrons (single-layer neural networks). The neurons in these networks were similar to those of McCulloch and Pitts (1943). More than that, Rosenblatt (1958) introduced a learning rule for training perceptron networks to solve classification problems. Given an input feature vector, the perceptron algorithm could learn to classify inputs as belonging to a specific class. Using a training set, the network’s weights and bias could be updated for linear classification. As a linear classifier the perceptron was limited. It was demonstrated in 1969 that the perceptron was incapable of learning certain elementary functions such as the XOR function. Those problems are not linearly solvable (Minsky &amp; Papert, 1969). The limitations of the perceptrons were overcome by the conception of a Multilayer Perceptron (Werbos, 1981). It makes used of Backpropagation (BP) algorithm for learning. Around the 1980s, machine learning became a prominent area of research.</p>
+<p>In the 1990s, the intersection of computer science and statistics gave birth to probabilistic approaches in machine learning, causing the field to shift from a knowledge-driven approach to a data-driven approach. Having large-scale data available, scientists started to build intelligent systems that were able to analyze and learn from large amounts of data. As an example, IBM’s Deep Blue system beat the world champion of chess, the grand master Garry Kasparov in 1997. In 1995, Corinna and Vapnik (1995) published their work on SVM. SVM is a discriminative classifier formally defined by a separating hyperplane. The idea behind is to map input data to a high-dimension feature space and then construct a linear decision plane in that feature space. It performs by finding the optimal separating hyperlane, that is the hyperplane that maximizes the margin of the training data. SVM have had many empirical successes in many pattern recognition applications such as handwriting recognition (Corinna &amp; Vapnik, 1995), text classification (Joachims, 1998) and image retrieval (Tong &amp; Chang, 2001).</p>
+<p>Around the year 2000 deep learning emerged. Deep learning is a machine learning method that uses neural networks with many layers deep. This evolution of neural networks has successfully solved complex problems in various domains. The Google Brain team creates a neural networks system that learns to recognize high-level concepts namely cats and faces in images taken from frames of YouTube videos with no supervisory signals given to the neurons during training (Le et al., 2012).</p>
+<p>In 2016, Google’s AlphaGo program becomes the first computer program to beat an unhandicapped professional human player using a combination of deep neural networks and tree search techniques. AlphaGo was improved to become AlphaGo Zero and then in 2017 generalized to Chess and more two-player games as AlphaZero.</p>
+<h2 id="2-what-is-machine-learning">2. What Is Machine Learning</h2>
+<p>Back in 1959, Arthur Samuel described Machine Learning (ML) as the “Field of study that gives computers the ability to learn without being explicitly programmed”. ML algorithms mimic the human’s ability to learn from experience. They generate models based on the data (experience) that they receive as input. They adaptively improve the model performance as the amount of data available for the learning process increases.</p>
+<p>Today, there are many applications of ML algorithms to practical problems. That is because models created by machine learning algorithms for problems such as spam filtering, speech, image and object recognition, language translation, text understanding, targeted advertisement, recommender system, medical diagnosis, etc. have many advantages over code written by human developers. Especially image recognition ML models are giving amazing results.</p>
+<p>Usually to solve a problem using computer, we build an algorithm. An algorithm is a sequence of instructions that should be carried out to solve a problem. An algorithm takes an input, processes it and ouputs a result. A particular problem may be solvable by various algorithms. However, in general we are interested in finding the most efficient algorithm that requires the least amount of time or memory or both to compute. The paradigm is different when using ML approach. Instead of creating step-by-step instructions to solve problems as it is usually done in traditional programming, this task is outsourced to an ML algorithm. The ML algorithm is fed input data and outputs expected once the inputs are processed. Based on these sets of data, a function or model is induced by the learning algorithm. The resulting model is a function that maps from the input space (this sapce contains the input data) to the output space (this sapce contains the output data). We say the ML algorithm has trained a model; and the model has learned from data. The model built represents the computer program.</p>
+<p><img src="/images/tpvsml.jpg" alt="TP vs ML"></p>
+<p>But how exactly does a computer program learn? Mitchell (1997) explained that, “A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.”</p>
+<p>OK, but what does that even mean? To illustrate let’s use a particular example. In 1959, Samuel wrote a program that played checkers games against itself. The program learned to recognize patterns that led to win and those that led to loss. Over a period of about 10 hours of training, the program was able to play checkers much better than human player. This learning problem can be specified as follows:</p>
+<ul>
+<li>Task T: Playing checkers</li>
+<li>Performance measure P: Percentage of games won against opponents</li>
+<li>Experience E: Playing games against itself.</li>
+</ul>
+<p>Samuel's program improved the percentage of games won against its opponents at playing checkers through experience gained by playing the game against itself. By Mitchell’s definition, Samuel’s checkers program has learned to play checkers.</p>
+<p>The class of tasks T, the measure of performance to be improved P, and the source of experience E, are the three elements of a well-defined learning problem.</p>
+<h2 id="3-learning-problem">3. Learning problem</h2>
+<h3 id="task-t">Task T</h3>
+<p>Learning tasks are inumerable and diverse. Usually these tasks are too difficult or complex to be solved with hardcoded programs designed by software developers. For example, if we want to make a car able to drive itself in higways using  a sequence of images capture by cameras mounted on the car, steering commands recorded while observing a human driver and other sensors input, then &quot;driving in highways&quot; is the learning task.
+Based on the desired output of the learning system, various kind of tasks can be tackled using machine learning.</p>
+<p>Classification task is the type of task where a learning algorithm is asked to output a category y to which a certain input x belongs.</p>
+<p>Regression task is the type of task for which the goal is to predict a continuous value given some input.</p>
+<p>Clustering task, the program is asked to assign a set of observations to groups called clusters so that observations within the same cluster are similar according to some criteria, while observations drawn from different clusters are dissimilar.  Basically clustering algorithms discover patterns, regularities (correlations) in sets of data.</p>
+<p>These are also generic learning tasks that we often encounter.</p>
+<h3 id="performance-measure-p">Performance measure P</h3>
+<p>During the learning process we need to assess the capabilities of the learning system with respect to the learning task. A performance measure is used to do that. The performance measure P is a quantitative metric or set of metrics that measures how good or accurate the patterns leant from data are. In case of classificaton tasks for example, the performance measure is accuracy, that is the proportion of input examples (or observations) for which the output produced by the learning system and the actual output match up. In the example of the self-driving car, the performance measure may be the average distance travelled by the car before an error occured. The performance measure allows us to evaluate the abilities of the program with respect to the task being performed.</p>
+<h3 id="experience-e">Experience E</h3>
+<p>The training experience E is what allows machine learning algorithms to learn. The training experience refers to the data from which the learning algorithm extract patterns, regularities or correlations. For the self-driving car example, the training examples may be a sequence of images, video clips, steering commands and breaking commands, etc. recorded while observing a human driver. The training experience for a spam filter learning system for example is usually a list of emails labelled as “spam” and emails labeled as “not spam”.</p>
+<h2 id="4-types-of-machine-learning-tasks">4. Types of Machine Learning Tasks</h2>
+<p>We can classify Machine Learning (ML) tasks into three broad categories based on the type of experience (i.e., training data) used to train ML models: Supervised Learning, Reinforcement Learning and Unsupervised Learning.
+An ML model is what an ML algorithm outputs after the learning process. In other words it is the representation of what an ML system has learned from the training data.</p>
+<h3 id="supervised-learning">Supervised Learning</h3>
+<p>Supervised learning refers to the type of learning whereby an ML model is built using labelled examples. The learning process is guided. That is, for each training example the correct answer is known and used during the training process.  The learning algorithm analyzes the training examples, each example consisting of an input object, typically a vector, and the correct output value to infer a function that maps from the inputs to the outputs. The training process is said in this type of learning to be guided because for every instance object in the training data, the correct label is available to the algorithm. This type of machine learning is a bit analogous to how students study for exams. They study a bunch of questions and their correct answers. That’s the mapping from inputs to outputs. Then at the exam, they are asked unseen questions (questions that weren’t encountered when they were studying) and are expected to provide correct answers.</p>
+<p>So for an example that wasn’t used in the training as input to the learnt function, the output is expected to be the correct output.  An optimal scenario will allow for the  inferred function or ML model to correctly determine the output of unknown input examples. This is called generalization. The ability for an ML model to produce correct outputs for inputs that weren’t encountered during learning.</p>
+<p>The term supervised refers to the kind of experience that the algorithm is allowed to have during the training process. Each example is associated with a label. The correct output signal of each example is known in advance and used for training.</p>
+<h3 id="unsupervised-learning">Unsupervised Learning</h3>
+<p>With supervised learning, the correct output is known beforehand, whereas with unsupervised learning, the output is not known and the learning algorithm tries to identify commonalities and patterns between the inputs so that inputs that have something in common are categorized together. The training examples are unlabelled and the goal of unpervised learning algorithms are to train ML models that will find structures embedded or hidden in a dataset with no “guidance”.
+The most common unsupervised learning task is clustering. Unsupervised learning is even sometimes referred to as cluster analysis, however it’s just an element of unsupervised ML. With cluster analysis, given a set of unlabelled examples, the goal is to classify or categorize data into clusters so that data within the same cluster are similar according to some criteria identified by the learning system, while data drawn from different clusters are dissimilar.  Basically the most common use of unsupervised machine learning is to discover patterns, regularities or correlations in unlabelled data sets.</p>
+<h3 id="reinforcement-learning">Reinforcement Learning</h3>
+<p>Another type of machine learning is reinforcement learning. With reinforcement learning, the goal is to develop an agent that improves its performance based on the interactions that it has with its environment. The agent is the learner (a robot, for example), and the environment is where it is learning (a room crowded with chairs), and what it is learning about (walking while avoiding obstacles, for example).</p>
+<p>The performance of the agent is quantified through some reward function. For the example of a robot learning to walk while avoiding obstacles, the reward could be how well it walks without crashing into chairs.  The reward for particular actions taken by the agent is defined behore the training. That gives the reinforment learning approach a touch of supervised learning. However, this feedback formalized by the reward function is not the ground truth or label as it is the case with supervised learning. But it’s a measure of how well the action taken by the agent was as measured by the reward function. The correct answer remains unknown to the agent, giving an unsupervised flavour to the reinforcement learning approach. So reinforcement learning is somewhere between supervised and unsupervised learning.  In the instance of our robot learner, he is not taught how to walk while avoiding chairs, but he is rewarded negatively (punish) when he crashes into chairs and rewarded positively when he manages to avoid an obstacle.
+Through interactions with the environment and via an exploratory sequence of trial-and-error approach, an agent can learn a series of actions that maximizes its reward. In other words, the agent has to try out different possibilities and figure out which work best based on the reward that he gets.</p>
+
+    
+      <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hervekakiangblog" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+  </article>
+  
+</div>
+    </main><svg width="0" height="0" class="hidden">
+  <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="facebook">
+    <path d="M437 0H75C33.648 0 0 33.648 0 75v362c0 41.352 33.648 75 75 75h151V331h-60v-90h60v-61c0-49.629 40.371-90 90-90h91v90h-91v61h91l-15 90h-76v181h121c41.352 0 75-33.648 75-75V75c0-41.352-33.648-75-75-75zm0 0"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18.001 18.001" id="twitter">
+    <path d="M15.891 4.013c.808-.496 1.343-1.173 1.605-2.034a8.68 8.68 0 0 1-2.351.861c-.703-.756-1.593-1.14-2.66-1.14-1.043 0-1.924.366-2.643 1.078a3.56 3.56 0 0 0-1.076 2.605c0 .309.039.585.117.819-3.076-.105-5.622-1.381-7.628-3.837-.34.601-.51 1.213-.51 1.846 0 1.301.549 2.332 1.645 3.089-.625-.053-1.176-.211-1.645-.47 0 .929.273 1.705.82 2.388a3.623 3.623 0 0 0 2.115 1.291c-.312.08-.641.118-.979.118-.312 0-.533-.026-.664-.083.23.757.664 1.371 1.291 1.841a3.652 3.652 0 0 0 2.152.743C4.148 14.173 2.625 14.69.902 14.69c-.422 0-.721-.006-.902-.038 1.697 1.102 3.586 1.649 5.676 1.649 2.139 0 4.029-.542 5.674-1.626 1.645-1.078 2.859-2.408 3.639-3.974a10.77 10.77 0 0 0 1.172-4.892v-.468a7.788 7.788 0 0 0 1.84-1.921 8.142 8.142 0 0 1-2.11.593z"
+      ></path>
+  </symbol>
+  <symbol aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="mail">
+    <path  d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="calendar">
+    <path d="M452 40h-24V0h-40v40H124V0H84v40H60C26.916 40 0 66.916 0 100v352c0 33.084 26.916 60 60 60h392c33.084 0 60-26.916 60-60V100c0-33.084-26.916-60-60-60zm20 412c0 11.028-8.972 20-20 20H60c-11.028 0-20-8.972-20-20V188h432v264zm0-304H40v-48c0-11.028 8.972-20 20-20h24v40h40V80h264v40h40V80h24c11.028 0 20 8.972 20 20v48z"></path>
+    <path d="M76 230h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zM76 310h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zM76 390h40v40H76zm80 0h40v40h-40zm80 0h40v40h-40zm80 0h40v40h-40zm80-80h40v40h-40z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="github">
+    <path d="M255.968 5.329C114.624 5.329 0 120.401 0 262.353c0 113.536 73.344 209.856 175.104 243.872 12.8 2.368 17.472-5.568 17.472-12.384 0-6.112-.224-22.272-.352-43.712-71.2 15.52-86.24-34.464-86.24-34.464-11.616-29.696-28.416-37.6-28.416-37.6-23.264-15.936 1.728-15.616 1.728-15.616 25.696 1.824 39.2 26.496 39.2 26.496 22.848 39.264 59.936 27.936 74.528 21.344 2.304-16.608 8.928-27.936 16.256-34.368-56.832-6.496-116.608-28.544-116.608-127.008 0-28.064 9.984-51.008 26.368-68.992-2.656-6.496-11.424-32.64 2.496-68 0 0 21.504-6.912 70.4 26.336 20.416-5.696 42.304-8.544 64.096-8.64 21.728.128 43.648 2.944 64.096 8.672 48.864-33.248 70.336-26.336 70.336-26.336 13.952 35.392 5.184 61.504 2.56 68 16.416 17.984 26.304 40.928 26.304 68.992 0 98.72-59.84 120.448-116.864 126.816 9.184 7.936 17.376 23.616 17.376 47.584 0 34.368-.32 62.08-.32 70.496 0 6.88 4.608 14.88 17.6 12.352C438.72 472.145 512 375.857 512 262.353 512 120.401 397.376 5.329 255.968 5.329z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 212 212" id="gitlab">
+    <path d="M12.3 74.7h54L43.3 3c-1-3.6-6.4-3.6-7.6 0L12.3 74.8z" />
+    <path d="M12.3 74.7L.5 111c-1 3.2 0 6.8 3 8.8l101.6 74-92.5-119z"/>
+    <path d="M105 193.7l-38.6-119h-54l92.7 119z"/>
+    <path d="M105 193.7l38.7-119H66.4l38.7 119z"/>
+    <path d="M105 193.7l38.7-119H198l-93 119z"/>
+    <path d="M198 74.7l11.6 36.2c1 3 0 6.6-3 8.6l-101.5 74 93-119z"/>
+    <path d="M198 74.7h-54.3L167 3c1.2-3.6 6.4-3.6 7.6 0L198 74.8z"/> 
+  </symbol>
+  <symbol viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="rss">
+    <circle cx="3.429" cy="20.571" r="3.429"></circle>
+    <path d="M11.429 24h4.57C15.999 15.179 8.821 8.001 0 8v4.572c6.302.001 11.429 5.126 11.429 11.428z"></path>
+    <path d="M24 24C24 10.766 13.234 0 0 0v4.571c10.714 0 19.43 8.714 19.43 19.429z"></path>
+  </symbol>
+  <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="linkedin">
+    <path d="M437 0H75C33.648 0 0 33.648 0 75v362c0 41.352 33.648 75 75 75h362c41.352 0 75-33.648 75-75V75c0-41.352-33.648-75-75-75zM181 406h-60V196h60zm0-240h-60v-60h60zm210 240h-60V286c0-16.54-13.46-30-30-30s-30 13.46-30 30v120h-60V196h60v11.309C286.719 202.422 296.93 196 316 196c40.691.043 75 36.547 75 79.688zm0 0"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 612" id="arrow">
+    <path d="M604.501 440.509L325.398 134.956c-5.331-5.357-12.423-7.627-19.386-7.27-6.989-.357-14.056 1.913-19.387 7.27L7.499 440.509c-9.999 10.024-9.999 26.298 0 36.323s26.223 10.024 36.222 0l262.293-287.164L568.28 476.832c9.999 10.024 26.222 10.024 36.221 0 9.999-10.023 9.999-26.298 0-36.323z"></path>
+  </symbol>
+  <symbol viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" id="carly">
+    <path d="M504.971 239.029L448 182.059V84c0-46.317-37.682-84-84-84h-44c-13.255 0-24 10.745-24 24s10.745 24 24 24h44c19.851 0 36 16.149 36 36v108c0 6.365 2.529 12.47 7.029 16.971L454.059 256l-47.029 47.029A24.002 24.002 0 0 0 400 320v108c0 19.851-16.149 36-36 36h-44c-13.255 0-24 10.745-24 24s10.745 24 24 24h44c46.318 0 84-37.683 84-84v-98.059l56.971-56.971c9.372-9.372 9.372-24.568 0-33.941zM112 192V84c0-19.851 16.149-36 36-36h44c13.255 0 24-10.745 24-24S205.255 0 192 0h-44c-46.318 0-84 37.683-84 84v98.059l-56.971 56.97c-9.373 9.373-9.373 24.568 0 33.941L64 329.941V428c0 46.317 37.682 84 84 84h44c13.255 0 24-10.745 24-24s-10.745-24-24-24h-44c-19.851 0-36-16.149-36-36V320c0-6.365-2.529-12.47-7.029-16.971L57.941 256l47.029-47.029A24.002 24.002 0 0 0 112 192z"></path>
+  </symbol>
+  <symbol viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="copy">
+    <path d="M23 2.75A2.75 2.75 0 0 0 20.25 0H8.75A2.75 2.75 0 0 0 6 2.75v13.5A2.75 2.75 0 0 0 8.75 19h11.5A2.75 2.75 0 0 0 23 16.25zM18.25 14.5h-7.5a.75.75 0 0 1 0-1.5h7.5a.75.75 0 0 1 0 1.5zm0-3h-7.5a.75.75 0 0 1 0-1.5h7.5a.75.75 0 0 1 0 1.5zm0-3h-7.5a.75.75 0 0 1 0-1.5h7.5a.75.75 0 0 1 0 1.5z"></path>
+    <path d="M8.75 20.5a4.255 4.255 0 0 1-4.25-4.25V2.75c0-.086.02-.166.025-.25H3.75A2.752 2.752 0 0 0 1 5.25v16A2.752 2.752 0 0 0 3.75 24h12a2.752 2.752 0 0 0 2.75-2.75v-.75z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.001 512.001" id="closeme">
+    <path d="M284.286 256.002L506.143 34.144c7.811-7.811 7.811-20.475 0-28.285-7.811-7.81-20.475-7.811-28.285 0L256 227.717 34.143 5.859c-7.811-7.811-20.475-7.811-28.285 0-7.81 7.811-7.811 20.475 0 28.285l221.857 221.857L5.858 477.859c-7.811 7.811-7.811 20.475 0 28.285a19.938 19.938 0 0 0 14.143 5.857 19.94 19.94 0 0 0 14.143-5.857L256 284.287l221.857 221.857c3.905 3.905 9.024 5.857 14.143 5.857s10.237-1.952 14.143-5.857c7.811-7.811 7.811-20.475 0-28.285L284.286 256.002z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" id="open-menu">
+    <path d="M492 236H20c-11.046 0-20 8.954-20 20s8.954 20 20 20h472c11.046 0 20-8.954 20-20s-8.954-20-20-20zm0-160H20C8.954 76 0 84.954 0 96s8.954 20 20 20h472c11.046 0 20-8.954 20-20s-8.954-20-20-20zm0 320H20c-11.046 0-20 8.954-20 20s8.954 20 20 20h472c11.046 0 20-8.954 20-20s-8.954-20-20-20z"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="instagram">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id=youtube>
+    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="stackoverflow">
+    <path d="M21 27v-8h3v11H0V19h3v8h18z"></path><path d="M17.1.2L15 1.8l7.9 10.6 2.1-1.6L17.1.2zm3.7 14.7L10.6 6.4l1.7-2 10.2 8.5-1.7 2zM7.2 12.3l12 5.6 1.1-2.4-12-5.6-1.1 2.4zm-1.8 6.8l13.56 1.96.17-2.38-13.26-2.55-.47 2.97zM19 25H5v-3h14v3z"></path>
+  </symbol>
+</svg>
+
+<footer class="footer">
+  <div class="footer_inner wrap pale">
+    <img src='https://hrv2k.github.io/images/logo.png' class="icon icon_2 transparent">
+    <p>Copyright 2020-<span class="year"></span> HERVÉ KAKIANG&#39;S BLOG. All Rights Reserved</p><a class="to_top" href="#documentTop">
+  <svg class="icon">
+  <use xlink:href="#arrow"></use>
+</svg>
+</a>
+
+  </div>
+</footer>
+
+    <script type="text/javascript" src="https://hrv2k.github.io/js/bundle.min.cee36fbca464500550f3fdcee62b033060ebedabbfffa7f2961d06529ac3ffcf3c8d107e04af65ae030ed0918354da56a88baeabce9d950f354680c9fb346dde.js" integrity="sha512-zuNvvKRkUAVQ8/3O5isDMGDr7au//6fylh0GUprD/888jRB&#43;BK9lrgMO0JGDVNpWqIuuq86dlQ81RoDJ&#43;zRt3g==" crossorigin="anonymous"></script>
+    
+  </body>
+</html>

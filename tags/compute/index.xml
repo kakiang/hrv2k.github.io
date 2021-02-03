@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Compute on Hervé Kakiang&#39;s blog</title>
+    <link>https://hrv2k.github.io/tags/compute/</link>
+    <description>Recent content in Compute on Hervé Kakiang&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 20019–2021, Hervé Kakiang; all rights reserved.</copyright>
+    <lastBuildDate>Sat, 30 Nov 2019 17:15:45 +0000</lastBuildDate><atom:link href="https://hrv2k.github.io/tags/compute/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Horizontal Scaling vs Vertical Scaling</title>
+      <link>https://hrv2k.github.io/post/horizontal-vs-vertical-scaling/</link>
+      <pubDate>Sat, 30 Nov 2019 17:15:45 +0000</pubDate>
+      
+      <guid>https://hrv2k.github.io/post/horizontal-vs-vertical-scaling/</guid>
+      <description>
+        
+          &lt;h1 id=&#34;what-is-it&#34;&gt;What Is it?&lt;/h1&gt;
+&lt;p&gt;Horizontal scaling means adding more instances (e.g. VMs) to
+previously &#39;running&#39; instance(s). Vertical scaling onn the other hand,
+means adding more power (e.g. cpu, memory) to a &#39;running&#39; instance.&lt;/p&gt;
+&lt;p&gt;For example, let&#39;s say you have an instance that is running a workload,
+and that instance is no longer able to handle the workload. To solve the
+problem you add another instance and share the workload between the 2
+instances; that&#39;s horizontal scaling. But if instead of adding another
+instance to handle the increasing workload, you increase the number of
+CPUs and memory size of the running instance, that&#39;s vertical scaling.&lt;/p&gt;
+&lt;p&gt;Horizontal scaling is also designated by scaling out. And vertical
+scaling is synonymous with scaling up.&lt;/p&gt;
+&lt;h1 id=&#34;example-cloud-spanner-and-cloud-sql&#34;&gt;Example: Cloud Spanner and Cloud SQL&lt;/h1&gt;
+&lt;p&gt;According to the &lt;a href=&#34;https://cloud.google.com/spanner/&#34;&gt;Cloud Spanner page&lt;/a&gt;,&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Cloud Spanner is the first scalable, enterprise-grade, globally-distributed, and strongly consistent database service built for the cloud specifically to combine the benefits of relational database structure with non-relational horizontal scale.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;According to the &lt;a href=&#34;https://cloud.google.com/sql/&#34;&gt;Cloud SQL page&lt;/a&gt;,&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Cloud SQL is a fully managed database service that makes it easy to set up, maintain, manage, and administer your relational PostgreSQL, MySQL, and SQL Server databases in the cloud.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Cloud Spanner has the ability to scale horizontally
+(like other &lt;a href=&#34;https://en.wikipedia.org/wiki/NoSQL&#34;&gt;NoSQL databases&lt;/a&gt;).
+That means we start off with one node (i.e VM instance), and when
+that single node reaches its capacity limit, another node is spun up and
+added to the previous node to handle the load and so on. Cloud SQL
+doesn&#39;t do that. If your Cloud SQL instance is no longer able to handle
+the amount of data it receives, its storage capacity increases.
+So Cloud Spanner scales out/horizontally by adding more instances to
+its cluster to handle increasing workload, whereas Cloud SQL scales
+up/vertically by increasing its storage capacity. Because Cloud Spanner
+and Cloud SQL are GCP&#39;s fully-managed services, the scalability feature
+is automated. If they weren&#39;t automated, we&#39;d have to do the scaling
+ourselves, as it is the case in most on-premises environments.&lt;/p&gt;
+&lt;p&gt;In fact horizontal scaling is possible with relational databases, it&#39;s
+called sharding. But implementing it is a pain in the neck.&lt;/p&gt;
+&lt;p&gt;What&#39;s interesting with Cloud Spanner is despite the fact that it scales
+horizontally, it supports transactions and strong consistency. NoSQL
+databases aren&#39;t usually consistent, because it&#39;s difficult to have
+consistency when you are duplicating data. And when you don&#39;t have
+consistency there is no point in supporting transactions.&lt;/p&gt;
+&lt;p&gt;To scale, Cloud Spanner uses multiple nodes. That means the data is in
+no single node, they are spread accross different nodes. Essentially,
+to have a consistent database, you need to have a mechanism that checks
+if after inserting new data, the database will still remain consistent.
+Your database has to go from one valid state to another after any
+completed operation. Now, with a database that operates accross a cluster
+of nodes, you have to check every node if you want to have a strongly
+consistent database; and that would be a lot of processing especially
+if you have a large amount of data.
+You can&#39;t do it without paying some performance cost. That is
+why when it comes to ingesting large amount of data at high velocity,
+&lt;a href=&#34;https://cloud.google.com/bigtable/&#34;&gt;Cloud Bigtable&lt;/a&gt; does it better than
+Cloud Spanner. I believe that&#39;s mostly simply because Cloud Spanner cares about
+consistency while Cloud Bigtable doesn&#39;t. That makes Cloud Spanner not
+suitable for high-speed ingestion of large amount of data, because it
+has to check for consistency. Whereas Cloud Bigtable is very
+good at ingesting data at high-velocity, it&#39;s low-latency and supports
+millions of operations per second; it&#39;s a NoSQL database and doesn&#39;t care
+about consistency.&lt;/p&gt;
+&lt;p&gt;To deep dive into Cloud Spanner, check this
+&lt;a href=&#34;https://ai.google/research/pubs/pub39966&#34;&gt;article&lt;/a&gt; by Google&#39;s engineers&lt;/p&gt;
+
+        
+      </description>
+    </item>
+    
+  </channel>
+</rss>
