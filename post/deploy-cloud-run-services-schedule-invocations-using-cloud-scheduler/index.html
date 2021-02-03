@@ -168,20 +168,30 @@
   </div>
 
     
+    <img src="/images/cloud_run.jpg" class="image_featured">
+    
     
     <h2>Overview</h2>
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#71-build-and-run-locally">7.1. Build and run locally</a></li>
-    <li><a href="#72-tell-cloud-build-to-do-everything">7.2. Tell Cloud Build to do everything</a>
+    <li><a href="#1-what-is-docker">1. What is Docker</a></li>
+    <li><a href="#2-what-is-a-container-image">2. What is a container image</a></li>
+    <li><a href="#3-what-is-a-container">3. What is a container</a></li>
+    <li><a href="#4-what-is-container-registry">4. What is Container Registry</a></li>
+    <li><a href="#5-what-is-cloud-run">5. What is Cloud Run</a></li>
+    <li><a href="#6-the-code">6. The code</a></li>
+    <li><a href="#7-build-and-run-the-container-image">7. Build and run the container image</a>
       <ul>
+        <li><a href="#71-build-and-run-locally">7.1. Build and run locally</a></li>
+        <li><a href="#72-tell-cloud-build-to-do-everything">7.2. Tell Cloud Build to do everything</a></li>
         <li><a href="#enable-apis">Enable APIs</a></li>
         <li><a href="#build-and-run">Build and run</a></li>
         <li><a href="#define-the-build-steps-in-a-config-file">Define the build steps in a config file</a></li>
         <li><a href="#iam-permissions">IAM permissions</a></li>
-        <li><a href="#tired_face-ok-ok-now-the-actual-build">:tired_face: ok ok, now the actual build</a></li>
+        <li><a href="#lets-build-it">Let's build it</a></li>
       </ul>
     </li>
+    <li><a href="#8-create-a-con-job-to-invoke-the-cloud-run-service">8. Create a con job to invoke the Cloud Run service</a></li>
   </ul>
 </nav>
     <p><strong>TL;DR</strong>: This post is about Cloud Run and Scheduling a call of a Cloud Run
@@ -189,19 +199,19 @@ service with Cloud Scheduler. Precisely we use Cloud Run to deploy a
 stateless birthday reminder app and use Cloud Scheduler to call the deployed
 service API.</p>
 <p>In the <a href="/posts/invoking-cloud-functions-with-cloud-scheduler/">previous post</a>, I deployed a simple birthday reminder app on Google Cloud Functions and scheduled a cron job using Cloud Scheduler to invoke the app every day. Upon invocation, the app checks for birthdays and sends out an SMS to your configured phone number if there is at least one birthday that day. It works fine. Today, I am going to package up the birthday app in a container image using Docker, push it to Google Container Registry and then deploy it to Cloud Run.</p>
-<h1 id="1-what-is-docker">1. What is Docker</h1>
+<h2 id="1-what-is-docker">1. What is Docker</h2>
 <p>Docker is a platform that allows you to package up your application and its dependencies in a container image. Essentially it allows you to build, share and run container images.</p>
-<h1 id="2-what-is-a-container-image">2. What is a container image</h1>
+<h2 id="2-what-is-a-container-image">2. What is a container image</h2>
 <p>It's the image of a container. It's built from a file called Dockerfile, which is a script-like file that contains a series of commands which are to be executed successively by docker to create a container image.</p>
 <p>A container image is your app bundled up together with all the dependencies that are necessary to make it run. You can package 'anything' in a container image. Any runtime, any binary, any library. Instead of <code>container image</code>, often we just say <code>image</code>.</p>
-<h1 id="3-what-is-a-container">3. What is a container</h1>
+<h2 id="3-what-is-a-container">3. What is a container</h2>
 <p>A container is a running image. Basically when your app packaged up in a container image is spun up (executed), it's called container.</p>
  <!-- It is built out of an image, which is the definition of the container. -->
-<h1 id="4-what-is-container-registry">4. What is Container Registry</h1>
+<h2 id="4-what-is-container-registry">4. What is Container Registry</h2>
 <p>Container Registry is Google's repository for container images. Put simply, it's like the GitHub of container images, however it's not public. The largest public repository for container images is <a href="https://hub.docker.com/">Docker Hub</a>. With Google Container Registry, you can manage your Docker images, perform vulnerability analysis, and because it's a GCP service, you decide who can access what with fine-grained access control using IAM policies.</p>
-<h1 id="5-what-is-cloud-run">5. What is Cloud Run</h1>
+<h2 id="5-what-is-cloud-run">5. What is Cloud Run</h2>
 <p>Cloud Run is the Cloud Functions for containers. It's a fully managed serverless compute solution that enables you to run any stateless application. It is really flexible, since you can code up an app using any runtime and any library, package it up in a container image and run it on Cloud Run. It's not limited to a couple of runtimes as it is the case with <a href="https://cloud.google.com/functions/docs/">Cloud Functions</a>. But similar to Cloud Functions, Cloud Run can scale down to zero when it's not being used, thereby costing nothing. It can also scale up to handle increasing user requests.</p>
-<h1 id="6-the-code">6. The code</h1>
+<h2 id="6-the-code">6. The code</h2>
 <p>Let's create a sqlite database from the calendar file using the script below. The script creates a sqlite table called <code>birthdays</code>, loopS through the birthday events in the calendar file and insert them into the <code>birthdays</code> table.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -406,7 +416,7 @@ service API.</p>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&#34;0.0.0.0&#34;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PORT&#39;</span><span class="p">,</span> <span class="mi">8080</span><span class="p">)),</span> <span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></td></tr></table>
 </div>
 </div>
-<h1 id="7-build-and-run-the-container-image">7. Build and run the container image</h1>
+<h2 id="7-build-and-run-the-container-image">7. Build and run the container image</h2>
 <p>Now, let's get to the actual docker image building. We are packaging the birthday app in a container image.</p>
 <p>To build a container image, we have to tell Docker how to do step by step. The Dockerfile is used for that purpose. Inside of the directory that contains the birthday app, we create a file called Dockerfile that contains the following instructions:</p>
 <div class="highlight"><div class="chroma">
@@ -435,114 +445,276 @@ service API.</p>
 </div>
 <p>Once the Dockerfile is right and ready, we can now build the container image.
 We will build it using <code>docker build</code> command and run it locally using <code>docker run</code> command. Then we will use <a href="https://cloud.google.com/cloud-build/">Cloud Build</a> to do the same thing, except we won't run the container locally, we will push it to Container Registry and deploy it to Cloud Run.</p>
-<h2 id="71-build-and-run-locally">7.1. Build and run locally</h2>
+<h3 id="71-build-and-run-locally">7.1. Build and run locally</h3>
 <p>Before we proceed, make sure you have docker installed. If you are not certain, run <code>docker version</code> command to check it. The output looks something like this</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span>Client: Docker Engine - Community
-<span class="ln"> 2</span> Version:           19.03.5
-<span class="ln"> 3</span> API version:       1.40
-<span class="ln"> 4</span> Go version:        go1.12.12
-<span class="ln"> 5</span> Git commit:        633a0ea838
-<span class="ln"> 6</span> Built:             Wed Nov <span class="m">13</span> 07:29:52 <span class="m">2019</span>
-<span class="ln"> 7</span> OS/Arch:           linux/amd64
-<span class="ln"> 8</span> Experimental:      <span class="nb">false</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span>Server: Docker Engine - Community
-<span class="ln">11</span> Engine:
-<span class="ln">12</span>  Version:          19.03.5
-<span class="ln">13</span>  API version:      1.40 <span class="o">(</span>minimum version 1.12<span class="o">)</span>
-<span class="ln">14</span>  Go version:       go1.12.12
-<span class="ln">15</span>  Git commit:       633a0ea838
-<span class="ln">16</span>  Built:            Wed Nov <span class="m">13</span> 07:28:22 <span class="m">2019</span>
-<span class="ln">17</span>  OS/Arch:          linux/amd64
-<span class="ln">18</span>  Experimental:     <span class="nb">false</span>
-<span class="ln">19</span> containerd:
-<span class="ln">20</span>  Version:          1.2.10
-<span class="ln">21</span>  GitCommit:        b34a5c8af56e510852c35414db4c1f4fa6172339
-<span class="ln">22</span> runc:
-<span class="ln">23</span>  Version:          1.0.0-rc8+dev
-<span class="ln">24</span>  GitCommit:        3e425f80a8c931f88e6d94a8c831b9d5aa481657
-<span class="ln">25</span> docker-init:
-<span class="ln">26</span>  Version:          0.18.0
-<span class="ln">27</span>  GitCommit:        fec3683</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">Client: Docker Engine - Community
+ Version:           19.03.5
+ API version:       1.40
+ Go version:        go1.12.12
+ Git commit:        633a0ea838
+ Built:             Wed Nov <span class="m">13</span> 07:29:52 <span class="m">2019</span>
+ OS/Arch:           linux/amd64
+ Experimental:      <span class="nb">false</span>
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          19.03.5
+  API version:      1.40 <span class="o">(</span>minimum version 1.12<span class="o">)</span>
+  Go version:       go1.12.12
+  Git commit:       633a0ea838
+  Built:            Wed Nov <span class="m">13</span> 07:28:22 <span class="m">2019</span>
+  OS/Arch:          linux/amd64
+  Experimental:     <span class="nb">false</span>
+ containerd:
+  Version:          1.2.10
+  GitCommit:        b34a5c8af56e510852c35414db4c1f4fa6172339
+ runc:
+  Version:          1.0.0-rc8+dev
+  GitCommit:        3e425f80a8c931f88e6d94a8c831b9d5aa481657
+ docker-init:
+  Version:          0.18.0
+  GitCommit:        fec3683</code></pre></td></tr></table>
+</div>
+</div>
 <p>Otherwise <a href="https://docs.docker.com/installation/#installation">install it</a>.</p>
 <p>To build the image locally, we use the <code>docker build</code> command which requires a <code>Dockerfile</code> and a context to run. The context is the content of the directory that contains the files (code) of your app. According to the <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile reference</a>, the context can be a Git repository location or a directory on your local filesystem. In our case here, we use the current directory as the context.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>docker build --tag bdays-reminder:0.1 .</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker build --tag bdays-reminder:0.1 .</code></pre></td></tr></table>
+</div>
+</div>
 <p>We use <code>--tag</code> flag to give a name to our container image and tag it. The tag is placed after <code>:</code> after the name, and it's optional.
 The output of the <code>docker build</code> command above looks like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span>Sending build context to Docker daemon  41.98kB
-<span class="ln"> 2</span>Step 1/8 : FROM python:3.7-alpine
-<span class="ln"> 3</span> ---&gt; b11d2a09763f
-<span class="ln"> 4</span>Step 2/8 : RUN pip install --upgrade pip
-<span class="ln"> 5</span> ---&gt; Using cache
-<span class="ln"> 6</span> ---&gt; 75d2e0d46e9b
-<span class="ln"> 7</span>Step 3/8 : WORKDIR /app/
-<span class="ln"> 8</span> ---&gt; Using cache
-<span class="ln"> 9</span> ---&gt; 139fdb3d1033
-<span class="ln">10</span>Step 4/8 : COPY requirements.txt /tmp/
-<span class="ln">11</span> ---&gt; 6eb80fa72a7d
-<span class="ln">12</span>Step 5/8 : RUN pip install --no-cache-dir --requirement /tmp/requirements.txt
-<span class="ln">13</span> ---&gt; Running in c01ad97ad47f
-<span class="ln">14</span>Collecting <span class="nv">flask</span><span class="o">==</span>1.0.2
-<span class="ln">15</span>  Downloading https://files.pythonhosted.org/packages/7f/e7/08578774ed4536d3242b14dacb4696386634607af824ea997202cd0edb4b/Flask-1.0.2-py2.py3-none-any.whl <span class="o">(</span>91kB<span class="o">)</span>
-<span class="ln">16</span>Collecting <span class="nv">twilio</span><span class="o">==</span>6.26.2
-<span class="ln">17</span>.......
-<span class="ln">18</span>Removing intermediate container c01ad97ad47f
-<span class="ln">19</span> ---&gt; 10ac84d3b59e
-<span class="ln">20</span>Step 6/8 : COPY birthdays.db birthdays.py sms.py app.py /app/
-<span class="ln">21</span> ---&gt; ad3e61d2fadb
-<span class="ln">22</span>Step 7/8 : ENV PORT <span class="m">8080</span>
-<span class="ln">23</span> ---&gt; Running in a1f0fd4e9f29
-<span class="ln">24</span>Removing intermediate container a1f0fd4e9f29
-<span class="ln">25</span> ---&gt; fdc22f2b084e
-<span class="ln">26</span>Step 8/8 : CMD python app.py
-<span class="ln">27</span> ---&gt; Running in f7df67c6aeac
-<span class="ln">28</span>Removing intermediate container f7df67c6aeac
-<span class="ln">29</span> ---&gt; 44c25171620f
-<span class="ln">30</span>Successfully built 44c25171620f
-<span class="ln">31</span>Successfully tagged bdays-reminder:0.1</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">Sending build context to Docker daemon  41.98kB
+Step 1/8 : FROM python:3.7-alpine
+ ---&gt; b11d2a09763f
+Step 2/8 : RUN pip install --upgrade pip
+ ---&gt; Using cache
+ ---&gt; 75d2e0d46e9b
+Step 3/8 : WORKDIR /app/
+ ---&gt; Using cache
+ ---&gt; 139fdb3d1033
+Step 4/8 : COPY requirements.txt /tmp/
+ ---&gt; 6eb80fa72a7d
+Step 5/8 : RUN pip install --no-cache-dir --requirement /tmp/requirements.txt
+ ---&gt; Running in c01ad97ad47f
+Collecting <span class="nv">flask</span><span class="o">==</span>1.0.2
+  Downloading https://files.pythonhosted.org/packages/7f/e7/08578774ed4536d3242b14dacb4696386634607af824ea997202cd0edb4b/Flask-1.0.2-py2.py3-none-any.whl <span class="o">(</span>91kB<span class="o">)</span>
+Collecting <span class="nv">twilio</span><span class="o">==</span>6.26.2
+.......
+Removing intermediate container c01ad97ad47f
+ ---&gt; 10ac84d3b59e
+Step 6/8 : COPY birthdays.db birthdays.py sms.py app.py /app/
+ ---&gt; ad3e61d2fadb
+Step 7/8 : ENV PORT <span class="m">8080</span>
+ ---&gt; Running in a1f0fd4e9f29
+Removing intermediate container a1f0fd4e9f29
+ ---&gt; fdc22f2b084e
+Step 8/8 : CMD python app.py
+ ---&gt; Running in f7df67c6aeac
+Removing intermediate container f7df67c6aeac
+ ---&gt; 44c25171620f
+Successfully built 44c25171620f
+Successfully tagged bdays-reminder:0.1</code></pre></td></tr></table>
+</div>
+</div>
 <p>If it worked, you should see the message &quot;Successfully tagged bdays-reminder:0.1&quot;.</p>
 <p>Run <code>docker images</code> to list docker images. The output looks like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>REPOSITORY           TAG        IMAGE ID          CREATED           SIZE
-<span class="ln">2</span>bdays-reminder       0.1        44c25171620f      <span class="m">10</span> hours ago      123MB</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">REPOSITORY           TAG        IMAGE ID          CREATED           SIZE
+bdays-reminder       0.1        44c25171620f      <span class="m">10</span> hours ago      123MB</code></pre></td></tr></table>
+</div>
+</div>
 <p>If the build has been successful, you can now run the image.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>docker run -d --publish 8080:8080 bdays-reminder:0.1</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker run -d --publish 8080:8080 bdays-reminder:0.1</code></pre></td></tr></table>
+</div>
+</div>
 <p>With the command above, we are running a container from the image <code>bdays-reminder:v1</code> on port 8080 as a deamon (note the <code>-d</code>). The command outputs the container ID.</p>
 <p>We can run <code>docker ps</code> or <code>docker container ls</code> to display the list of containers that are spun up. Sometimes the output of this command is cumbersome. We can choose what information to display.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>docker ps --format <span class="s2">&#34;table {{.ID}}\\t{{.Image}}\\t{{.Status}}\\t{{.Ports}}&#34;</span></code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">docker ps --format <span class="s2">&#34;table {{.ID}}\\t{{.Image}}\\t{{.Status}}\\t{{.Ports}}&#34;</span></code></pre></td></tr></table>
+</div>
+</div>
 <p>We get a neat output that looks like this. Our container is up and running on port 80880,</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>CONTAINER ID      IMAGE                STATUS            PORTS
-<span class="ln">2</span>db3382796905      bdays-reminder:0.1   Up <span class="m">21</span> minutes     0.0.0.0:8080-&gt;8080/tcp</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">CONTAINER ID      IMAGE                STATUS            PORTS
+db3382796905      bdays-reminder:0.1   Up <span class="m">21</span> minutes     0.0.0.0:8080-&gt;8080/tcp</code></pre></td></tr></table>
+</div>
+</div>
 <p>Navigate to <a href="127.0.0.1:8080">127.0.0.1:8080</a>, <a href="127.0.0.1:8080/birthday_friends">127.0.0.1:8080/birthday_friends</a>.
 Trigger a SMS to be sent by hitting <a href="127.0.0.1:8080/birthday_friends?notify=true">127.0.0.1:8080/birthday_friends?notify=true</a>. These routes were defined in the Flask app code.</p>
 <p>To stop a running container, we use <code>docker stop</code> command with the container ID; for example in this case, the <code>container ID</code> is <code>db3382796905</code>. So to stop it, we run
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>docker stop db3382796905</code></pre></div></p>
 <p>Run <code>docker ps</code> to make sure that the container has been effectively stopped.</p>
-<h2 id="72-tell-cloud-build-to-do-everything">7.2. Tell Cloud Build to do everything</h2>
+<h3 id="72-tell-cloud-build-to-do-everything">7.2. Tell Cloud Build to do everything</h3>
 <p>In this section, we are going to use <a href="https://cloud.google.com/cloud-build/">Cloud Build</a> to build and tag a Docker image, push the to Google Container Registry and deploy it to Cloud Run. Cloud Build is a Google's service that offers <a href="https://cloud.google.com/docs/ci-cd/">CI/CD</a> <a href="https://cloud.google.com/solutions/continuous-delivery/">fonctionalities</a> that cover all the software development stages in cloud environments as well as on premises environments. Essentially you submit the build, test and deployment processes to Cloud Build by providing the build steps in a configuration file. The builds run on the GCP and you can use high-CPU VMs to further increase the build speed.</p>
 <p>We will be using Cloud SDK gcloud command-line tool  If you haven't installed it yet, go ahead and <a href="https://cloud.google.com/sdk/docs/">install it</a>. If you have already installed it, run <code>gcloud components update</code> to have the latest available version.</p>
 <p>Run this command to log in to GCP</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud auth login</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud auth login</code></pre></td></tr></table>
+</div>
+</div>
 <p>Set the project that you will be working with. Replace <code>PROJECT_ID</code> by the actual project ID.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud config <span class="nb">set</span> project PROJECT_ID</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud config <span class="nb">set</span> project PROJECT_ID</code></pre></td></tr></table>
+</div>
+</div>
 <p>Export the project ID as the environment variable <code>$GCLOUD_PROJECT</code>; it will save us from the mechanical task of typing and typos.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">export</span> <span class="nv">GCLOUD_PROJECT</span><span class="o">=</span><span class="sb">`</span><span class="o">(</span>gcloud config get-value project<span class="o">)</span><span class="sb">`</span></code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">GCLOUD_PROJECT</span><span class="o">=</span><span class="sb">`</span><span class="o">(</span>gcloud config get-value project<span class="o">)</span><span class="sb">`</span></code></pre></td></tr></table>
+</div>
+</div>
 <p>You can list all the projects you have access to with the current account by running <code>gcloud projects list</code>.</p>
 <p>Let's also export the project number, because we are going to use it multiple times.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">export</span> <span class="nv">PROJECT_NUMBER</span><span class="o">=</span><span class="sb">`</span><span class="o">(</span>gcloud projects describe <span class="nv">$GCLOUD_PROJECT</span> --format<span class="o">=</span><span class="s2">&#34;value(projectNumber)&#34;</span><span class="o">)</span><span class="sb">`</span></code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">PROJECT_NUMBER</span><span class="o">=</span><span class="sb">`</span><span class="o">(</span>gcloud projects describe <span class="nv">$GCLOUD_PROJECT</span> --format<span class="o">=</span><span class="s2">&#34;value(projectNumber)&#34;</span><span class="o">)</span><span class="sb">`</span></code></pre></td></tr></table>
+</div>
+</div>
 <h3 id="enable-apis">Enable APIs</h3>
 <p>To build container images on the GCP and deploy them to Cloud Run, we have to enable the Resource Manager API, Cloud Build API, the Container Registry API and Cloud Run API:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud services <span class="nb">enable</span> cloudbuild.googleapis.com <span class="se">\
-</span><span class="ln">2</span><span class="se"></span>    containerregistry.googleapis.com <span class="se">\
-</span><span class="ln">3</span><span class="se"></span>    cloudresourcemanager.googleapis.com <span class="se">\
-</span><span class="ln">4</span><span class="se"></span>    run.googleapis.com</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud services <span class="nb">enable</span> cloudbuild.googleapis.com <span class="se">\
+</span><span class="se"></span>    containerregistry.googleapis.com <span class="se">\
+</span><span class="se"></span>    cloudresourcemanager.googleapis.com <span class="se">\
+</span><span class="se"></span>    run.googleapis.com</code></pre></td></tr></table>
+</div>
+</div>
 <h3 id="build-and-run">Build and run</h3>
 <p>Now let's build a docker image and push it to Container Registry with the command below.
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud builds submit --tag gcr.io/<span class="nv">$GCLOUD_PROJECT</span>/bdays-reminder:0.1</code></pre></div></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud builds submit --tag gcr.io/<span class="nv">$GCLOUD_PROJECT</span>/bdays-reminder:0.1</code></pre></td></tr></table>
+</div>
+</div></p>
 <p>Let's deploy the container image we just built to Cloud Run
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud beta run deploy bdays-reminder-service-m <span class="se">\
-</span><span class="ln">2</span><span class="se"></span>   --image gcr.io/<span class="nv">$GCLOUD_PROJECT</span>/bdays-reminder:0.1 <span class="se">\
-</span><span class="ln">3</span><span class="se"></span>   --region us-central1 --platform managed --memory 128Mi <span class="se">\
-</span><span class="ln">4</span><span class="se"></span>   --timeout <span class="m">60</span> --allow-unauthenticated</code></pre></div></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud beta run deploy bdays-reminder-service-m <span class="se">\
+</span><span class="se"></span>   --image gcr.io/<span class="nv">$GCLOUD_PROJECT</span>/bdays-reminder:0.1 <span class="se">\
+</span><span class="se"></span>   --region us-central1 --platform managed --memory 128Mi <span class="se">\
+</span><span class="se"></span>   --timeout <span class="m">60</span> --allow-unauthenticated</code></pre></td></tr></table>
+</div>
+</div></p>
 <p>Now, you are probably thinking, didn't you write &quot;Tell Cloud Build to do everything&quot;, but Cloud Build didn't actually do everything, we just manually deployed a container image to Cloud Run. You are right. We tell Cloud Build to do everything in the section below.</p>
 <h3 id="define-the-build-steps-in-a-config-file">Define the build steps in a config file</h3>
 <p>Instead of typing the build and running commands one after the other, we can use Cloud Build configuration file to do it at once.
@@ -580,9 +752,18 @@ In the same directory that contains our app code and the Dockerfile, let's creat
 <p>Before we start the build, let's talk (think) about IAM permissions.</p>
 <p>If we were using Cloud Console, we wouldn't have any problem with the build and deployment. In fact when we previously ran <code>gcloud builds</code> and <code>gcloud beta run deploy</code> commands we didn't worry about permissions. Why? Because as project owner, you have all the permissions to do everything to your project including screwing everything up. But since we are going to use Cloud Build to deploy our container image to Cloud Run, Cloud Build service account has to be granted Cloud Run Admin role, else it can't deploy to Cloud Run. The same thing apply to other GCP services. For Cloud Build to interact with other GCP services, we have to grant Cloud Build service account the necessary roles so it has the permission to perform the tasks.</p>
 <p>With the command below, we are adding an IAM policy binding for the role of <code>roles/run.admin</code> to the Cloud Build service account which is <code>$PROJECT_NUMBER@cloudbuild.gserviceaccount.com</code>. Remember that we exported the actual project number as the env var <code>$PROJECT_NUMBER</code>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud projects add-iam-policy-binding <span class="nv">$GCLOUD_PROJECT</span> <span class="se">\
-</span><span class="ln">2</span><span class="se"></span>      --member<span class="o">=</span><span class="s2">&#34;serviceAccount:</span><span class="nv">$PROJECT_NUMBER</span><span class="s2">@cloudbuild.gserviceaccount.com&#34;</span> <span class="se">\
-</span><span class="ln">3</span><span class="se"></span>      --role<span class="o">=</span><span class="s1">&#39;roles/run.admin&#39;</span></code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud projects add-iam-policy-binding <span class="nv">$GCLOUD_PROJECT</span> <span class="se">\
+</span><span class="se"></span>      --member<span class="o">=</span><span class="s2">&#34;serviceAccount:</span><span class="nv">$PROJECT_NUMBER</span><span class="s2">@cloudbuild.gserviceaccount.com&#34;</span> <span class="se">\
+</span><span class="se"></span>      --role<span class="o">=</span><span class="s1">&#39;roles/run.admin&#39;</span></code></pre></td></tr></table>
+</div>
+</div>
 <p>If it worked, the output would look like this. Our command added lines 24-26.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -654,10 +835,20 @@ version: <span class="m">1</span></code></pre></td></tr></table>
 </div>
 <p>We have to pay attention to another thing which is that a <a href="https://cloud.google.com/iam/docs/service-accounts#service_account_permissions">service account is also a resource</a> besides being an identity. So as a GCP resource, they have IAM policies. A service account has to have the Service Account user role to be able to run operations as a service account 🤯. In our case, we have to grant the Service Account User role (<code>roles/iam.serviceAccountUser</code>) for Cloud Run service account to the Cloud Build service account. We will grant it at the service account level, not at the project level. Wait whaaa? :confused:.</p>
 <p>Now let's run the command that will grant the service account user role to the service account. We know the Cloud Build service account identifier. But what about Cloud Run's? <a href="https://cloud.google.com/run/docs/securing/service-identity#runtime_service_account">Cloud Run uses the Compute Engine default service account by default</a> (<code>$PROJECT_NUMBER-compute@developer.gserviceaccount.com</code>). However it's not recommended to work with this default setup, because the Compute Engine default service account have read and write access to all resources in your GCP project. That's too much power. Good IAM policies should always follow the principle of least privilege. But let's go with the default for now.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud iam service-accounts add-iam-policy-binding <span class="se">\
-</span><span class="ln">2</span><span class="se"></span>	<span class="nv">$PROJECT_NUMBER</span>-compute@developer.gserviceaccount.com <span class="se">\
-</span><span class="ln">3</span><span class="se"></span>	--member<span class="o">=</span><span class="s2">&#34;serviceAccount:</span><span class="nv">$PROJECT_NUMBER</span><span class="s2">@cloudbuild.gserviceaccount.com&#34;</span> <span class="se">\
-</span><span class="ln">4</span><span class="se"></span>	--role<span class="o">=</span><span class="s1">&#39;roles/iam.serviceAccountUser&#39;</span></code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud iam service-accounts add-iam-policy-binding <span class="se">\
+</span><span class="se"></span>	<span class="nv">$PROJECT_NUMBER</span>-compute@developer.gserviceaccount.com <span class="se">\
+</span><span class="se"></span>	--member<span class="o">=</span><span class="s2">&#34;serviceAccount:</span><span class="nv">$PROJECT_NUMBER</span><span class="s2">@cloudbuild.gserviceaccount.com&#34;</span> <span class="se">\
+</span><span class="se"></span>	--role<span class="o">=</span><span class="s1">&#39;roles/iam.serviceAccountUser&#39;</span></code></pre></td></tr></table>
+</div>
+</div>
 <p>If it worked, the output would look like this.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -679,33 +870,92 @@ etag: <span class="nv">AmPYO1jtPiLH</span><span class="o">=</span>
 version: <span class="m">1</span></code></pre></td></tr></table>
 </div>
 </div>
-<h3 id="tired_face-ok-ok-now-the-actual-build">:tired_face: ok ok, now the actual build</h3>
+<h3 id="lets-build-it">Let's build it</h3>
 <p>Now we are all set to start the build by running the command below from the directory containing the <code>Dockerfile</code> and the <code>cloudbuild.yaml</code> file. Run the magic command below:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud builds submit</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud builds submit</code></pre></td></tr></table>
+</div>
+</div>
 <p>After successful completion, you will see <strong>SUCCESS</strong> at the end of the output
 and a message like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>Service <span class="o">[</span>bdays-reminder-service<span class="o">]</span> revision <span class="o">[</span>bdays-reminder-service-0001<span class="o">]</span>
-<span class="ln">2</span>has been deployed and is serving <span class="m">100</span> percent of traffic at
-<span class="ln">3</span>https://bdays-reminder-service-<span class="o">[</span>hash<span class="o">]</span>.a.run.app</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">Service <span class="o">[</span>bdays-reminder-service<span class="o">]</span> revision <span class="o">[</span>bdays-reminder-service-0001<span class="o">]</span>
+has been deployed and is serving <span class="m">100</span> percent of traffic at
+https://bdays-reminder-service-<span class="o">[</span>hash<span class="o">]</span>.a.run.app</code></pre></td></tr></table>
+</div>
+</div>
 <p>To obtain the service URL, run the following command:
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nv">SERVICE_URL</span><span class="o">=</span><span class="k">$(</span>gcloud beta run services describe pdf-converter --platform managed --region us-central1 --format<span class="o">=</span><span class="s2">&#34;value(status.url)&#34;</span><span class="k">)</span></code></pre></div></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">SERVICE_URL</span><span class="o">=</span><span class="k">$(</span>gcloud beta run services describe pdf-converter --platform managed --region us-central1 --format<span class="o">=</span><span class="s2">&#34;value(status.url)&#34;</span><span class="k">)</span></code></pre></td></tr></table>
+</div>
+</div></p>
 <p>Make a GET request to your new service:
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>curl <span class="nv">$SERVICE_URL</span></code></pre></div></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">curl <span class="nv">$SERVICE_URL</span></code></pre></td></tr></table>
+</div>
+</div></p>
 <p>Run this command to list your Cloud Run services.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud beta run services list --platform<span class="o">=</span>managed</code></pre></div>
-<h1 id="8-create-a-con-job-to-invoke-the-cloud-run-service">8. Create a con job to invoke the Cloud Run service</h1>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud beta run services list --platform<span class="o">=</span>managed</code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="8-create-a-con-job-to-invoke-the-cloud-run-service">8. Create a con job to invoke the Cloud Run service</h2>
 <p>We just need to to create a job to periodically call the HTTP endpoint of the service we just deployed. Get the URL and replace it in the commands below:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud scheduler <span class="nb">jobs</span> create http bday-reminder-job <span class="se">\
-</span><span class="ln">2</span><span class="se"></span>   --schedule<span class="o">=</span><span class="s2">&#34;0 17 * * *&#34;</span> <span class="se">\
-</span><span class="ln">3</span><span class="se"></span>   --uri<span class="o">=</span><span class="s2">&#34;YOUR_URL/birthday_friends&amp;notify=true&#34;</span> <span class="se">\
-</span><span class="ln">4</span><span class="se"></span>   --http-method<span class="o">=</span>GET</code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud scheduler <span class="nb">jobs</span> create http bday-reminder-job <span class="se">\
+</span><span class="se"></span>   --schedule<span class="o">=</span><span class="s2">&#34;0 17 * * *&#34;</span> <span class="se">\
+</span><span class="se"></span>   --uri<span class="o">=</span><span class="s2">&#34;YOUR_URL/birthday_friends&amp;notify=true&#34;</span> <span class="se">\
+</span><span class="se"></span>   --http-method<span class="o">=</span>GET</code></pre></td></tr></table>
+</div>
+</div>
 <p>When we were deploying the image to Cloud Run, we used the <code>--allow-unauthenticated</code> flag, which makes Cloud Run services plublic, accessible to anybody who knows the HTTP endpoints. If we wanted to protect it we'd have used the <code>--no-allow-unauthenticated</code> flag instead. And in that case, to invoke the secured endpoint using Cloud Scheduler, we'd have to pass the authentication token to the header of the request like in the command below:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>gcloud scheduler <span class="nb">jobs</span> create http bday-reminder-job  <span class="se">\
-</span><span class="ln">2</span><span class="se"></span>   --schedule<span class="o">=</span><span class="s2">&#34;0 17 * * *&#34;</span>  <span class="se">\
-</span><span class="ln">3</span><span class="se"></span>   --uri<span class="o">=</span><span class="s2">&#34;</span><span class="nv">$SERVICE_URL</span><span class="s2">/birthday_friends&amp;notify=true&#34;</span>  <span class="se">\
-</span><span class="ln">4</span><span class="se"></span>   --http-method<span class="o">=</span>GET <span class="se">\
-</span><span class="ln">5</span><span class="se"></span>   --time-zone<span class="o">=</span><span class="s2">&#34;Africa/Accra&#34;</span> <span class="se">\
-</span><span class="ln">6</span><span class="se"></span>   --headers<span class="o">=</span><span class="s2">&#34;{&#39;Authorization&#39;=&#39;Bearer `(gcloud auth print-identity-token)`&#39;}&#34;</span></code></pre></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">gcloud scheduler <span class="nb">jobs</span> create http bday-reminder-job  <span class="se">\
+</span><span class="se"></span>   --schedule<span class="o">=</span><span class="s2">&#34;0 17 * * *&#34;</span>  <span class="se">\
+</span><span class="se"></span>   --uri<span class="o">=</span><span class="s2">&#34;</span><span class="nv">$SERVICE_URL</span><span class="s2">/birthday_friends&amp;notify=true&#34;</span>  <span class="se">\
+</span><span class="se"></span>   --http-method<span class="o">=</span>GET <span class="se">\
+</span><span class="se"></span>   --time-zone<span class="o">=</span><span class="s2">&#34;Africa/Accra&#34;</span> <span class="se">\
+</span><span class="se"></span>   --headers<span class="o">=</span><span class="s2">&#34;{&#39;Authorization&#39;=&#39;Bearer `(gcloud auth print-identity-token)`&#39;}&#34;</span></code></pre></td></tr></table>
+</div>
+</div>
 <p>And that's it. Thanks for reading :raised_hands:. À la prochaine</p>
 
     
