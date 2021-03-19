@@ -17,59 +17,65 @@
         
           &lt;h2 id=&#34;paas&#34;&gt;Paas&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloud Foundry&lt;/strong&gt; is a Platform-as-a-service (PaaS) that enables you to deploy and
-scale apps without managing server. Quota 256 MB of storage.&lt;/p&gt;
+scale apps without managing server.
+&lt;em&gt;Quota: 256 MB of storage.&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;storage&#34;&gt;Storage:&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloud Object Storage&lt;/strong&gt; provides flexible, cost-effective storage for unstructured data.
-You can use up to 25 GB per month for free under this offering.&lt;/p&gt;
+&lt;em&gt;Quota: up to 25 GB per month.&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;database&#34;&gt;Database:&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloudant&lt;/strong&gt; is a scalable JSON document database for web, mobile, IoT and serverless
-applications. You can store 1 GB of data in IBM Cloudant.&lt;/p&gt;
+applications.
+&lt;em&gt;Quota: 1 GB of data storage.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Db2 on Cloud&lt;/strong&gt; is a fully managed cloud SQL database with a turbo-charged Db2 engine.
-Under this offering, the quota is capped at 100 MB of data storage.&lt;/p&gt;
+&lt;em&gt;Quota: 100 MB of data storage.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;devops&#34;&gt;DevOps&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloud Availability Monitoring&lt;/strong&gt; enables you to ensure applications are always
-available and meeting user expectations for response time. Quota for this offering:
-3 million data points per month.&lt;/p&gt;
+available and meeting user expectations for response time.
+&lt;em&gt;Quota: 3 million data points per month.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloud Continuous Delivery&lt;/strong&gt; provides the support for DevOps best practices by using
-Git, issue tracking, CI/CD pipelines and the Eclipse Orion Web IDE in the cloud. The quota
-500 delivery pipeline jobs.&lt;/p&gt;
+Git, issue tracking, CI/CD pipelines and the Eclipse Orion Web IDE in the cloud.
+&lt;em&gt;Quota: 500 delivery pipeline jobs.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloud Container Registry&lt;/strong&gt; manages Docker container images in a fully managed private
-registry. Quota 5 GB per month pull data transfer&lt;/p&gt;
+registry.
+&lt;em&gt;Quota: 5 GB of pull data transfer per month.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;security&#34;&gt;Security&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloud Activity Tracker&lt;/strong&gt; enables you to gain insights about your users and their
-applications with IBM Cloud services. Under this offerring you can inspect the 100,000
-most recent cloud activity events.&lt;/p&gt;
+applications with IBM Cloud services.
+&lt;em&gt;Quota: Query 100,000 most recent cloud activity events.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloud App ID&lt;/strong&gt; adds authentication to your mobile and web apps, and protect your APIs
-and back ends running on IBM Cloud. The quota 1,000 monthly events.&lt;/p&gt;
+and back ends running on IBM Cloud.
+&lt;em&gt;Quota: 1,000 monthly events.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;analytics&#34;&gt;Analytics&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Cloud Analytics Engine&lt;/strong&gt; helps you develop and deploy analytics applications using
-open source Apache Spark and Apache Hadoop. The quota 50 node hours.&lt;/p&gt;
+open source Apache Spark and Apache Hadoop.
+&lt;em&gt;Quota: 50 node hours.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;IBM Streams&lt;/strong&gt; ingest, analyze, monitor and correlate data as it arrives from real-time
-data sources. Quota 1 dedicated application resource&lt;/p&gt;
+data sources.
+&lt;em&gt;Quota: 1 dedicated application resource.&lt;/em&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 
